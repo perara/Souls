@@ -7,6 +7,7 @@ using Alchemy.Classes;
 using Newtonsoft.Json;
 using System.Net;
 using System.Diagnostics;
+using System.Threading;
 
 namespace ServerWBSCKTest
 {
@@ -31,25 +32,32 @@ namespace ServerWBSCKTest
                 TimeOut = new TimeSpan(0, 5, 0)
             };
 
-            GameEngine engine = new GameEngine();
-            engine.pollQueue();
-
-
             aServer.Start();
 
-            // Accept commands on the console and keep it alive
-            var command = string.Empty;
-            while (command != "exit")
+            // Create a new thread for console input
+            Thread serverThread = new Thread(() =>
             {
-                command = Console.ReadLine();
-                Response r = new Response();
-                r.Data = command;
-                r.Type = ResponseType.Message;
-                Broadcast(command, OnlinePlayers.Values);
-            }
+                
+                var consoleInput = string.Empty;
+                while (consoleInput != "exit")
+                {
+                    // Read the userInput
+                    consoleInput = Console.ReadLine();
 
-            aServer.Stop();
+                    // Create a response for the client
+                    Response r = new Response();
+                    r.Type = ResponseType.Message;
+                    r.Data = consoleInput;
+
+                    Broadcast(consoleInput, OnlinePlayers.Values);
+                }
+
+                // Stop the server when "exit" is entered //TODO
+                aServer.Stop();
+            });
+            serverThread.Start();
         }
+
 
         /// <summary>
         /// Event fired when a client connects to the Alchemy Websockets server instance.
@@ -169,7 +177,7 @@ namespace ServerWBSCKTest
                 response.Data = new { reData };
 
             }
-            catch(System.InvalidOperationException e)
+            catch (System.InvalidOperationException e)
             {
                 Debug.WriteLine(e.ToString());
                 SendError(e.ToString(), context);
@@ -213,6 +221,7 @@ namespace ServerWBSCKTest
                 }
             }
         }
+
 
         /// <summary>
         /// Defines the type of response to send back to the client for parsing logic
