@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace ServerWBSCKTest
 {
-    class Game
+    class Globals
     {
-        public Player p1 { get; set; }
-        public Player p2 { get; set; }
-        public int gameId { get; set; }
+        public int CardsInDb { get; set; }
 
+        public Globals()
+        {
+            CardsInDb = 5;
 
+        }
+     
     }
 }

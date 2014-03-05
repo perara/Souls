@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerWBSCKTest
+namespace ServerWBSCKTest.Controller
 {
-    class Test
+    class Ability : Model.db_Ability
     {
-        public int id { get; set; }
+
     }
 }
