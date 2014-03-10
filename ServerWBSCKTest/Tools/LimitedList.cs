@@ -39,7 +39,6 @@ namespace ServerWBSCKTest.Tools
             if (this.Count == MaxSize)
             {
                 throw new OverflowException();
-                return false;
             }
             this.Add(item);
             return true;

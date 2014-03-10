@@ -14,21 +14,24 @@ using ServerWBSCKTest.Engine;
 namespace ServerWBSCKTest
 {
 
-    class GameEngine
+    public class GameEngine
     {
         public int gameCounter = 0;
         public static Dictionary<int, GameRoom> games = new Dictionary<int, GameRoom>();
-        public GameQueue gameQueue;
-
-        public Action<Pair<GamePlayer>, Server.Response> cbkSendGame = null; //cbk Callback
-        public Action<int, Server.Response> cbkSendPlayer = null; //cbk Callback
+        public Action<Pair<GamePlayer>, SocketServer.Response> cbkSendGame = null; //cbk Callback
+        public Action<int, SocketServer.Response> cbkSendPlayer = null; //cbk Callback
         public Action<GamePlayer, string> cbkSendError = null;
 
-        public void addCallbacks(Action<Pair<GamePlayer>, Server.Response> cbkSendGame)
+        public GameEngine()
+        {
+
+        }
+
+        public void addCallbacks(Action<Pair<GamePlayer>, SocketServer.Response> cbkSendGame)
         {
             this.cbkSendGame = cbkSendGame;
         }
-        public void addCallbacks(Action<int, Server.Response> cbkSendPlayer)
+        public void addCallbacks(Action<int, SocketServer.Response> cbkSendPlayer)
         {
             this.cbkSendPlayer = cbkSendPlayer;
         }
@@ -38,12 +41,6 @@ namespace ServerWBSCKTest
             this.cbkSendError = cbkSendError;
         }
 
-        public GameEngine()
-        {
-            // Initialize game queue
-            this.gameQueue = new GameQueue();
-        }
-
         // Checks the queue for players, sorts them after rank and matchmake them
         public void pollQueue()
         {
@@ -51,8 +48,8 @@ namespace ServerWBSCKTest
             {
                 while (true)
                 {
-                    bool matchMaked = gameQueue.matchPlayers(initGame);
-                    Console.WriteLine("\t\t\t\t\t\t\tCurrent in queue: " + gameQueue.queue.Count());
+                    bool matchMaked = GameQueue.getInstance().matchPlayers(initGame);
+                    Console.WriteLine("\t\t\t\t\t\t\tCurrent in queue: " + GameQueue.getInstance().queue.Count());
                     Thread.Sleep(5000);
                 }
             });
@@ -65,12 +62,14 @@ namespace ServerWBSCKTest
         {
             GamePlayer p1 = JSONHelper.SeDerialize<Player, GamePlayer>(players.First);
             GamePlayer p2 = JSONHelper.SeDerialize<Player, GamePlayer>(players.Second);
+
             Pair<GamePlayer> gPlayers = new Pair<GamePlayer>(p1, p2);
 
             // Create a game
-            games.Add(gameCounter, new GameRoom(gPlayers, gameCounter));
+            GameRoom newRoom = new GameRoom(gPlayers, gameCounter);
+            games.Add(gameCounter, newRoom);
 
-            Server.Response response = generateGameUpdate(gameCounter);
+            SocketServer.Response response = generateGameUpdate(gameCounter);
             cbkSendGame(gPlayers, response);
             gameCounter++;
 
@@ -78,8 +77,8 @@ namespace ServerWBSCKTest
    
         public void QueuePlayer(Player player)
         {
-            gameQueue.addPlayer(player);
-            cbkSendPlayer(player.id, new Server.Response(Server.ResponseType.QUEUED_OK, "Queued player!"));
+            GameQueue.getInstance().addPlayer(player);
+            cbkSendPlayer(player.id, new SocketServer.Response(GameDataHandler.ResponseType.QUEUED_OK, "You are now in queue!"));
         }
 
 
@@ -96,9 +95,6 @@ namespace ServerWBSCKTest
             {
                 if (!checkTurn(gameId, authPlayer)) return;
 
-
-
-
                 // Check if TURN player can use selected card (mana cost)
                 if (authPlayer.mana >= authPlayer.handCards[card].cost)
                 {
@@ -107,7 +103,7 @@ namespace ServerWBSCKTest
                 }
                 else
                 {
-                    this.cbkSendPlayer(authPlayer.id, new Server.Response(Server.ResponseType.GAME_NOT_ENOUGH_MANA, "Not enough mana!"));
+                    this.cbkSendPlayer(authPlayer.id, new SocketServer.Response(GameDataHandler.ResponseType.GAME_OOM, "Not enough mana!"));
                     return;
                 }
 
@@ -169,13 +165,10 @@ namespace ServerWBSCKTest
             if ((authPlayer = authenticateHash(gameId, hash)) != null )
             {
                 if (!checkTurn(gameId, authPlayer)) return;
-              
-
                 GamePlayer opponent = games[gameId].getOpponent(authPlayer);
+
                 if (opponent != null)
                 {
-
-
                     // Attack Card and shaise, must authenticate the Move
                     Card atkCard = authPlayer.handCards[attacker];
                     Card defCard = opponent.handCards[defender];
@@ -187,25 +180,17 @@ namespace ServerWBSCKTest
 
                     this.cbkSendGame(new Pair<GamePlayer>(authPlayer, opponent), generateGameUpdate(gameId));
                 }
-                else
-                {
-                    cbkSendError(authPlayer, "Error!, Opponent did NOT EXIST  (RequestCardAttack)");
-                }
+                else cbkSendError(authPlayer, "Error!, Opponent did NOT EXIST  (RequestCardAttack)");
             }
-            else
-            {
-                cbkSendError(authPlayer, "Error!, Authentication failed (HASH) (RequestCardAttack)");
-            }
+            else cbkSendError(authPlayer, "Error!, Authentication failed (HASH) (RequestCardAttack)");
         }
 
-
-
-        public Server.Response generateGameUpdate(int gameId)
+        public SocketServer.Response generateGameUpdate(int gameId)
         {
             // Send entire game
             GameData gd = new GameData(games[gameId]);
             
-            return new Server.Response(Server.ResponseType.GAME_UPDATE, gd);
+            return new SocketServer.Response(GameDataHandler.ResponseType.GAME_UPDATE, gd);
         }
 
         public GamePlayer authenticateHash(int gameId, string hash)
@@ -221,15 +206,8 @@ namespace ServerWBSCKTest
 
             }
 
-            if (player != null)
-            {
-                return player;
-            }
-            else
-            {
-                // Player does not exists in this game. (with taht hash nanyyotkwe)
-                return null;
-            }
+            if (player != null) return player;
+            else return null;  // Player does not exists in this game. (with taht hash nanyyotkwe) hilsen per
         }
     }
 }

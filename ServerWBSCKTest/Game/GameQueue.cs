@@ -11,14 +11,14 @@ namespace ServerWBSCKTest
 {
     public class GameQueue
     {
+        private static GameQueue instance = null;
         public LinkedList<Player> queue { get; set; }
-        public GameQueue() {
+        private GameQueue() 
+        {
             queue = new LinkedList<Player>();
         }
         public bool matchPlayers(Action<Pair<Player>> initGame)
         {
-
-
             Pair<Player> matchedPlayers = null;
 			if(queue.Count() >= 2)
             {
@@ -46,6 +46,12 @@ namespace ServerWBSCKTest
         public bool removePlayer(Player p)
         {
             return queue.Remove(p);
+        }
+
+        public static GameQueue getInstance()
+        {
+            if (GameQueue.instance == null) GameQueue.instance = new GameQueue();
+            return instance;
         }
     }
 }

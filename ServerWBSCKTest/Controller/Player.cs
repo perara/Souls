@@ -11,6 +11,7 @@ namespace ServerWBSCKTest
     public class Player : Model.db_Player
     {
         public string hash { get; set; }
+        public bool chatActive { get; set; }
         public bool validateHash()
         {
             using (var db = new Model.soulsEntities())

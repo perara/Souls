@@ -13,6 +13,7 @@ using ServerWBSCKTest.Game;
 using Alchemy.Classes;
 using ServerWBSCKTest.Engine;
 using ServerWBSCKTest.Tools;
+using ServerWBSCKTest.Chat;
 
 namespace ServerWBSCKTest
 {
@@ -21,17 +22,27 @@ namespace ServerWBSCKTest
         static void Main(string[] args)
         {
 
-
+            //WebSocketRawTest srv = new WebSocketRawTest();
 
             // Initialize GameEngine
-            GameEngine engine = new GameEngine();
-            engine.pollQueue();
+            GameEngine gameEngine = new GameEngine();
+            ChatEngine chatEngine = new ChatEngine();
+            gameEngine.pollQueue();
 
-            Server srv = new Server(engine);
-            engine.addCallbacks((Action<Pair<GamePlayer>, Server.Response>)srv.Send);
-            engine.addCallbacks((Action<int, Server.Response>)srv.Send);
-            engine.addErrorCallback((Action<GamePlayer, string>)srv.SendError);
-       
+            GameDataHandler gameDataHandler = new GameDataHandler(gameEngine);
+            ChatDataHandler chatDataHandler = new ChatDataHandler(chatEngine);
+
+            SocketServer srv = new SocketServer(gameDataHandler, chatDataHandler);
+
+            gameEngine.addCallbacks((Action<Pair<GamePlayer>, SocketServer.Response>)srv.Send);
+            gameEngine.addCallbacks((Action<int, SocketServer.Response>)srv.Send);
+            gameEngine.addErrorCallback((Action<GamePlayer, string>)srv.SendError);
+
+            chatEngine.addCallbacks((Action<LinkedList<UserContext>, SocketServer.Response>)srv.Send);
+            
+
+            //ChatEngine chatEngine = new ChatEngine();
+            //chatEngine.addCallbacks((Action<LinkedList<UserContext>, ChatServer.Response>)chatSrv.Send);
         }
     }
 }
