@@ -40,11 +40,13 @@ namespace ServerWBSCKTest
 		}
         public void addPlayer(Player player)
         {
+            player.inQueue = true;
             this.queue.AddLast(player);
         }
 
         public bool removePlayer(Player p)
         {
+            p.inQueue = false;
             return queue.Remove(p);
         }
 

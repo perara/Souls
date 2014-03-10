@@ -77,8 +77,17 @@ namespace ServerWBSCKTest
    
         public void QueuePlayer(Player player)
         {
-            GameQueue.getInstance().addPlayer(player);
-            cbkSendPlayer(player.id, new SocketServer.Response(GameDataHandler.ResponseType.QUEUED_OK, "You are now in queue!"));
+            if (!player.inQueue)
+            {
+                GameQueue.getInstance().addPlayer(player);
+                Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " queued!");
+                cbkSendPlayer(player.id, new SocketServer.Response(GameDataHandler.ResponseType.QUEUED_OK, "You are now in queue!"));
+            }
+            else
+            {
+                Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " tried to queue twice!");
+                cbkSendPlayer(player.id, new SocketServer.Response(GameDataHandler.ResponseType.QUEUED_ERROR, "You are already in queue!"));
+            }
         }
 
 

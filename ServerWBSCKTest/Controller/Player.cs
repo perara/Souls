@@ -12,6 +12,7 @@ namespace ServerWBSCKTest
     {
         public string hash { get; set; }
         public bool chatActive { get; set; }
+        public bool inQueue { get; set; }
         public bool validateHash()
         {
             using (var db = new Model.soulsEntities())
@@ -51,6 +52,5 @@ namespace ServerWBSCKTest
         }
 
 
-        
     }
 }

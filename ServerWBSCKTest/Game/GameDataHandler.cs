@@ -24,7 +24,6 @@ namespace ServerWBSCKTest.Engine
                 // GAME LOGIC REQUESTS
                 case GameType.QUEUE:
                     gameEngine.QueuePlayer(SocketServer.OnlinePlayers[context]);
-                    Console.WriteLine("\t\t\t\t\t\t\t" + context.ClientAddress + " queued!");
                     break;
 
                 case GameType.ATTACK:
