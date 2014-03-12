@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Alchemy.Classes;
 using ServerWBSCKTest.Engine;
+using ServerWBSCKTest.Tools;
 
 namespace ServerWBSCKTest.Chat
 {
@@ -13,33 +13,56 @@ namespace ServerWBSCKTest.Chat
         // Room ID
         public int id { get; set; }
 
-        // If false, first in clients list is leader and may kick other clients
+        // If false, first client in clients list is leader and may kick other clients
         public bool isStatic { get; set; }
 
         //List of clients in room. First in list is leader.
-        public LinkedList<UserContext> clients { get; set; }
+        public LinkedList<Player> clients { get; set; }
 
-        public ChatRoom(UserContext client)
+        public ChatRoom(Player client)
         {
-            clients = new LinkedList<UserContext>();
+            isStatic = false;
+            clients = new LinkedList<Player>();
             clients.AddFirst(client);
+            
         }
-        public ChatRoom(LinkedList<UserContext> clientList)
+        public ChatRoom(LinkedList<Player> clientList)
         {
-            clients = new LinkedList<UserContext>();
+            isStatic = false;
+            clients = new LinkedList<Player>();
             clients.Concat(clients);
         }
 
-        public bool AddClient(UserContext client)
+        public ChatRoom(Pair<Player> clientList)
+        {
+            isStatic = true;
+            clients = new LinkedList<Player>();
+            clients.Concat(clients);
+        }
+
+        public bool AddClient(Player client)
         {
             if (clients.Contains(client)) return false; // Return if client already is in room
             clients.AddLast(client); // Add client to room
             return (clients.Contains(client)) ? true : false; // Checks if the client was added successfully
         }
 
-        public bool RemoveClient(UserContext client)
+        public bool RemoveClient(Player client)
         {
             return (clients.Remove(client)) ? true : false;
+        }
+
+        public bool isLeader(Player client)
+        {
+            return (this.clients.First().Equals(client)) ? true : false;
+        }
+
+        public void Broadcast(Response message)
+        {
+            foreach (Player client in clients)
+            {
+                client.playerContext.SendTo(message);
+            }
         }
     }
 }

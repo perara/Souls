@@ -10,31 +10,59 @@ namespace ServerWBSCKTest.Game
 {
     public class GameData
     {
-        public int gameId;
-        public List<Card> player_one_hand;
-        public List<Card> player_one_board;
 
-        public List<Card> player_two_hand;
-        public List<Card> player_two_board;
+        public Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
 
-        public int round;
-
+        /// <summary>
+        /// Its important that the PREFIX p1_ or p2_ is specified on those fields which is seperate from both players. this will be used to determine the final structure of the JSON
+        /// </summary>
+        /// <param name="room"></param>
         public GameData(GameRoom room)
         {
-            player_one_hand = new List<Card>();
-            player_one_board = new List<Card>();
+            data.Add("p1_hand", room.players.First.handCards);
+            data.Add("p2_hand", room.players.Second.handCards);
+            data.Add("p1_board", room.players.First.boardCards);
+            data.Add("p2_board", room.players.Second.boardCards);
+            data.Add("gameId", room.gameId);
+            data.Add("round", room.round);
+            data.Add("p1_hand_count", room.players.First.handCards.Count);
+            data.Add("p2_hand_count", room.players.Second.handCards.Count);
+            data.Add("p1", room.players.First.GetPlayerData());
+            data.Add("p2", room.players.Second.GetPlayerData());
+            data.Add("p1_ident", 1);
+            data.Add("p2_ident", 2);
+        }
 
-            player_two_hand = new List<Card>();
-            player_two_board = new List<Card>();
 
-            this.gameId = room.gameId;
 
-            this.player_one_hand = room.players.First.handCards;
-            this.player_one_board = room.players.First.boardCards;
-
-            this.player_two_hand = room.players.Second.handCards;
-            this.player_two_board = room.players.Second.boardCards;
-            this.round = room.round;
+        /// <summary>
+        ///  data.Add("p1_hand", room.players.First.handCards);
+        ///   data.Add("p2_hand", room.players.Second.handCards);
+        ///data.Add("p1_board", room.players.First.boardCards);
+        ///data.Add("p2_board", room.players.Second.boardCards);
+        ///data.Add("gameId", this.gameId = room.gameId);
+        ///data.Add("round", room.round);
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public Dictionary<string, dynamic> Get(string[] values, bool playerOne)
+        {
+            Dictionary<string, dynamic> retData = new Dictionary<string, dynamic>();
+            foreach (string i in values)
+            {
+                dynamic value;
+                if (data.TryGetValue(i, out value))
+                {
+                    retData.Add((playerOne) ?
+                        i.Replace("p1_", "").Replace("p1", "player").Replace("p2", "opponent") :
+                        i.Replace("p2_", "").Replace("p2", "player").Replace("p1", "opponent"), value);
+                }
+                else
+                {
+                    Console.WriteLine("Wrong INDEX");
+                }
+            }
+            return retData;
         }
     }
 }

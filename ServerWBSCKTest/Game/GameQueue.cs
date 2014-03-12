@@ -38,19 +38,19 @@ namespace ServerWBSCKTest
 			}
             return false; // Matchmaking did not happen
 		}
-        public void addPlayer(Player player)
+        public void AddPlayer(Player player)
         {
             player.inQueue = true;
             this.queue.AddLast(player);
         }
 
-        public bool removePlayer(Player p)
+        public bool removePlayer(Player player)
         {
-            p.inQueue = false;
-            return queue.Remove(p);
+            player.inQueue = false;
+            return queue.Remove(player);
         }
 
-        public static GameQueue getInstance()
+        public static GameQueue GetInstance()
         {
             if (GameQueue.instance == null) GameQueue.instance = new GameQueue();
             return instance;

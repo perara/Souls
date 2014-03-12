@@ -17,6 +17,7 @@ namespace ServerWBSCKTest.Model
         public db_Ability()
         {
             this.db_Player_Type = new HashSet<db_Player_Type>();
+            this.db_Card = new HashSet<db_Card>();
         }
     
         public int id { get; set; }
@@ -24,5 +25,6 @@ namespace ServerWBSCKTest.Model
         public string parameter { get; set; }
     
         public virtual ICollection<db_Player_Type> db_Player_Type { get; set; }
+        public virtual ICollection<db_Card> db_Card { get; set; }
     }
 }

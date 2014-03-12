@@ -1,348 +1,456 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Alchemy;
-using Alchemy.Classes;
+using System.Text;
+using System.Threading.Tasks;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 using Newtonsoft.Json;
-using System.Net;
-using System.Diagnostics;
-using System.Threading;
-using ServerWBSCKTest.Tools;
-using ServerWBSCKTest.Engine;
 using ServerWBSCKTest.Chat;
-
-
-namespace ServerWBSCKTest
+using System.Collections.Concurrent;
+using Newtonsoft;
+using ServerWBSCKTest.Model;
+// https://github.com/sta/websocket-sharp#websocket-server
+namespace ServerWBSCKTest.Engine
 {
-    public class SocketServer
+    public class GameService : General
     {
 
         /// <summary>
-        /// Store the list of online users. Wish I had a ConcurrentList. 
+        /// This is the response type which the servers sends back to the client
+        /// GENERAL: 0-99
+        /// QUEUE: 100 - 199
+        /// GAME: 200-299
         /// </summary>
-        /// 
-        public static ConcurrentDictionary<UserContext, Player> OnlinePlayers = new ConcurrentDictionary<UserContext, Player>();
-        GameDataHandler gameDataHandler;
-        ChatDataHandler chatDataHandler;
-        public SocketServer(GameDataHandler gameDataHandler, ChatDataHandler chatDataHandler)
+        public enum GameResponseType
         {
-            this.gameDataHandler = gameDataHandler;
-            this.chatDataHandler = chatDataHandler;
-            // Initialize the server on port 81, accept any IPs, and bind events.
-            var aServer = new WebSocketServer(8140, IPAddress.Any)
-            {
-                //SubProtocol = new [] {"test2"};
-                OnReceive = OnReceive,
-                OnSend = OnSend,
-                OnConnected = OnConnect,
-                OnDisconnect = OnDisconnect,
-                TimeOut = new TimeSpan(0, 5, 0)
-            };
-            
-            aServer.Start();
-            
-            // Create a new thread for console input
-            Thread serverThread = new Thread(() =>
-            {
+            // Queue
+            QUEUE_OK = 100,
+            QUEUE_ALREADY_IN = 101,
+            QUEUE_UNQUEUE = 102,
+            QUEUE_ERROR = 103,
 
-                var consoleInput = string.Empty;
-                while (consoleInput != "exit")
-                {
-                    // Read the userInput
-                    consoleInput = Console.ReadLine();
+            // Game
+            GAME_UPDATE = 201,
+            GAME_NOT_YOUR_TURN = 202,
+            GAME_NEXT_ROUND_FAIL = 203,
+            GAME_AUTH_FAIL = 204,
+            GAME_OPPONENT_NOEXIST = 205,
+            GAME_CREATE = 206,
 
-                    // Create a response for the client
-                    //Response r = new Response(ResponseType.CHAT_MESSAGE, consoleInput);
+            GAME_USECARD_OK = 207,
+            GAME_USECARD_OOM = 208,
 
-                    Broadcast(consoleInput, OnlinePlayers.Keys);
-                }
-
-                // Stop the server when "exit" is entered //TODO
-                aServer.Stop();
-            });
-            serverThread.Start();
         }
 
 
         /// <summary>
-        /// Event fired when a client connects to the Alchemy Websockets server instance.
-        /// Adds the client to the online users list.
+        /// Defines a type of command that the client sends to the server
         /// </summary>
-        /// <param name="context">The user's connection context</param>
-        public void OnConnect(UserContext context)
+        private enum GameType
         {
-            Console.Write("Client connected");
-            
+            // Game Stage 
+            QUEUE = 3,
+            ATTACK = 4,
+            USECARD = 5,
+            NEXTROUND = 6,
+        }
+
+        public GameEngine engine;
+
+        public GameService(GameEngine engine)
+        {
+            this.engine = engine;
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+
+            // Parse JSON string to dynamic object
+            this.data = JsonConvert.DeserializeObject(e.Data);
+            this.payload = this.data.Payload;
+
+            switch ((int)data.Type)
+            {
+                // GAME LOGIC REQUESTS
+                case (int)GameType.QUEUE:
+                    if (Authenticate(this))
+                        engine.QueuePlayer(OnlinePlayers[this]);
+                    break;
+
+                case (int)GameType.ATTACK:
+                    if (Authenticate(this))
+                    {
+                        engine.RequestCardAttack(data.Payload);
+                        Console.WriteLine(data.Payload);
+                    }
+                    break;
+
+                case (int)GameType.USECARD:
+                    if (Authenticate(this))
+                    {
+                        engine.RequestUseCard(OnlinePlayers[this]);
+                        Console.WriteLine(data.Payload);
+                    }
+                    break;
+
+                case (int)GameType.NEXTROUND:
+                    if (Authenticate(this))
+                    {
+                        engine.RequestNextRound(data.Payload);
+                    }
+                    break;
+
+                case (int)GENERAL.LOGIN:
+                    this.Login();
+                    break;
+                case (int)GENERAL.LOGOUT:
+                    if (Authenticate(this))
+                    {
+                        this.Logout();
+                    }
+                    break;
+                case (int)GENERAL.HEARTBEAT:
+                    this.HeartBeat();
+                    break;
+
+            }
+        }
+
+        protected override void OnOpen()
+        {
+            Console.WriteLine("[GAME]: Player {0} connected!", Context.UserEndPoint);
+        }
+
+        protected override void OnError(ErrorEventArgs e)
+        {
+            Console.WriteLine("[GAME]: Error on Player {0}", "UNKNOWN :(");
+        }
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            Console.WriteLine("[GAME]: Player {0} disconnected!", e.Reason);
+        }
+
+    }
+
+    public class ChatService : General
+    {
+        public new enum ResponseType
+        {
+            // General
+            MESSAGE = 3,
+            ERROR = 25
         }
 
         /// <summary>
-        /// Event fired when a data is received from the Alchemy Websockets server instance.
-        /// Parses data as JSON and calls the appropriate message or sends an error message.
+        /// Defines a type of command that the client sends to the server
         /// </summary>
-        /// <param name="context">The user's connection context</param>
-        public void OnReceive(UserContext context)
+        public enum ChatType
         {
-            Console.WriteLine("> Data from :" + context.ClientAddress);
+            ACTIVATE = 0,
+            DEACTIVATE = 1,
+            MESSAGE = 2,
+            NEWROOM = 3,
+            INVITE = 4,
+            KICK = 5,
+            LEAVE = 6
+        }
 
-            string data = context.DataFrame.ToString();
-            try
+        public ChatEngine engine;
+
+        public ChatService(ChatEngine engine)
+        {
+            this.engine = engine;
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            this.data = JsonConvert.DeserializeObject(e.Data);
+            this.payload = this.data.Payload;
+            
+            bool success;
+            int room;
+            string name;
+
+            switch ((ChatType)data.Type)
             {
-                // Fetch the JSON string and convert it to a dynamic object. (Jsonobj)
-                dynamic jsonObject = JsonConvert.DeserializeObject(context.DataFrame.ToString());
-                //ClientData cd = new ClientData(jsonObject);
 
+                // CHAT REQUESTS
+                case ChatType.ACTIVATE:
+                    General.OnlinePlayers[this].chatActive = true;
 
-                Service requestType = (Service)jsonObject.Service;
-                dynamic serviceData = jsonObject.ServiceData;
-                
-                switch (requestType)
-                {
-                    case Service.CHAT:
-                        //Authenticate(context, serviceData);
-                        chatDataHandler.trafficHandler(context, serviceData);
-                        break;
+                    Console.WriteLine("User \"" + General.OnlinePlayers[this].name + "\" logged in to chat");
+                    break;
 
-                    case Service.GAME:
-                        //Authenticate(context, serviceData);
-                        gameDataHandler.trafficHandler(context, serviceData);
-                        break;
+                case ChatType.DEACTIVATE:
+                    General.OnlinePlayers[this].chatActive = false;
 
-                    case Service.GENERAL:
-                        if (serviceData.Type == General.LOGIN) Login(context, serviceData.Payload);
-                        else if (serviceData.Type == General.LOGOUT) OnDisconnect(context);
-                        break;
+                    Console.WriteLine(General.OnlinePlayers[this].name + " exited chat");
+                    break;
 
-                }
-            }
-            catch (Exception exception) // Bad JSON! For shame.
-            {
-                var response = new Response(ResponseType.ERROR, exception.Message);
-                context.Send(JsonConvert.SerializeObject(response));
+                case ChatType.MESSAGE:
+                    room = payload.room;
+
+                    string message = OnlinePlayers[this].name + ": " + payload.message;
+                    Response response = new Response(ResponseType.MESSAGE, message);
+                    engine.chatRooms[room].Broadcast(response);
+
+                    Console.WriteLine(OnlinePlayers[this].name + ": " + payload.message);
+                    break;
+
+                case ChatType.NEWROOM:
+                    engine.addChatRoom(OnlinePlayers[this]);
+                    break;
+
+                case ChatType.INVITE:
+                    room = payload.room;
+
+                    // Checks if client is leader
+                    if (!engine.chatRooms[room].isLeader(OnlinePlayers[this]) || !engine.chatRooms[room].isStatic)
+                    {
+                        Console.WriteLine(General.OnlinePlayers[this].name + " tried to invite without being leader");
+                        return;
+                    }
+
+                    Player invited = OnlinePlayers.Where(x => x.Value.name == (string)payload.name).FirstOrDefault().Value;
+                    success = engine.chatRooms[room].AddClient(invited);
+
+                    if (success) Console.WriteLine(OnlinePlayers[this].name + " invited " + payload.name + " to room: " + room);
+                    else Console.WriteLine("Problem adding " + payload.name + " to room " + room + ". Already in room?");
+                    break;
+
+                case ChatType.KICK:
+                    room = payload.room;
+                    name = payload.name;
+
+                    // Checks if client is leader
+                    if (!engine.chatRooms[room].isLeader(OnlinePlayers[this]) || !engine.chatRooms[room].isStatic)
+                    {
+                        Console.WriteLine(OnlinePlayers[this].name + " tried to kick without being leader");
+                        return;
+                    }
+
+                    Player kick = OnlinePlayers.FirstOrDefault(x => x.Value.name == (string)payload.name).Value;
+                    success = engine.chatRooms[room].RemoveClient(kick);
+
+                    if (success) Console.WriteLine(OnlinePlayers[this].name + " kicked " + payload.name + " from room: " + room);
+                    else Console.WriteLine("Problem kicking " + payload.name + " from room " + room + ". Client not in room?");
+                    break;
+
+                case ChatType.LEAVE:
+                    room = payload.room;
+
+                    engine.chatRooms[room].RemoveClient(OnlinePlayers[this]);
+                    if (engine.chatRooms[room].clients.Count() == 0) engine.chatRooms.Remove(room);
+
+                    Console.WriteLine(payload.name + " left room: " + room);
+                    break;
             }
         }
+
+        protected override void OnOpen()
+        {
+            Console.WriteLine("[CHAT]: Player {0} connected!", Context.UserEndPoint);
+        }
+
+        protected override void OnError(ErrorEventArgs e)
+        {
+            Console.WriteLine("[CHAT]: Error on Player {0}", Context.UserEndPoint);
+        }
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            Console.WriteLine("[CHAT]: Player {0} disconnected!", Context.UserEndPoint);
+        }
+
+    }
+
+    public abstract class General : WebSocketService
+    {
+        public static ConcurrentDictionary<General, Player> OnlinePlayers = new ConcurrentDictionary<General, Player>();
+
+        public dynamic data { get; set; }
+        public dynamic payload { get; set; }
 
         /// <summary>
         /// Register a user's context for the first time with a username, and add it to the list of online users
         /// </summary>
         /// <param name="name">The name to register the user under</param>
         /// <param name="context">The user's connection context</param>
-        public void Login(UserContext context, dynamic data)
+        public void Login()
         {
 
-            // Check if user is already in OnlineUsers
-            if (OnlinePlayers.ContainsKey(context))
+            // Check if user is already in OnlineUsers //TODO WHAT IF ANOTHER CLIENT CONNECTS?
+            if (OnlinePlayers.ContainsKey(this))
             {
-                SendError(context, "Player already logged in or maybe hash is wrong or missing");
+                SendError("Player already logged in or maybe hash is wrong or missing");
                 return;
             }
 
-            OnlinePlayers.TryAdd(context, new Player()); 
-            
-            // Updates the hash and loads the player info from the database if not already loaded
-            OnlinePlayers[context].hash = data.hash;
-            bool success = OnlinePlayers[context].fetchPlayerInfo();
-            if (success) Send(context, new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers[context].name));
-            else
+            if (this.payload.hash != null)
             {
-                Player trash;
-                SendError(context, "Problem fetching player info, client and server hash mismatch");
-                OnlinePlayers.TryRemove(context, out trash);
-            } 
+                Player newPlayer = new Player();
+                newPlayer.SessionID = this.ID;
+                newPlayer.hash = this.payload.hash;
+                newPlayer.playerContext = this;
 
-            Console.WriteLine("> Client authenticated: " + context.ClientAddress);
-            Console.WriteLine("Currently online players: " + OnlinePlayers.Count());
+                // Add the new player
+                OnlinePlayers.TryAdd(this, newPlayer);
 
-        }
+                // Updates the hash and loads the player info from the database if not already loaded
+                bool success = newPlayer.fetchPlayerInfo();
+                if (success)
+                {
+                    SendTo(new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers[this].name));
+                }
+                else
+                {
+                    Player trash;
+                    SendError("Problem fetching player info, client and server hash mismatch");
+                    OnlinePlayers.TryRemove(this, out trash);
+                }
 
-        //TODO FIX THIS, retrurning else every time probably string cast
-        public bool Authenticate(UserContext context, dynamic data)
-        {
-            if (OnlinePlayers[context].hash == (string)data.hash)
-            {
-                return true;
-            }
-            else if (data.hash == "")
-            {
-                SendError(context, "No hash to authenticate. Is user logged in");
-                return false;
-            }
-            else
-            {
-                SendError(context, "Hash exist but didn't match registered hash for this player!");
-                return false;
+                Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
+                Console.WriteLine("> Online players: " + OnlinePlayers.Count());
             }
         }
 
-        /// <summary>
-        /// Event fired when a client disconnects from the Alchemy Websockets server instance.
-        /// Removes the user from the online users list and broadcasts the disconnection message
-        /// to all connected users.
-        /// </summary>
-        /// <param name="context">The user's connection context</param>
-        public void OnDisconnect(UserContext context)
+        public void Logout()
         {
             bool success = false;
             try
             {
+
+                GameQueue.GetInstance().removePlayer(OnlinePlayers[this]);
+
                 Player trash;
-                KeyValuePair<UserContext, Player> userItem = OnlinePlayers.Where(x => x.Key.ClientAddress == context.ClientAddress).FirstOrDefault();
-
-                success = OnlinePlayers.TryRemove(userItem.Key, out trash);
-
-                GameQueue.getInstance().removePlayer(userItem.Value);
+                success = OnlinePlayers.TryRemove(this, out trash);
 
                 if (success)
                 {
                     Response response = new Response(ResponseType.DISCONNECTED, "You are now logged out!");
-                    Send(context, response);
+                    SendTo(response);
+                    Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
+                    Console.WriteLine("> Online players: " + OnlinePlayers.Count());
+
                 }
             }
-            catch (Exception e)
+            catch (Exception exception) // Bad JSON! For shame.
             {
-                //Console.WriteLine(e.ToString());
-                SendError(context, e.GetBaseException().ToString());
-            }
-            //Console.WriteLine(OnlinePlayers[context].name + " quitting");
-            Console.WriteLine("Currently online players: " + OnlinePlayers.Count());
-        }
-
-        // Send response to player using usercontext
-        public void Send(UserContext context, Response message)
-        {
-            context.Send(JsonConvert.SerializeObject(message));
-        }
-
-        // Send response to specific player id
-        public void Send(int pId, Response message)
-        {
-            UserContext context = OnlinePlayers.Where(x => x.Value.id == pId).First().Key;
-            context.Send(JsonConvert.SerializeObject(message));
-        }
-
-
-        // Send response to player using usercontext
-        public void Send(Pair<GamePlayer> players, Response message)
-        {
-            UserContext context;
-            context = OnlinePlayers.Where(x => x.Value.id == players.First.id).First().Key;
-            context.Send(JsonConvert.SerializeObject(message));
-            context = OnlinePlayers.Where(x => x.Value.id == players.Second.id).First().Key;
-            context.Send(JsonConvert.SerializeObject(message));
-        }
-
-
-        public void Send(LinkedList<UserContext> clients, Response message)
-        {
-            foreach (UserContext client in clients)
-            {
-                client.Send(JsonConvert.SerializeObject(message));
+                var response = new Response(ResponseType.ERROR, exception.Message);
+                SendTo(response);
             }
         }
 
-        /// <summary>
-        /// Event fired when the Alchemy Websockets server instance sends data to a client.
-        /// Logs the data to the console and performs no further action.
-        /// </summary>
-        /// <param name="context">The user's connection context</param>
-        private void OnSend(UserContext context)
+        public void HeartBeat()
         {
-            Console.WriteLine("> Data sent: " + context.ClientAddress);
+            string d = this.payload.heartbeat;
+            Response response = new Response(ResponseType.HEARTBEAT_REPLY, JsonConvert.DeserializeObject("{first:" + this.payload.heartbeat + ", last:" + this.payload.last + "}"));
+            SendTo(response);
         }
 
-        /// <summary>
-        /// Broadcasts an error message to the client who caused the error
-        /// </summary>
-        /// <param name="errorMessage">Details of the error</param>
-        /// <param name="context">The user's connection context</param>
-        public void SendError(UserContext context, string errorMessage)
-        {
-            Response r = new Response(ResponseType.ERROR, errorMessage);
-            context.Send(JsonConvert.SerializeObject(r));
-        }
-
-        /// <summary>
-        /// Broadcasts an error message to the client who caused the error
-        /// </summary>
-        /// <param name="errorMessage">Details of the error</param>
-        /// <param name="context">The user's connection context</param>
-        public void SendError(GamePlayer player, string errorMessage)
-        {
-            UserContext context;
-            context = OnlinePlayers.Where(x => x.Value.id == player.id).First().Key;
-
-            Response r = new Response(ResponseType.ERROR, errorMessage);
-            context.Send(JsonConvert.SerializeObject(r));
-        }
-
-        /// <summary>
-        /// Broadcasts a message to all users, or if users is populated, a select list of users
-        /// </summary>
-        /// <param name="message">Message to be broadcast</param>
-        /// <param name="users">Optional list of users to broadcast to. If null, broadcasts to all. Defaults to null.</param>
-        public void Broadcast(string message, ICollection<UserContext> users = null)
+        //TODO FIX THIS, retrurning else every time probably string cast
+        public bool Authenticate(General context)
         {
 
-            if (users == null)
+            // Check if the player actually exists
+            if (OnlinePlayers.ContainsKey(this))
             {
-                foreach (var u in OnlinePlayers.Keys)
+
+                //  Console.WriteLine(data.hash);
+                string hash = context.payload.hash;
+                if (OnlinePlayers[this].hash.Equals(hash))
                 {
-                    u.Send(message);
+                    return true;
+                }
+                else if (data.hash == "")
+                {
+                    SendError("> Hash is NULL");
+                    return false;
+                }
+                else
+                {
+                    SendError("> Hash was WRONG!");
+                    return false;
                 }
             }
             else
             {
-                foreach (var u in OnlinePlayers.Keys.Where(users.Contains))
-                {
-                    u.Send(message);
-                }
+                SendError("> User is not logged in!");
+                return false;
             }
         }
 
         /// <summary>
-        /// Defines the response object to send back to the client
+        /// Broadcasts an error message to the client who caused the error
         /// </summary>
-        public class Response
+        /// <param name="errorMessage">Details of the error</param>
+        /// <param name="context">The user's connection context</param>
+        public void SendError(string errorMessage)
         {
-            public dynamic Type { get; set; }
-            public dynamic Data { get; set; }
-
-            public Response(object type, dynamic data)
-            {
-                //if (!(type is int)) throw new NotSupportedException("Wrong responsetype");
-                this.Type = type;
-                this.Data = data;
-            }
-
-            public Response() { }
+            Response response = new Response(ResponseType.ERROR, errorMessage);
+            SendTo(response);
         }
 
         /// <summary>
-        /// Defines the type of response to send back to the client for parsing logic
+        /// This function sends a response to the Player context
         /// </summary>
-        /// 
+        /// <param name="json">Takes in a JSON string</param>
+
+        public void SendTo(Response response)
+        {
+            Send(response.ToJSON());
+        }
+        public void SendDebug(string message)
+        {
+            Response response = new Response(ResponseType.DEBUG, message);
+            Send(response.ToJSON());
+        }
 
         public enum ResponseType
         {
             AUTHENTICATED = 0,
             DISCONNECTED = 1,
-            GAME = 2,
-            CHAT = 3,
-            ERROR = 255
+            HEARTBEAT_REPLY = 5,
+            DEBUG = 254,
+            ERROR = 255,
         }
-        public enum Service
-        {
-            GENERAL = 0,
-            GAME = 1,
-            CHAT = 2 
-        }
-        public enum General
+
+        public enum GENERAL
         {
             LOGIN = 0,
-            LOGOUT = 1
+            LOGOUT = 1,
+            HEARTBEAT = 2,
         }
-        
+    }
+
+
+
+    public class SocketServer
+    {
+
+        public SocketServer()
+        {
+            var wssv = new HttpServer(8140);
+
+
+            GameEngine gameEngine = new GameEngine();
+            ChatEngine chatEngine = new ChatEngine();
+
+
+            wssv.AddWebSocketService<GameService>("/game", () => new GameService(gameEngine));
+            wssv.AddWebSocketService<ChatService>("/chat", () => new ChatService(chatEngine));
+
+
+            wssv.Start();
+            Console.ReadKey(true);
+            wssv.Stop();
+        }
+
+        public void onConnect()
+        {
+
+        }
     }
 }
-
-

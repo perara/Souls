@@ -23,6 +23,7 @@ namespace ServerWBSCKTest.Model
         public int fk_type { get; set; }
         public int cost { get; set; }
     
+        public virtual db_Ability db_Ability { get; set; }
         public virtual db_Card_Type db_Card_Type { get; set; }
     }
 }

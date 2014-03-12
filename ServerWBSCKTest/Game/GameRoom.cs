@@ -16,6 +16,10 @@ namespace ServerWBSCKTest
         public int gameId { get; set; }
         public int round { get; set; }
 
+        /// <summary>
+        /// Count number or cards in the room. is used as identifier on cards with gameId (gameId * cardCount)
+        /// </summary>
+        public int cardCount { get; set; }
         // Contains the Player which is currently playing (Player's turn);
         public GamePlayer currentPlaying { get; set; }
 
@@ -47,11 +51,51 @@ namespace ServerWBSCKTest
                 for (int i = 0; i < amount; i++)
                 {
                     int toSkip = rand.Next(0, db.db_Card.Count());
-                    var getCard = db.db_Card.OrderBy(x => x.id).Skip(toSkip).Take(1).First();
+
+                    var getCard = db.db_Card
+                        .Join(
+                        db.db_Ability,
+                        card => card.fk_ability,
+                        ability => ability.id,
+                        (card, ability) => new { card, ability }
+                        )
+                        .Join(
+                        db.db_Card_Type,
+                        y => y.card.fk_type,
+                        cType => cType.id,
+                        (y, cType) => new { y, cType }
+                       ).Select(x => new
+                        {
+                            id = x.y.card.id,
+                            cardId = cardCount,
+                            name = x.y.card.name,
+                            attack = x.y.card.attack,
+                            health = x.y.card.health,
+                            armor = x.y.card.armor,
+                            cost = x.y.card.cost,
+                            db_Ability = new
+                            {
+                                id = x.y.ability.id,
+                                name = x.y.ability.name,
+                                parameter = x.y.ability.parameter,
+                            },
+                            db_Card_Type = new
+                            {
+                                id = x.cType.id,
+                                name = x.cType.name,
+                            }
+                        })
+                        .OrderBy(x => x.id)
+                        .Skip(toSkip).Take(1).FirstOrDefault();
+
+                    cardCount++;
+
                     var jsonCard = JsonConvert.SerializeObject(getCard);
 
-                    //Console.WriteLine(jsonCard);
-                    cards.Add(new Card().toCard(jsonCard));
+                    var newCard = new Card().toCard(jsonCard);
+
+
+                    cards.Add(newCard);
                 }
                 return cards;
             };
@@ -66,12 +110,12 @@ namespace ServerWBSCKTest
                 int toSkip = rand.Next(0, db.db_Card.Count());
                 var getCard = db.db_Card.OrderBy(x => x.id).Skip(toSkip).Take(1).First();
                 var jsonCard = JsonConvert.SerializeObject(getCard);
-                
+
                 return new Card().toCard(jsonCard);
             };
         }
 
-        public GamePlayer getOpponent(GamePlayer player)
+        public GamePlayer GetOpponent(GamePlayer player)
         {
             if (this.players.First.Equals(player))
             {
@@ -86,20 +130,21 @@ namespace ServerWBSCKTest
         }
 
 
-        // Returns the players of this gameroom
-        public Pair<Player> getPlayers()
+
+        // Return GamePlayers of the game troom
+        public Pair<GamePlayer> getPlayers()
         {
-            return new Pair<Player>(players.First.toPlayer(), players.Second.toPlayer());
+            return new Pair<GamePlayer>(players.First, players.Second);
         }
 
-        public void nextRound()
+        public void NextRound()
         {
             currentPlaying = (++round % 2 == 0) ? players.First : players.Second;
 
             // Add a new card to players
             players.First.handCards.Add(this.getRandomCard());
             players.Second.handCards.Add(this.getRandomCard());
-            
+
             // Set mana equal to the round (unless +10)
             currentPlaying.mana = (this.round < 10) ? this.round : 10;
         }

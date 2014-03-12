@@ -14,6 +14,7 @@ namespace ServerWBSCKTest
     {
 
         public bool isDead { get; set; }
+        public int cardId { get; set; }
 
         public Card()
         {
@@ -42,7 +43,7 @@ namespace ServerWBSCKTest
         public void Attack(ref GamePlayer defender)
         {
             defender.health -= this.attack;
-            this.health -= defender.db_Player_Type.attack;
+            this.health -= defender.attack;
 
             if (this.health < 1) this.cardDie();
             if (defender.health < 1) defender.playerDie();

@@ -14,7 +14,14 @@ namespace ServerWBSCKTest.Model
     
     public partial class db_Card_Type
     {
+        public db_Card_Type()
+        {
+            this.db_Card = new HashSet<db_Card>();
+        }
+    
         public int id { get; set; }
         public string name { get; set; }
+    
+        public virtual ICollection<db_Card> db_Card { get; set; }
     }
 }

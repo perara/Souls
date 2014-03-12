@@ -10,9 +10,13 @@ namespace ServerWBSCKTest
 {
     public class Player : Model.db_Player
     {
+        public string SessionID { get; set; }
         public string hash { get; set; }
-        public bool chatActive { get; set; }
+        public bool chatActive { get; set; } //TODO
         public bool inQueue { get; set; }
+
+        public General playerContext { get; set; }
+
         public bool validateHash()
         {
             using (var db = new Model.soulsEntities())
@@ -37,20 +41,5 @@ namespace ServerWBSCKTest
                 else return false;
             }
         }
-
-        public GamePlayer toGamePlayer()
-        {
-            GamePlayer gameplayer = new GamePlayer();
-
-            gameplayer.id = this.id;
-            gameplayer.name = this.name;
-            gameplayer.rank = this.rank;
-            gameplayer.fk_type = this.fk_type;
-            gameplayer.timestamp = this.timestamp;
-
-            return gameplayer;
-        }
-
-
     }
 }

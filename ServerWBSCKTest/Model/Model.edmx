@@ -94,10 +94,20 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_ability_s">
+          <End Role="db_Ability" Type="Self.db_Ability" Multiplicity="1" />
+          <End Role="db_Card" Type="Self.db_Card" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="db_Ability">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="db_Card">
+              <PropertyRef Name="fk_ability" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_card_type">
-          <End Role="db_Card_Type" Type="Self.db_Card_Type" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
+          <End Role="db_Card_Type" Type="Self.db_Card_Type" Multiplicity="1" />
           <End Role="db_Card" Type="Self.db_Card" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="db_Card_Type">
@@ -163,6 +173,10 @@
             <End Role="db_Ability" EntitySet="db_Ability" />
             <End Role="db_Player_Type" EntitySet="db_Player_Type" />
           </AssociationSet>
+          <AssociationSet Name="fk_ability_s" Association="Self.fk_ability_s">
+            <End Role="db_Ability" EntitySet="db_Ability" />
+            <End Role="db_Card" EntitySet="db_Card" />
+          </AssociationSet>
           <AssociationSet Name="fk_card_type" Association="Self.fk_card_type">
             <End Role="db_Card_Type" EntitySet="db_Card_Type" />
             <End Role="db_Card" EntitySet="db_Card" />
@@ -197,6 +211,10 @@
             <End Role="db_Ability" EntitySet="db_Ability" />
             <End Role="db_Player_Type" EntitySet="db_Player_Type" />
           </AssociationSet>
+          <AssociationSet Name="fk_ability_s" Association="soulsModel.fk_ability_s">
+            <End Role="db_Ability" EntitySet="db_Ability" />
+            <End Role="db_Card" EntitySet="db_Card" />
+          </AssociationSet>
           <AssociationSet Name="fk_card_type" Association="soulsModel.fk_card_type">
             <End Role="db_Card_Type" EntitySet="db_Card_Type" />
             <End Role="db_Card" EntitySet="db_Card" />
@@ -222,6 +240,7 @@
           <Property Name="name" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="parameter" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="db_Player_Type" Relationship="soulsModel.fk_ability" FromRole="db_Ability" ToRole="db_Player_Type" />
+          <NavigationProperty Name="db_Card" Relationship="soulsModel.fk_ability_s" FromRole="db_Ability" ToRole="db_Card" />
         </EntityType>
         <EntityType Name="db_Card">
           <Key>
@@ -235,6 +254,7 @@
           <Property Name="fk_ability" Type="Int32" Nullable="false" />
           <Property Name="fk_type" Type="Int32" Nullable="false" />
           <Property Name="cost" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="db_Ability" Relationship="soulsModel.fk_ability_s" FromRole="db_Card" ToRole="db_Ability" />
           <NavigationProperty Name="db_Card_Type" Relationship="soulsModel.fk_card_type" FromRole="db_Card" ToRole="db_Card_Type" />
         </EntityType>
         <EntityType Name="db_Card_Type">
@@ -243,6 +263,7 @@
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="db_Card" Relationship="soulsModel.fk_card_type" FromRole="db_Card_Type" ToRole="db_Card" />
         </EntityType>
         <EntityType Name="db_Game">
           <Key>
@@ -312,10 +333,20 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_ability_s">
+          <End Type="soulsModel.db_Ability" Role="db_Ability" Multiplicity="1" />
+          <End Type="soulsModel.db_Card" Role="db_Card" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="db_Ability">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="db_Card">
+              <PropertyRef Name="fk_ability" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_card_type">
-          <End Type="soulsModel.db_Card_Type" Role="db_Card_Type" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
+          <End Type="soulsModel.db_Card_Type" Role="db_Card_Type" Multiplicity="1" />
           <End Type="soulsModel.db_Card" Role="db_Card" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="db_Card_Type">

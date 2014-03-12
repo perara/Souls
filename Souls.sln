@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerWBSCKTest", "ServerWBSCKTest\ServerWBSCKTest.csproj", "{863FB976-9F0F-4949-B0A8-604637AA168E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Souls", "ServerWBSCKTest\Souls.csproj", "{863FB976-9F0F-4949-B0A8-604637AA168E}"
+EndProject
+Project("{F088123C-0E9E-452A-89E6-6BA2F21D5CAC}") = "ModelingProject", "ModelingProject\ModelingProject.modelproj", "{A20E8679-72B0-4BB0-86CA-1C3F21ECE8E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{863FB976-9F0F-4949-B0A8-604637AA168E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{863FB976-9F0F-4949-B0A8-604637AA168E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{863FB976-9F0F-4949-B0A8-604637AA168E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A20E8679-72B0-4BB0-86CA-1C3F21ECE8E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20E8679-72B0-4BB0-86CA-1C3F21ECE8E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20E8679-72B0-4BB0-86CA-1C3F21ECE8E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20E8679-72B0-4BB0-86CA-1C3F21ECE8E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

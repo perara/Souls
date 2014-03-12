@@ -59,14 +59,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp">
+      <HintPath>..\packages\WebSocketSharp.1.0.3-rc3\lib\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Chat\ChatDataHandler.cs" />
+    <Compile Include="Engine\Response.cs" />
     <Compile Include="Chat\ChatEngine.cs" />
     <Compile Include="Chat\ChatRoom.cs" />
     <Compile Include="Controller\Ability.cs" />
     <Compile Include="Engine\ClientData.cs" />
-    <Compile Include="Game\GameDataHandler.cs" />
+    <Compile Include="Engine\SocketServer.cs" />
     <Compile Include="Game\GameData.cs" />
     <Compile Include="Game\GamePlayer.cs" />
     <Compile Include="Globals.cs" />
@@ -115,8 +118,6 @@
       <DependentUpon>Model.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Engine\SocketServer.cs" />
-    <Compile Include="Engine\SQLCommands.cs" />
     <Compile Include="Tools\JSONHelper.cs" />
     <Compile Include="Tools\LimitedList.cs" />
     <Compile Include="Tools\Pair.cs" />

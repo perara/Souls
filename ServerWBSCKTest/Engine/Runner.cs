@@ -24,8 +24,12 @@ namespace ServerWBSCKTest
 
             //WebSocketRawTest srv = new WebSocketRawTest();
 
+
+            new SocketServer();
+
+
             // Initialize GameEngine
-            GameEngine gameEngine = new GameEngine();
+            /*GameEngine gameEngine = new GameEngine();
             ChatEngine chatEngine = new ChatEngine();
             gameEngine.pollQueue();
 
@@ -43,6 +47,7 @@ namespace ServerWBSCKTest
 
             //ChatEngine chatEngine = new ChatEngine();
             //chatEngine.addCallbacks((Action<LinkedList<UserContext>, ChatServer.Response>)chatSrv.Send);
+             */
         }
     }
 }
