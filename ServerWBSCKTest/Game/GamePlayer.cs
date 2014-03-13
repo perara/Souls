@@ -56,7 +56,10 @@ namespace ServerWBSCKTest.Engine
 
         public bool HasEnoughMana(int cId)
         {
-            return this.mana >= this.handCards[cId].cost;
+            Card cOut;
+            this.handCards.TryGetValue(cId, out cOut);
+
+            return this.mana >= cOut.cost;
         }
 
         public void Attack(Card defCard)

@@ -7,25 +7,34 @@ using Newtonsoft.Json;
 using ServerWBSCKTest.Tools;
 using ServerWBSCKTest.Model;
 using ServerWBSCKTest.Engine;
+using ServerWBSCKTest.Controller;
 
 namespace ServerWBSCKTest
 {
-    public class Card : Model.db_Card
+    public class Card : Model.db_Card, ICloneable
     {
         private static int idCounter {get; set;}
         public bool isDead { get; set; }
         public int cid { get; set; }
 
-        public Card()
-        {
-            cid = idCounter++;
+        public Ability ability { get; set; }
+        public CardType cardType { get; set; }
+
+
+
+        public Card(){
         }
-        public Card toCard(string json)
+
+        public void SetId()
+        {
+            cid = ++Card.idCounter;
+            Console.WriteLine(cid);
+        }
+
+        public static Card toCard(string json)
         {
             //dynamic jsonCard = JsonConvert.DeserializeObject(json);
             Card card = JSONHelper.Deserialize<Card>(json);
-
-            Console.WriteLine(card.ToString());
             return card;
         }
 
@@ -71,5 +80,12 @@ namespace ServerWBSCKTest
         {
             return this.cid + ", " + this.name + ", " + this.attack + ", " + this.health + ", " + this.armor + ", " + this.fk_ability + ", " + this.fk_type;
         }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+   
     }
 }

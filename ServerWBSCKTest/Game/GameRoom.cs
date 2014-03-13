@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 using System.Web.Script.Serialization;
 using ServerWBSCKTest.Engine;
 using ServerWBSCKTest.Tools;
+using Newtonsoft.Json.Linq;
+using ServerWBSCKTest.Model;
+using ServerWBSCKTest.Controller;
 
 namespace ServerWBSCKTest
 {
@@ -42,94 +45,38 @@ namespace ServerWBSCKTest
             // this.players = new Pair<GamePlayer>(players.First, players.Second);
 
 
-            List<Card> p1Cards = getRandomCards(3);
-            List<Card> p2Cards = getRandomCards(3);
+            List<Card> p1Cards = GetRandomCards(3);
+            List<Card> p2Cards = GetRandomCards(3);
             foreach (var c in p1Cards)
             {
+                Console.WriteLine("CID: " +c.cid);
                 this.players.First.handCards.Add(c.cid, c);
             }
             foreach (var c in p2Cards)
             {
+                Console.WriteLine("CID2: " + c.cid);
                 this.players.Second.handCards.Add(c.cid, c);
             }
-            
+
         }
 
         // Gets a specific number of random cards from the card database
-        public List<Card> getRandomCards(int amount)
+        public List<Card> GetRandomCards(int amount = 1)
         {
-            using (var db = new Model.soulsEntities())
-            {
-                List<Card> cards = new List<Card>();
+                List<Card> getCard = new List<Card>();
                 Random rand = new Random();
 
-                for (int i = 0; i < amount; i++)
+                for (var i = 0; i < amount; i++ )
                 {
-                    int toSkip = rand.Next(0, db.db_Card.Count());
-
-                    var getCard = db.db_Card
-                        .Join(
-                        db.db_Ability,
-                        card => card.fk_ability,
-                        ability => ability.id,
-                        (card, ability) => new { card, ability }
-                        )
-                        .Join(
-                        db.db_Card_Type,
-                        y => y.card.fk_type,
-                        cType => cType.id,
-                        (y, cType) => new { y, cType }
-                       ).Select(x => new
-                        {
-                            id = x.y.card.id,
-                            cardId = cardCount,
-                            name = x.y.card.name,
-                            attack = x.y.card.attack,
-                            health = x.y.card.health,
-                            armor = x.y.card.armor,
-                            cost = x.y.card.cost,
-                            db_Ability = new
-                            {
-                                id = x.y.ability.id,
-                                name = x.y.ability.name,
-                                parameter = x.y.ability.parameter,
-                            },
-                            db_Card_Type = new
-                            {
-                                id = x.cType.id,
-                                name = x.cType.name,
-                            }
-                        })
-                        .OrderBy(x => x.id)
-                        .Skip(toSkip).Take(1).FirstOrDefault();
-
-                    cardCount++;
-
-                    var jsonCard = JsonConvert.SerializeObject(getCard);
-
-                    var newCard = new Card().toCard(jsonCard);
-
-
-                    cards.Add(newCard);
+                    Card c = (Card)GameEngine.cards[rand.Next(GameEngine.cards.Count() - 1)].Clone();
+                    c.SetId();
+                    getCard.Add(c);
                 }
-                return cards;
-            };
+               
+    
+                return getCard;
         }
-        // Gets one random card from the card database
-        public Card getRandomCard()
-        {
-            using (var db = new Model.soulsEntities())
-            {
-                Random rand = new Random();
-
-                int toSkip = rand.Next(0, db.db_Card.Count());
-                var getCard = db.db_Card.OrderBy(x => x.id).Skip(toSkip).Take(1).First();
-                var jsonCard = JsonConvert.SerializeObject(getCard);
-
-                return new Card().toCard(jsonCard);
-            };
-        }
-
+ 
         public GamePlayer GetOpponent(GamePlayer player)
         {
             if (this.players.First.Equals(player))
@@ -165,11 +112,11 @@ namespace ServerWBSCKTest
         public void NextRound()
         {
             currentPlaying = (++round % 2 == 0) ? players.First : players.Second;
-
+            
             // Add a new card to players
 
-            Card p1Card = this.getRandomCard();
-            Card p2Card = this.getRandomCard();
+            Card p1Card = this.GetRandomCards()[0];
+            Card p2Card = this.GetRandomCards()[0];
             players.First.handCards.Add(p1Card.cid, p1Card);
             players.Second.handCards.Add(p2Card.cid, p2Card);
 

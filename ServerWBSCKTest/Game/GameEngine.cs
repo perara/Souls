@@ -9,6 +9,7 @@ using ServerWBSCKTest.Engine;
 using ServerWBSCKTest.Game;
 using ServerWBSCKTest.Tools;
 using Newtonsoft.Json;
+using ServerWBSCKTest.Controller;
 
 namespace ServerWBSCKTest
 {
@@ -17,9 +18,13 @@ namespace ServerWBSCKTest
     {
         public int gameCounter = 0;
         public static Dictionary<int, GameRoom> gameRooms = new Dictionary<int, GameRoom>();
+        public static List<Card> cards { get; set; }
 
         public GameEngine()
         {
+
+            SetupEngine();
+
             // Start Game Queue;
             pollQueue();
         }
@@ -40,6 +45,63 @@ namespace ServerWBSCKTest
 
             pollThread.Start();
         }
+
+        public void SetupEngine()
+        {
+            GameEngine.cards = LoadCards();
+
+        }
+
+        public List<Card> LoadCards()
+        {
+            using (var db = new Model.soulsEntities())
+            {
+                Stopwatch w = new Stopwatch();
+                w.Start();
+                List<Card> cards = db.db_Card
+                       .Join(
+                       db.db_Ability,
+                       card => card.fk_ability,
+                       ability => ability.id,
+                       (card, ability) => new { card, ability }
+                       )
+                       .Join(
+                       db.db_Card_Type,
+                       y => y.card.fk_type,
+                       cType => cType.id,
+                       (y, cType) => new { y, cType }
+                      ).Select(x => new Card()
+                      {
+                          id = x.y.card.id,
+                          name = x.y.card.name,
+                          attack = x.y.card.attack,
+                          health = x.y.card.health,
+                          armor = x.y.card.armor,
+                          cost = x.y.card.cost,
+                          ability = new Ability()
+                          {
+                              id = x.y.ability.id,
+                              name = x.y.ability.name,
+                              parameter = x.y.ability.parameter
+                          },
+                          cardType = new CardType()
+                          {
+                              id = x.y.ability.id,
+                              name = x.y.ability.name,
+                          },
+                      }).AsParallel().ToList();
+               
+
+                Console.WriteLine(">[GAME] Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
+                w.Stop();
+
+                return cards;
+            }
+
+        }
+
+
+
 
         // Starts the game from the matchmaked players in a new gameroom
         public void initGame(Pair<Player> players)
@@ -74,7 +136,8 @@ namespace ServerWBSCKTest
             Pair<Response> response = GenerateGameUpdate(newRoom, true);
             players.First.playerContext.SendTo(response.First);
             players.Second.playerContext.SendTo(response.Second);
-
+            Console.WriteLine(response.First.ToJSON());
+            Console.WriteLine(response.Second.ToJSON());
             // Send "Its your turn to the start player"
             newRoom.currentPlaying.playerContext.SendDebug("Its your turn (DEBUG)");
 
