@@ -40,6 +40,8 @@ namespace ServerWBSCKTest.Engine
 
             GAME_USECARD_OK = 207,
             GAME_USECARD_OOM = 208,
+            
+            GAME_OPPONENT_MOVE = 209
 
         }
 
@@ -56,6 +58,8 @@ namespace ServerWBSCKTest.Engine
             ATTACK = 200,
             USECARD = 201,
             NEXTROUND = 202,
+            MOVE_CARD = 203,
+
         }
         public GameEngine engine;
 
@@ -103,7 +107,12 @@ namespace ServerWBSCKTest.Engine
                         engine.NextRoundRequest(data.Payload);
                     }
                     break;
-
+                case (int) GameType.MOVE_CARD:
+                    if(Authenticate(this))
+                    {
+                        engine.MovedCard(OnlinePlayers[this]);
+                    }
+                    break;
                 case (int)GENERAL.LOGIN:
                     this.Login();
                     break;

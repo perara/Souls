@@ -10,6 +10,7 @@ using ServerWBSCKTest.Game;
 using ServerWBSCKTest.Tools;
 using Newtonsoft.Json;
 using ServerWBSCKTest.Controller;
+using Newtonsoft.Json.Linq;
 
 namespace ServerWBSCKTest
 {
@@ -90,7 +91,7 @@ namespace ServerWBSCKTest
                               name = x.y.ability.name,
                           },
                       }).AsParallel().ToList();
-               
+
 
                 Console.WriteLine(">[GAME] Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
                 w.Stop();
@@ -100,7 +101,31 @@ namespace ServerWBSCKTest
 
         }
 
+        public void MovedCard(Player player)
+        {
 
+            JObject retData = new JObject(
+                new JProperty("cid", player.playerContext.data.Payload.cid),
+                new JProperty("x", player.playerContext.data.Payload.x),
+                new JProperty("y", player.playerContext.data.Payload.y)
+                );
+
+           
+
+            Response response = new Response(
+                GameService.GameResponseType.GAME_OPPONENT_MOVE,
+                retData
+                );
+
+            // Authenticate the player
+            GamePlayer requestPlayer = null;
+            if ((requestPlayer = AuthenticatePlayer(player)) != null)
+            {
+                requestPlayer.GetOpponent().playerContext.SendTo(response);
+            }
+
+
+        }
 
 
         // Starts the game from the matchmaked players in a new gameroom
@@ -248,7 +273,7 @@ namespace ServerWBSCKTest
                 // Send back game state (update)
 
                 Pair<Response> response = GenerateGameUpdate(authPlayer.gameRoom);
-                authPlayer.gameRoom.GetOpponent(authPlayer).playerContext.SendTo(response.First);
+                authPlayer.GetOpponent().playerContext.SendTo(response.First);
                 authPlayer.playerContext.SendTo(response.Second);
             }
         }
@@ -276,7 +301,7 @@ namespace ServerWBSCKTest
                 }
 
 
-                GamePlayer opponent = authPlayer.gameRoom.GetOpponent(authPlayer);
+                GamePlayer opponent = authPlayer.GetOpponent();
                 if (opponent != null)
                 {
                     // Attack Card and shaise, must authenticate the Move

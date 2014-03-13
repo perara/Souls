@@ -67,7 +67,7 @@ namespace ServerWBSCKTest.Game
                 new JProperty("opponent", new JObject(
                     new JProperty("info", JObject.FromObject(opponent.GetPlayerData())),
                     new JProperty("board", JObject.FromObject(opponent.boardCards)),
-                    new JProperty("hand", player.handCards.Count())
+                    new JProperty("hand", opponent.handCards.Keys)
                     )
                 ));
 

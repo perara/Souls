@@ -75,22 +75,6 @@ namespace ServerWBSCKTest
                 return getCard;
         }
  
-        public GamePlayer GetOpponent(GamePlayer player)
-        {
-            if (this.players.First.Equals(player))
-            {
-                return this.players.Second;
-            }
-            else if (this.players.Second.Equals(player))
-            {
-                return this.players.First;
-
-            }
-            return null; //TODO? 
-        }
-
-
-
         // Return GamePlayers of the game troom
         public Pair<GamePlayer> getPlayers()
         {
@@ -103,7 +87,7 @@ namespace ServerWBSCKTest
         /// </summary>
         public GamePlayer NextTurn()
         {
-            currentPlaying = GetOpponent(currentPlaying);
+            currentPlaying = currentPlaying.GetOpponent();
             return currentPlaying;
         }
 

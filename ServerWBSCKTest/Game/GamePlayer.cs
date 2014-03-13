@@ -62,6 +62,21 @@ namespace ServerWBSCKTest.Engine
             return this.mana >= cOut.cost;
         }
 
+        public GamePlayer GetOpponent()
+        {
+            if (this.gameRoom.players.First.Equals(this))
+            {
+                return this.gameRoom.players.Second;
+            }
+            else if (this.gameRoom.players.Second.Equals(this))
+            {
+                return this.gameRoom.players.First;
+
+            }
+            return null; //TODO? 
+        }
+
+
         public void Attack(Card defCard)
         {
             defCard.health -= this.attack;
