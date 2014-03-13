@@ -72,6 +72,8 @@ namespace ServerWBSCKTest.Engine
             payload = this.data.Payload;
             type = this.data.Type;
 
+            // TODO: Check payload integrity, missing elements causes crash
+
             if (type != (int)GENERAL.LOGIN || type != (int)GENERAL.LOGIN)
                 if (!Authenticate(this)) return;
 
@@ -181,6 +183,8 @@ namespace ServerWBSCKTest.Engine
             payload = this.data.Payload;
             type = this.data.Type;
 
+            // TODO: Check payload integrity, missing elements causes crash
+
             if (type != (int)GENERAL.LOGIN || type != (int)GENERAL.LOGIN)
                 if (!Authenticate(this)) return;
 
@@ -200,7 +204,7 @@ namespace ServerWBSCKTest.Engine
                     break;
 
                 case ChatType.NEWROOM:
-                    engine.addChatRoom(OnlinePlayers[this]);
+                    engine.AddChatRoom(OnlinePlayers[this]);
                     break;
 
                 case ChatType.INVITE:
