@@ -19,10 +19,10 @@ namespace ServerWBSCKTest.Game
         /// <param name="room"></param>
         public GameData(GameRoom room)
         {
-            data.Add("p1_hand", room.players.First.handCards);
-            data.Add("p2_hand", room.players.Second.handCards);
-            data.Add("p1_board", room.players.First.boardCards);
-            data.Add("p2_board", room.players.Second.boardCards);
+            data.Add("p1_hand", room.players.First.handCards.Values);
+            data.Add("p2_hand", room.players.Second.handCards.Values);
+            data.Add("p1_board", room.players.First.boardCards.Values);
+            data.Add("p2_board", room.players.Second.boardCards.Values);
             data.Add("gameId", room.gameId);
             data.Add("round", room.round);
             data.Add("p1_hand_count", room.players.First.handCards.Count);

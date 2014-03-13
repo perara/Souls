@@ -12,6 +12,8 @@ namespace ServerWBSCKTest
 {
     public class GameRoom
     {
+        public static int gameCounter { get; set; }
+
         public Pair<GamePlayer> players;
         public int gameId { get; set; }
         public int round { get; set; }
@@ -24,20 +26,33 @@ namespace ServerWBSCKTest
         public GamePlayer currentPlaying { get; set; }
 
         // Makes the players gameplayers and deals 3 cards to each player
-        public GameRoom(Pair<GamePlayer> players, int gameId)
+        public GameRoom()
         {
+            gameId = GameRoom.gameCounter++;
+
+        }
+
+        public void AddGamePlayer(Pair<GamePlayer> players)
+        {
+            this.players = players;
+
 
             currentPlaying = players.First;
 
-            this.players = new Pair<GamePlayer>(players.First, players.Second);
-            this.gameId = gameId;
+            // this.players = new Pair<GamePlayer>(players.First, players.Second);
 
 
-            List<Card> atta = getRandomCards(3);
-
-            this.players.First.handCards.TryAddRange(getRandomCards(3));
-            this.players.Second.handCards.TryAddRange(getRandomCards(3));
-
+            List<Card> p1Cards = getRandomCards(3);
+            List<Card> p2Cards = getRandomCards(3);
+            foreach (var c in p1Cards)
+            {
+                this.players.First.handCards.Add(c.cid, c);
+            }
+            foreach (var c in p2Cards)
+            {
+                this.players.Second.handCards.Add(c.cid, c);
+            }
+            
         }
 
         // Gets a specific number of random cards from the card database
@@ -137,17 +152,33 @@ namespace ServerWBSCKTest
             return new Pair<GamePlayer>(players.First, players.Second);
         }
 
+        /// <summary>
+        /// Runs next round (Changes currentlyPlayer object to opposite player) 
+        /// Returns the new player
+        /// </summary>
+        public GamePlayer NextTurn()
+        {
+            currentPlaying = GetOpponent(currentPlaying);
+            return currentPlaying;
+        }
+
         public void NextRound()
         {
             currentPlaying = (++round % 2 == 0) ? players.First : players.Second;
 
             // Add a new card to players
-            players.First.handCards.Add(this.getRandomCard());
-            players.Second.handCards.Add(this.getRandomCard());
+
+            Card p1Card = this.getRandomCard();
+            Card p2Card = this.getRandomCard();
+            players.First.handCards.Add(p1Card.cid, p1Card);
+            players.Second.handCards.Add(p2Card.cid, p2Card);
 
             // Set mana equal to the round (unless +10)
             currentPlaying.mana = (this.round < 10) ? this.round : 10;
         }
+
+
+
     }
 
 }

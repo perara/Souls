@@ -12,13 +12,13 @@ namespace ServerWBSCKTest
 {
     public class Card : Model.db_Card
     {
-
+        private static int idCounter {get; set;}
         public bool isDead { get; set; }
-        public int cardId { get; set; }
+        public int cid { get; set; }
 
         public Card()
         {
-
+            cid = idCounter++;
         }
         public Card toCard(string json)
         {
@@ -69,7 +69,7 @@ namespace ServerWBSCKTest
 
         public override string ToString()
         {
-            return this.id + ", " + this.name + ", " + this.attack + ", " + this.health + ", " + this.armor + ", " + this.fk_ability + ", " + this.fk_type;
+            return this.cid + ", " + this.name + ", " + this.attack + ", " + this.health + ", " + this.armor + ", " + this.fk_ability + ", " + this.fk_type;
         }
     }
 }

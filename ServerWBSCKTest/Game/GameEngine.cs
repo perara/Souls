@@ -32,9 +32,9 @@ namespace ServerWBSCKTest
                 while (true)
                 {
                     bool matchMaked = GameQueue.GetInstance().matchPlayers(initGame);
-                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
+                    // Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
 
-                    Thread.Sleep(5000);
+                    Thread.Sleep(500);
                 }
             });
 
@@ -45,29 +45,30 @@ namespace ServerWBSCKTest
         public void initGame(Pair<Player> players)
         {
 
-            gameCounter++;
+
+            GameRoom newRoom = new GameRoom();
 
             GamePlayer p1 = new GamePlayer(players.First.playerContext)
             {
                 hash = players.First.hash,
                 name = players.First.name,
-                gameId = gameCounter,
                 rank = players.First.rank,
                 playernum = 1,
+                gameRoom = newRoom,
             };
 
             GamePlayer p2 = new GamePlayer(players.Second.playerContext)
             {
                 hash = players.Second.hash,
                 name = players.Second.name,
-                gameId = gameCounter,
                 rank = players.Second.rank,
                 playernum = 2,
+                gameRoom = newRoom,
             };
 
             // Create a game room
-            GameRoom newRoom = new GameRoom(new Pair<GamePlayer>(p1, p2), gameCounter);
-            gameRooms.Add(gameCounter, newRoom);
+            newRoom.AddGamePlayer(new Pair<GamePlayer>(p1, p2));
+            gameRooms.Add(newRoom.gameId, newRoom);
 
             // Send a full game update
             Pair<Response> response = GenerateGameUpdate(newRoom, true);
@@ -95,37 +96,66 @@ namespace ServerWBSCKTest
         }
 
 
-        public void RequestUseCard(Player player)
+        public void UseCardRequest(Player player)
         {
             int slot = player.playerContext.data.Payload.slotId; //  This is the slot which is the cards destination
-            int card = player.playerContext.data.Payload.cardId; // This is the card which the player has on hand
+            int card = player.playerContext.data.Payload.cid; // This is the card which the player has on hand
 
             // Authenticate the player
-            GamePlayer authPlayer = null;
-            if ((authPlayer = AuthenticatePlayer(player)) != null)
+            GamePlayer requestPlayer = null;
+            if ((requestPlayer = AuthenticatePlayer(player)) != null)
             {
 
-                if (!IsPlayerTurn(authPlayer))
+                if (!IsPlayerTurn(requestPlayer))
                 {
+                    requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+                    new Dictionary<string, object> 
+                        { 
+                            {"card",card},
+                            {"error","Not your turn!"} 
+                        }));
+                    Console.WriteLine("Not your turn!");
                     return;
                 }
 
 
-                // Evaluate Mana cost
-                if (authPlayer.mana >= authPlayer.handCards[card].cost)
+                if (!requestPlayer.HasEnoughMana(card))
                 {
-                    // Move a card to the board
-                    authPlayer.boardCards.TryAdd(authPlayer.handCards.RemoveAndReturn(card));
-                    authPlayer.playerContext.SendTo(
-                        new Response(GameService.GameResponseType.GAME_USECARD_OK,
-                            GenerateGameUpdate(gameRooms[authPlayer.gameId]))
-                            );
+                    requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
+                    Console.WriteLine("Not enough mana!");
+                    return;
                 }
                 else
                 {
-                    authPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
-                    return;
+
+
+
+                    // Move a card to the board
+                    Card c;
+                    requestPlayer.handCards.TryGetValue(card, out c);
+                    requestPlayer.handCards.Remove(card);
+                    requestPlayer.boardCards.Add(c.cid, c);
+
+
+                    //Next turn
+                    requestPlayer.gameRoom.NextTurn();
+
+                    // Send Reply
+                    requestPlayer.playerContext.SendTo(new Response(
+                        GameService.GameResponseType.GAME_USECARD_OK, new Dictionary<string, int> 
+                        { 
+                            {"card",card},
+                            {"slot",slot} 
+                        }));
+                    Console.WriteLine("Sent!");
+
+
+
                 }
+
+
+
+
             }
 
         }
@@ -133,17 +163,15 @@ namespace ServerWBSCKTest
         public bool IsPlayerTurn(GamePlayer player)
         {
 
-            if (!player.Equals(gameRooms[player.gameId].currentPlaying))
+            if (!player.Equals(player.gameRoom.currentPlaying))
             {
-                player.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN, "Its not your turn!")); //TODO better format
                 return false;
             }
             return true;
         }
 
-        public void RequestNextRound(Player context)
+        public void NextRoundRequest(Player context)
         {
-
             // Authenticate the player
             GamePlayer authPlayer = null;
             if ((authPlayer = AuthenticatePlayer(context)) != null)
@@ -152,14 +180,19 @@ namespace ServerWBSCKTest
                 if (!IsPlayerTurn(authPlayer)) return;
 
                 // Run next round
-                gameRooms[authPlayer.gameId].NextRound();
+                authPlayer.gameRoom.NextRound();
 
                 // Send back game state (update)
 
-                Pair<Response> response = GenerateGameUpdate(gameRooms[authPlayer.gameId]);
-                gameRooms[authPlayer.gameId].GetOpponent(authPlayer).playerContext.SendTo(response.First);
+                Pair<Response> response = GenerateGameUpdate(authPlayer.gameRoom);
+                authPlayer.gameRoom.GetOpponent(authPlayer).playerContext.SendTo(response.First);
                 authPlayer.playerContext.SendTo(response.Second);
             }
+        }
+
+        public void NextRoundResponse()
+        {
+
         }
 
         public void RequestCardAttack(Player player)
@@ -180,7 +213,7 @@ namespace ServerWBSCKTest
                 }
 
 
-                GamePlayer opponent = gameRooms[authPlayer.gameId].GetOpponent(authPlayer);
+                GamePlayer opponent = authPlayer.gameRoom.GetOpponent(authPlayer);
                 if (opponent != null)
                 {
                     // Attack Card and shaise, must authenticate the Move
@@ -202,7 +235,7 @@ namespace ServerWBSCKTest
                     }
 
                     // Send back game update
-                    Pair<Response> response = GenerateGameUpdate(gameRooms[authPlayer.gameId]);
+                    Pair<Response> response = GenerateGameUpdate(authPlayer.gameRoom);
                     opponent.playerContext.SendTo(response.First);
                     authPlayer.playerContext.SendTo(response.Second);
 
@@ -226,12 +259,12 @@ namespace ServerWBSCKTest
             GameData gData = new GameData(room);
 
 
-            var p1Data = gData.Get(new string[] { "p1_hand", "p1_board", "p2_hand_count", "p2_board", "gameId", "round", "p1", "p2","p1_ident"}, true);
-            var p2Data = gData.Get(new string[] { "p2_hand", "p2_board", "p1_hand_count", "p1_board", "gameId", "round", "p1", "p2", "p2_ident"}, false);
+            var p1Data = gData.Get(new string[] { "p1_hand", "p1_board", "p2_hand_count", "p2_board", "gameId", "round", "p1", "p2", "p1_ident" }, true);
+            var p2Data = gData.Get(new string[] { "p2_hand", "p2_board", "p1_hand_count", "p1_board", "gameId", "round", "p1", "p2", "p2_ident" }, false);
 
 
             GameService.GameResponseType responseType = GameService.GameResponseType.GAME_UPDATE;
-            if(create)
+            if (create)
             {
                 responseType = GameService.GameResponseType.GAME_CREATE;
             }

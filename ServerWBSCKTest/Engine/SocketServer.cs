@@ -49,13 +49,14 @@ namespace ServerWBSCKTest.Engine
         /// </summary>
         private enum GameType
         {
-            // Game Stage 
-            QUEUE = 3,
-            ATTACK = 4,
-            USECARD = 5,
-            NEXTROUND = 6,
-        }
+            // Queue 
+            QUEUE = 100,
 
+            // Game
+            ATTACK = 200,
+            USECARD = 201,
+            NEXTROUND = 202,
+        }
         public GameEngine engine;
 
         public GameService(GameEngine engine)
@@ -70,6 +71,8 @@ namespace ServerWBSCKTest.Engine
             this.data = JsonConvert.DeserializeObject(e.Data);
             this.payload = this.data.Payload;
 
+            Console.WriteLine(data);
+
             switch ((int)data.Type)
             {
                 // GAME LOGIC REQUESTS
@@ -82,22 +85,22 @@ namespace ServerWBSCKTest.Engine
                     if (Authenticate(this))
                     {
                         engine.RequestCardAttack(data.Payload);
-                        Console.WriteLine(data.Payload);
+                        
                     }
                     break;
 
                 case (int)GameType.USECARD:
                     if (Authenticate(this))
                     {
-                        engine.RequestUseCard(OnlinePlayers[this]);
-                        Console.WriteLine(data.Payload);
+                        engine.UseCardRequest(OnlinePlayers[this]);
+                       
                     }
                     break;
 
                 case (int)GameType.NEXTROUND:
                     if (Authenticate(this))
                     {
-                        engine.RequestNextRound(data.Payload);
+                        engine.NextRoundRequest(data.Payload);
                     }
                     break;
 
@@ -168,7 +171,7 @@ namespace ServerWBSCKTest.Engine
         {
             this.data = JsonConvert.DeserializeObject(e.Data);
             this.payload = this.data.Payload;
-            
+
             bool success;
             int room;
             string name;
@@ -281,19 +284,22 @@ namespace ServerWBSCKTest.Engine
         public void Login()
         {
 
-            // Check if user is already in OnlineUsers //TODO WHAT IF ANOTHER CLIENT CONNECTS?
-            if (OnlinePlayers.ContainsKey(this))
-            {
-                SendError("Player already logged in or maybe hash is wrong or missing");
-                return;
-            }
-
             if (this.payload.hash != null)
             {
                 Player newPlayer = new Player();
                 newPlayer.SessionID = this.ID;
                 newPlayer.hash = this.payload.hash;
                 newPlayer.playerContext = this;
+
+                // Check if user is already in OnlineUsers //TODO WHAT IF ANOTHER CLIENT CONNECTS?
+
+              /*  if ((OnlinePlayers.Where(x => x.Value.hash == newPlayer.hash).FirstOrDefault().Key) != null)
+                {                
+
+
+                    SendError("Player already logged in or maybe hash is wrong or missing");
+                    return;
+                }*/
 
                 // Add the new player
                 OnlinePlayers.TryAdd(this, newPlayer);
@@ -342,6 +348,8 @@ namespace ServerWBSCKTest.Engine
                 SendTo(response);
             }
         }
+
+
 
         public void HeartBeat()
         {

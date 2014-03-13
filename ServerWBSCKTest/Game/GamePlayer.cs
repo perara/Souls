@@ -11,10 +11,6 @@ namespace ServerWBSCKTest.Engine
 
     public class GamePlayer
     {
-        /// <summary>
-        /// Defines the game this Game Player Belong to
-        /// </summary>
-        public int gameId { get; set; }
 
         /// <summary>
         /// Contains the hash which comes from the player client (See: Player)
@@ -27,8 +23,8 @@ namespace ServerWBSCKTest.Engine
         public int playernum { get; set; }
 
 
-        public LimitedList<Card> handCards { get; set; }
-        public LimitedList<Card> boardCards { get; set; }
+        public Dictionary<int,Card> handCards { get; set; }
+        public Dictionary<int,Card> boardCards { get; set; }
 
         public bool isDead = false;
         public int attack { get; set; }
@@ -36,6 +32,7 @@ namespace ServerWBSCKTest.Engine
         public int mana { get; set; }
         public string name { get; set; }
         public int rank { get; set; }
+        public GameRoom gameRoom { get; set; }
 
 
         public General playerContext { get; set; }
@@ -43,8 +40,8 @@ namespace ServerWBSCKTest.Engine
         public GamePlayer(General playerContext)
         {
             this.playerContext = playerContext;
-            handCards = new LimitedList<Card>(10);
-            boardCards = new LimitedList<Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
+            handCards = new Dictionary<int,Card>(10);
+            boardCards = new Dictionary<int,Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
         }
 
         public Dictionary<string, string> GetPlayerData()
@@ -55,6 +52,11 @@ namespace ServerWBSCKTest.Engine
             data.Add("mana", mana.ToString());
             data.Add("name", name);
             return data;
+        }
+
+        public bool HasEnoughMana(int cId)
+        {
+            return this.mana >= this.handCards[cId].cost;
         }
 
         public void Attack(Card defCard)
@@ -70,5 +72,6 @@ namespace ServerWBSCKTest.Engine
         {
             isDead = true;
         }
+
     }
 }
