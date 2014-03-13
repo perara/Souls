@@ -42,7 +42,7 @@ namespace ServerWBSCKTest.Chat
 
         public bool AddClient(Player client)
         {
-            if (clients.Contains(client)) return false; // Return if client already is in room
+            if (clients.Contains(client) || client == null) return false; // Prevents adding duplicates or nulls
             clients.AddLast(client); // Add client to room
             return (clients.Contains(client)) ? true : false; // Checks if the client was added successfully
         }
@@ -57,11 +57,13 @@ namespace ServerWBSCKTest.Chat
             return (this.clients.First().Equals(client)) ? true : false;
         }
 
-        public void Broadcast(Response message)
+        public void Broadcast(Response response)
         {
+            
             foreach (Player client in clients)
             {
-                client.playerContext.SendTo(message);
+                if (!client.chatActive) continue;
+                client.context.SendTo(response);
             }
         }
     }

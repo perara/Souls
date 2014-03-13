@@ -49,11 +49,13 @@ namespace ServerWBSCKTest.Engine
         /// </summary>
         private enum GameType
         {
-            // Game Stage 
-            QUEUE = 3,
-            ATTACK = 4,
-            USECARD = 5,
-            NEXTROUND = 6,
+            // Queue 
+            QUEUE = 100,
+
+            // Game
+            ATTACK = 200,
+            USECARD = 201,
+            NEXTROUND = 202,
         }
 
         public GameEngine engine;
@@ -66,54 +68,46 @@ namespace ServerWBSCKTest.Engine
         protected override void OnMessage(MessageEventArgs e)
         {
 
-            // Parse JSON string to dynamic object
-            this.data = JsonConvert.DeserializeObject(e.Data);
-            this.payload = this.data.Payload;
+            data = JsonConvert.DeserializeObject(e.Data);
+            payload = this.data.Payload;
+            type = this.data.Type;
 
-            switch ((int)data.Type)
+            if (type != (int)GENERAL.LOGIN || type != (int)GENERAL.LOGIN)
+                if (!Authenticate(this)) return;
+
+            switch ((GameType)type)
             {
                 // GAME LOGIC REQUESTS
-                case (int)GameType.QUEUE:
-                    if (Authenticate(this))
-                        engine.QueuePlayer(OnlinePlayers[this]);
+                case GameType.QUEUE:
+                    engine.QueuePlayer(OnlinePlayers[this]);
                     break;
 
-                case (int)GameType.ATTACK:
-                    if (Authenticate(this))
-                    {
-                        engine.RequestCardAttack(data.Payload);
-                        Console.WriteLine(data.Payload);
-                    }
+                case GameType.ATTACK:
+                    engine.RequestCardAttack(data.Payload);
                     break;
 
-                case (int)GameType.USECARD:
-                    if (Authenticate(this))
-                    {
-                        engine.RequestUseCard(OnlinePlayers[this]);
-                        Console.WriteLine(data.Payload);
-                    }
+                case GameType.USECARD:
+                    engine.RequestUseCard(OnlinePlayers[this]);
                     break;
 
-                case (int)GameType.NEXTROUND:
-                    if (Authenticate(this))
-                    {
-                        engine.RequestNextRound(data.Payload);
-                    }
+                case GameType.NEXTROUND:
+                    engine.RequestNextRound(data.Payload);
                     break;
+            }
 
-                case (int)GENERAL.LOGIN:
+            switch ((GENERAL)type)
+            {
+                case GENERAL.LOGIN:
                     this.Login();
                     break;
-                case (int)GENERAL.LOGOUT:
-                    if (Authenticate(this))
-                    {
-                        this.Logout();
-                    }
-                    break;
-                case (int)GENERAL.HEARTBEAT:
-                    this.HeartBeat();
+
+                case GENERAL.LOGOUT:
+                    this.Logout();
                     break;
 
+                case GENERAL.HEARTBEAT:
+                    this.HeartBeat();
+                    break;
             }
         }
 
@@ -136,25 +130,42 @@ namespace ServerWBSCKTest.Engine
 
     public class ChatService : General
     {
+
+        /// <summary>
+        /// Responses is 1000 ++
+        /// </summary>
         public new enum ResponseType
         {
             // General
-            MESSAGE = 3,
-            ERROR = 25
+            CHAT_ENABLED = 1000,
+            CHAT_DISABLED = 1001,
+            CHAT_MESSAGE = 1003,
+            CHAT_ROOM_MADE = 1004,
+            INVITED_CLIENT = 1005,
+            KICKED_CLIENT = 1006,
+            LEFT_ROOM = 1007,
+            GOT_INVITED = 1008,
+            GOT_KICKED = 1009,
+            MADE_LEADER = 1010,
+
+            NOT_LEADER = 1097,
+            CLIENT_NOT_FOUND = 1098,
+            CHAT_ERROR = 1099,
         }
 
         /// <summary>
         /// Defines a type of command that the client sends to the server
+        /// Chat IDS = 1000++++
         /// </summary>
         public enum ChatType
         {
-            ACTIVATE = 0,
-            DEACTIVATE = 1,
-            MESSAGE = 2,
-            NEWROOM = 3,
-            INVITE = 4,
-            KICK = 5,
-            LEAVE = 6
+            ENABLE = 1000,
+            DISABLE = 1001,
+            MESSAGE = 1002,
+            NEWROOM = 1003,
+            INVITE = 1004,
+            KICK = 1005,
+            LEAVE = 1006
         }
 
         public ChatEngine engine;
@@ -166,37 +177,26 @@ namespace ServerWBSCKTest.Engine
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            this.data = JsonConvert.DeserializeObject(e.Data);
-            this.payload = this.data.Payload;
-            
-            bool success;
-            int room;
-            string name;
+            data = JsonConvert.DeserializeObject(e.Data);
+            payload = this.data.Payload;
+            type = this.data.Type;
 
-            switch ((ChatType)data.Type)
+            if (type != (int)GENERAL.LOGIN || type != (int)GENERAL.LOGIN)
+                if (!Authenticate(this)) return;
+
+            switch ((ChatType)type)
             {
-
                 // CHAT REQUESTS
-                case ChatType.ACTIVATE:
-                    General.OnlinePlayers[this].chatActive = true;
-
-                    Console.WriteLine("User \"" + General.OnlinePlayers[this].name + "\" logged in to chat");
+                case ChatType.ENABLE:
+                    engine.EnableChat(OnlinePlayers[this]);
                     break;
 
-                case ChatType.DEACTIVATE:
-                    General.OnlinePlayers[this].chatActive = false;
-
-                    Console.WriteLine(General.OnlinePlayers[this].name + " exited chat");
+                case ChatType.DISABLE:
+                    engine.DisableChat(OnlinePlayers[this]);
                     break;
 
                 case ChatType.MESSAGE:
-                    room = payload.room;
-
-                    string message = OnlinePlayers[this].name + ": " + payload.message;
-                    Response response = new Response(ResponseType.MESSAGE, message);
-                    engine.chatRooms[room].Broadcast(response);
-
-                    Console.WriteLine(OnlinePlayers[this].name + ": " + payload.message);
+                    engine.SendMessage(OnlinePlayers[this]);
                     break;
 
                 case ChatType.NEWROOM:
@@ -204,48 +204,33 @@ namespace ServerWBSCKTest.Engine
                     break;
 
                 case ChatType.INVITE:
-                    room = payload.room;
-
-                    // Checks if client is leader
-                    if (!engine.chatRooms[room].isLeader(OnlinePlayers[this]) || !engine.chatRooms[room].isStatic)
-                    {
-                        Console.WriteLine(General.OnlinePlayers[this].name + " tried to invite without being leader");
-                        return;
-                    }
-
-                    Player invited = OnlinePlayers.Where(x => x.Value.name == (string)payload.name).FirstOrDefault().Value;
-                    success = engine.chatRooms[room].AddClient(invited);
-
-                    if (success) Console.WriteLine(OnlinePlayers[this].name + " invited " + payload.name + " to room: " + room);
-                    else Console.WriteLine("Problem adding " + payload.name + " to room " + room + ". Already in room?");
+                    engine.Invite(OnlinePlayers[this]);
                     break;
 
                 case ChatType.KICK:
-                    room = payload.room;
-                    name = payload.name;
-
-                    // Checks if client is leader
-                    if (!engine.chatRooms[room].isLeader(OnlinePlayers[this]) || !engine.chatRooms[room].isStatic)
-                    {
-                        Console.WriteLine(OnlinePlayers[this].name + " tried to kick without being leader");
-                        return;
-                    }
-
-                    Player kick = OnlinePlayers.FirstOrDefault(x => x.Value.name == (string)payload.name).Value;
-                    success = engine.chatRooms[room].RemoveClient(kick);
-
-                    if (success) Console.WriteLine(OnlinePlayers[this].name + " kicked " + payload.name + " from room: " + room);
-                    else Console.WriteLine("Problem kicking " + payload.name + " from room " + room + ". Client not in room?");
+                    engine.Kick(OnlinePlayers[this]);
                     break;
 
                 case ChatType.LEAVE:
-                    room = payload.room;
-
-                    engine.chatRooms[room].RemoveClient(OnlinePlayers[this]);
-                    if (engine.chatRooms[room].clients.Count() == 0) engine.chatRooms.Remove(room);
-
-                    Console.WriteLine(payload.name + " left room: " + room);
+                    engine.LeaveRoom(OnlinePlayers[this]);
                     break;
+
+            }
+
+            switch ((GENERAL)this.type)
+            {
+                case GENERAL.LOGIN:
+                    this.Login();
+                    break;
+
+                case GENERAL.LOGOUT:
+                    Logout();
+                    break;
+
+                case GENERAL.HEARTBEAT:
+                    this.HeartBeat();
+                    break;
+
             }
         }
 
@@ -256,12 +241,12 @@ namespace ServerWBSCKTest.Engine
 
         protected override void OnError(ErrorEventArgs e)
         {
-            Console.WriteLine("[CHAT]: Error on Player {0}", Context.UserEndPoint);
+            Console.WriteLine("[CHAT]: Error on Player {0}");
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Console.WriteLine("[CHAT]: Player {0} disconnected!", Context.UserEndPoint);
+            Console.WriteLine("[CHAT]: Player {0} disconnected!");
         }
 
     }
@@ -272,6 +257,7 @@ namespace ServerWBSCKTest.Engine
 
         public dynamic data { get; set; }
         public dynamic payload { get; set; }
+        public int type { get; set; }
 
         /// <summary>
         /// Register a user's context for the first time with a username, and add it to the list of online users
@@ -293,7 +279,8 @@ namespace ServerWBSCKTest.Engine
                 Player newPlayer = new Player();
                 newPlayer.SessionID = this.ID;
                 newPlayer.hash = this.payload.hash;
-                newPlayer.playerContext = this;
+                newPlayer.context = this;
+                newPlayer.chatActive = true;
 
                 // Add the new player
                 OnlinePlayers.TryAdd(this, newPlayer);
@@ -303,16 +290,16 @@ namespace ServerWBSCKTest.Engine
                 if (success)
                 {
                     SendTo(new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers[this].name));
+                    Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
+                    Console.WriteLine("> Online players: " + OnlinePlayers.Count());
                 }
                 else
                 {
                     Player trash;
                     SendError("Problem fetching player info, client and server hash mismatch");
                     OnlinePlayers.TryRemove(this, out trash);
+                    Console.WriteLine("> Client login failed for: " + Context.UserEndPoint);
                 }
-
-                Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
-                Console.WriteLine("> Online players: " + OnlinePlayers.Count());
             }
         }
 
@@ -408,14 +395,16 @@ namespace ServerWBSCKTest.Engine
             Send(response.ToJSON());
         }
 
+        // Responses 0-100
         public enum ResponseType
         {
             AUTHENTICATED = 0,
             DISCONNECTED = 1,
             HEARTBEAT_REPLY = 5,
-            DEBUG = 254,
-            ERROR = 255,
+            DEBUG = 99,
+            ERROR = 100,
         }
+
 
         public enum GENERAL
         {

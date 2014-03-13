@@ -15,7 +15,7 @@ namespace ServerWBSCKTest
         public bool chatActive { get; set; } //TODO
         public bool inQueue { get; set; }
 
-        public General playerContext { get; set; }
+        public General context { get; set; }
 
         public bool validateHash()
         {

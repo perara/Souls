@@ -47,7 +47,7 @@ namespace ServerWBSCKTest
 
             gameCounter++;
 
-            GamePlayer p1 = new GamePlayer(players.First.playerContext)
+            GamePlayer p1 = new GamePlayer(players.First.context)
             {
                 hash = players.First.hash,
                 name = players.First.name,
@@ -56,7 +56,7 @@ namespace ServerWBSCKTest
                 playernum = 1,
             };
 
-            GamePlayer p2 = new GamePlayer(players.Second.playerContext)
+            GamePlayer p2 = new GamePlayer(players.Second.context)
             {
                 hash = players.Second.hash,
                 name = players.Second.name,
@@ -71,8 +71,8 @@ namespace ServerWBSCKTest
 
             // Send a full game update
             Pair<Response> response = GenerateGameUpdate(newRoom, true);
-            players.First.playerContext.SendTo(response.First);
-            players.Second.playerContext.SendTo(response.Second);
+            players.First.context.SendTo(response.First);
+            players.Second.context.SendTo(response.Second);
 
             // Send "Its your turn to the start player"
             newRoom.currentPlaying.playerContext.SendDebug("Its your turn (DEBUG)");
@@ -85,20 +85,20 @@ namespace ServerWBSCKTest
             {
                 GameQueue.GetInstance().AddPlayer(player);
                 Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " queued!");
-                player.playerContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+                player.context.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
             }
             else
             {
                 Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " tried to queue twice!");
-                player.playerContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+                player.context.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
             }
         }
 
 
         public void RequestUseCard(Player player)
         {
-            int slot = player.playerContext.data.Payload.slotId; //  This is the slot which is the cards destination
-            int card = player.playerContext.data.Payload.cardId; // This is the card which the player has on hand
+            int slot = player.context.data.Payload.slotId; //  This is the slot which is the cards destination
+            int card = player.context.data.Payload.cardId; // This is the card which the player has on hand
 
             // Authenticate the player
             GamePlayer authPlayer = null;
@@ -164,11 +164,11 @@ namespace ServerWBSCKTest
 
         public void RequestCardAttack(Player player)
         {
-            int attacker = player.playerContext.data.attacker;
-            int defender = player.playerContext.data.defender;
+            int attacker = player.context.data.attacker;
+            int defender = player.context.data.defender;
 
-            bool cardAttackPlayer = player.playerContext.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
-            bool playerAttackCard = player.playerContext.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
+            bool cardAttackPlayer = player.context.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
+            bool playerAttackCard = player.context.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
 
             // Authenticate the player
             GamePlayer authPlayer = null;
@@ -209,7 +209,7 @@ namespace ServerWBSCKTest
                 }
                 else
                 {
-                    player.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
+                    player.context.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
                 }
             }
         }
@@ -246,7 +246,7 @@ namespace ServerWBSCKTest
 
         public GamePlayer AuthenticatePlayer(Player player)
         {
-            int gameId = player.playerContext.payload.gameId;
+            int gameId = player.context.payload.gameId;
 
             GamePlayer gPlayer = null;
             if (gameRooms[gameId].players.First.hash == player.hash)
@@ -265,7 +265,7 @@ namespace ServerWBSCKTest
             }
             else
             {
-                player.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_AUTH_FAIL, "Authentication failed!"));
+                player.context.SendTo(new Response(GameService.GameResponseType.GAME_AUTH_FAIL, "Authentication failed!"));
                 return null;
             }
         }
