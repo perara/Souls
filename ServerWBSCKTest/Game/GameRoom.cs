@@ -48,13 +48,11 @@ namespace ServerWBSCKTest
             List<Card> p1Cards = GetRandomCards(3);
             List<Card> p2Cards = GetRandomCards(3);
             foreach (var c in p1Cards)
-            {
-                Console.WriteLine("CID: " +c.cid);
+            { 
                 this.players.First.handCards.Add(c.cid, c);
             }
             foreach (var c in p2Cards)
             {
-                Console.WriteLine("CID2: " + c.cid);
                 this.players.Second.handCards.Add(c.cid, c);
             }
 

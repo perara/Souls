@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Runtime.Serialization;
 
 namespace ServerWBSCKTest.Game
 {
@@ -12,13 +14,16 @@ namespace ServerWBSCKTest.Game
     {
 
         public Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
-
+        public GameRoom room { get; set; }
         /// <summary>
         /// Its important that the PREFIX p1_ or p2_ is specified on those fields which is seperate from both players. this will be used to determine the final structure of the JSON
         /// </summary>
         /// <param name="room"></param>
         public GameData(GameRoom room)
         {
+            this.room = room;
+
+
             data.Add("p1_hand", room.players.First.handCards.Values);
             data.Add("p2_hand", room.players.Second.handCards.Values);
             data.Add("p1_board", room.players.First.boardCards.Values);
@@ -31,38 +36,43 @@ namespace ServerWBSCKTest.Game
             data.Add("p2", room.players.Second.GetPlayerData());
             data.Add("p1_ident", 1);
             data.Add("p2_ident", 2);
+
+
         }
 
-
-
-        /// <summary>
-        ///  data.Add("p1_hand", room.players.First.handCards);
-        ///   data.Add("p2_hand", room.players.Second.handCards);
-        ///data.Add("p1_board", room.players.First.boardCards);
-        ///data.Add("p2_board", room.players.Second.boardCards);
-        ///data.Add("gameId", this.gameId = room.gameId);
-        ///data.Add("round", room.round);
-        /// </summary>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public Dictionary<string, dynamic> Get(string[] values, bool playerOne)
+        public JObject Get(bool playerOne)
         {
-            Dictionary<string, dynamic> retData = new Dictionary<string, dynamic>();
-            foreach (string i in values)
+            GamePlayer player;
+            GamePlayer opponent;
+            if (playerOne)
             {
-                dynamic value;
-                if (data.TryGetValue(i, out value))
-                {
-                    retData.Add((playerOne) ?
-                        i.Replace("p1_", "").Replace("p1", "player").Replace("p2", "opponent") :
-                        i.Replace("p2_", "").Replace("p2", "player").Replace("p1", "opponent"), value);
-                }
-                else
-                {
-                    Console.WriteLine("Wrong INDEX");
-                }
+                player = room.players.First;
+                opponent = room.players.Second;
             }
-            return retData;
+            else
+            {
+                player = room.players.Second;
+                opponent = room.players.First;
+            }
+
+            JObject obj = new JObject(
+                 new JProperty("gameId", room.gameId),
+                 new JProperty("round", room.round),
+                 new JProperty("ident", 1),
+                 new JProperty("player", new JObject(
+                    new JProperty("info", JObject.FromObject(player.GetPlayerData())),
+                    new JProperty("board", JObject.FromObject(player.boardCards)),
+                    new JProperty("hand", JObject.FromObject(player.handCards))
+                    )),
+                new JProperty("opponent", new JObject(
+                    new JProperty("info", JObject.FromObject(opponent.GetPlayerData())),
+                    new JProperty("board", JObject.FromObject(opponent.boardCards)),
+                    new JProperty("hand", player.handCards.Count())
+                    )
+                ));
+
+            return obj;
         }
+
     }
 }

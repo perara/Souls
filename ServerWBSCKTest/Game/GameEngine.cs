@@ -322,8 +322,8 @@ namespace ServerWBSCKTest
             GameData gData = new GameData(room);
 
 
-            var p1Data = gData.Get(new string[] { "p1_hand", "p1_board", "p2_hand_count", "p2_board", "gameId", "round", "p1", "p2", "p1_ident" }, true);
-            var p2Data = gData.Get(new string[] { "p2_hand", "p2_board", "p1_hand_count", "p1_board", "gameId", "round", "p1", "p2", "p2_ident" }, false);
+            var p1Data = gData.Get(true);
+            var p2Data = gData.Get(false);
 
 
             GameService.GameResponseType responseType = GameService.GameResponseType.GAME_UPDATE;
