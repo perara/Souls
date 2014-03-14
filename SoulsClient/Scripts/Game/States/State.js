@@ -1,0 +1,43 @@
+﻿define("state", ['pixi'], function (Pixi) {
+
+    function State(hexColor) {
+        this.stage = new Pixi.Stage(hexColor);
+    }
+
+    State.prototype.Groups = new Array();
+
+    State.prototype.addGroup = function (name, group) {
+        this.Groups[name] = group;
+        this.stage.addChild(group);
+    }
+
+    State.prototype.getGroup = function (name) {
+        return this.Groups[name];
+    }
+
+    /**
+    * Adds a PIXI.Sprite to a DisplayCOntainer
+    *
+    * @property groupName, sprite
+    * @type String, PIXI.Sprite
+    */
+    State.prototype.addChild = function (groupName, sprite) {
+        this.Groups[groupName].addChild(sprite);
+    }
+
+    State.prototype.OnStart = function () {
+        console.error("OnStart function should be overloaded (State.js)")
+    }
+
+    State.prototype.OnEnd = function () {
+        console.error("OnEnd function should be overloaded (State.js)")
+    }
+
+    State.prototype.OnSuspend = function () {
+        console.error("OnSuspend function should be overloaded (State.js)")
+    }
+
+    return State;
+
+
+});
