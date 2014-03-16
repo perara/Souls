@@ -18,7 +18,7 @@ namespace SoulsServer
     public class GameEngine
     {
         public int gameCounter = 0;
-        public static Dictionary<int, GameRoom> gameRooms = new Dictionary<int, GameRoom>();
+        //public static Dictionary<int, GameRoom> gameRooms = new Dictionary<int, GameRoom>();
         public static List<Card> cards { get; set; }
 
         public GameEngine()
@@ -37,7 +37,7 @@ namespace SoulsServer
             {
                 while (true)
                 {
-                    bool matchMaked = GameQueue.GetInstance().matchPlayers(initGame);
+                    bool matchMaked = GameQueue.GetInstance().matchPlayers(Request_CreateGame);
                     // Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
 
                     Thread.Sleep(500);
@@ -101,52 +101,50 @@ namespace SoulsServer
 
         }
 
-        public void MovedCard(Player player)
+        public void Request_MoveCard(Player player)
         {
-            // Authenticate the player
-            GamePlayer requestPlayer = null;
-            if ((requestPlayer = AuthenticatePlayer(player)) != null)
-            {
-                JObject retData = new JObject(
-                    new JProperty("cid", player.gameContext.data.Payload.cid),
-                    new JProperty("x", player.gameContext.data.Payload.x),
-                    new JProperty("y", player.gameContext.data.Payload.y)
-                    );
+
+
+            GamePlayer requestPlayer = player.gPlayer;
+
+            JObject retData = new JObject(
+                new JProperty("cid", player.gameContext.data.Payload.cid),
+                new JProperty("x", player.gameContext.data.Payload.x),
+                new JProperty("y", player.gameContext.data.Payload.y)
+                );
 
 
 
-                Response response = new Response(
-                    GameService.GameResponseType.GAME_OPPONENT_MOVE,
-                    retData
-                    );
+            Response response = new Response(
+                GameService.GameResponseType.GAME_OPPONENT_MOVE,
+                retData
+                );
 
 
-                requestPlayer.GetOpponent().playerContext.SendTo(response);
-            }
+            requestPlayer.GetOpponent().playerContext.SendTo(response);
+
 
 
         }
 
-        public void ReleasedCard(Player player)
+        public void Request_ReleaseCard(Player player)
         {
-            // Authenticate the player
-            GamePlayer requestPlayer = null;
-            if ((requestPlayer = AuthenticatePlayer(player)) != null)
-            {
-                JObject retData = new JObject(
-                 new JProperty("cid", player.gameContext.data.Payload.cid));
+            GamePlayer requestPlayer = player.gPlayer;
 
-                Response response = new Response(
-                    GameService.GameResponseType.GAME_OPPONENT_RELEASE,
-                    retData
-                    );
+            JObject retData = new JObject(
+             new JProperty("cid", player.gameContext.data.Payload.cid));
 
-                requestPlayer.GetOpponent().playerContext.SendTo(response);
-            }
+            Response response = new Response(
+                GameService.GameResponseType.GAME_OPPONENT_RELEASE,
+                retData
+                );
+
+            requestPlayer.GetOpponent().playerContext.SendTo(response);
+
         }
 
         // Starts the game from the matchmaked players in a new gameroom
-        public void initGame(Pair<Player> players)
+        public void Request_CreateGame(Pair<Player> players)
         {
 
 
@@ -157,7 +155,7 @@ namespace SoulsServer
                 hash = players.First.hash,
                 name = players.First.name,
                 rank = players.First.rank,
-                playernum = 1,
+                isPlayerOne = true,
                 gameRoom = newRoom,
             };
 
@@ -166,17 +164,20 @@ namespace SoulsServer
                 hash = players.Second.hash,
                 name = players.Second.name,
                 rank = players.Second.rank,
-                playernum = 2,
+                isPlayerOne = false,
                 gameRoom = newRoom,
             };
 
+            // Add GamePlayer objects to the Player contexts
+            players.First.gPlayer = p1;
+            players.Second.gPlayer = p2;
+
+
             // Create a game room
-            newRoom.AddGamePlayer(new Pair<GamePlayer>(p1, p2));
-            gameRooms.Add(newRoom.gameId, newRoom);
+            newRoom.AddGamePlayers(new Pair<GamePlayer>(p1, p2));
 
-            // Send a full game update
-            Pair<Response> response = GenerateGameUpdate(newRoom, true);
 
+            Pair<Response> response = newRoom.GenerateGameUpdate(true);
             players.First.gameContext.SendTo(response.First);
             players.Second.gameContext.SendTo(response.Second);
 
@@ -186,123 +187,125 @@ namespace SoulsServer
 
         }
 
-        public void QueuePlayer(Player player)
+        public void Request_QueuePlayer(Player player)
         {
-            if (!player.inQueue)
+
+            // Check if the player already have a game player
+            if (player.gPlayer == null)
             {
-                GameQueue.GetInstance().AddPlayer(player);
-                Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " queued!");
-                player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+
+                if (!player.inQueue)
+                {
+                    GameQueue.GetInstance().AddPlayer(player);
+                    Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " queued!");
+                    player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+                }
+                else
+                {
+                    Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " tried to queue twice!");
+                    player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+                }
+
             }
             else
             {
-                Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " tried to queue twice!");
-                player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+                Console.WriteLine("> [GAME] Player was already in game, giving gameUpdate (Create)");
+
+                // Send the gamestate to the player (As create since its the first state of this override player)
+                Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate(true);
+                if(player.gPlayer.isPlayerOne)
+                {
+                    player.gPlayer.playerContext.SendTo(response.First);
+                }
+                else
+                {
+                    player.gPlayer.playerContext.SendTo(response.Second);
+                }
+
+     
+
             }
         }
 
 
-        public void UseCardRequest(Player player)
+        public void Request_UseCard(Player player)
         {
             int slot = player.gameContext.data.Payload.slotId; //  This is the slot which is the cards destination
             int card = player.gameContext.data.Payload.cid; // This is the card which the player has on hand
 
 
-            // Authenticate the player
-            GamePlayer requestPlayer = null;
-            if ((requestPlayer = AuthenticatePlayer(player)) != null)
-            {
+            GamePlayer requestPlayer = player.gPlayer;
 
-                if (!IsPlayerTurn(requestPlayer))
-                {
-                    requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
-                    new Dictionary<string, object> 
+            if (!requestPlayer.IsPlayerTurn())
+            {
+                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+                new Dictionary<string, object> 
                         { 
                             {"card",card},
                             {"error","Not your turn!"} 
                         }));
-                    Console.WriteLine("Not your turn!");
-                    return;
-                }
+                Console.WriteLine(">[GAME] Not your turn!");
+                return;
+            }
 
 
-                if (!requestPlayer.HasEnoughMana(card))
-                {
-                    requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
-                    Console.WriteLine("Not enough mana!");
-                    return;
-                }
-                else
-                {
+            if (!requestPlayer.HasEnoughMana(card))
+            {
+                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
+                Console.WriteLine(">[GAME] Not enough mana!");
+                return;
+            }
+            else
+            {
 
 
 
-                    // Move a card to the board
-                    Card c;
-                    requestPlayer.handCards.TryGetValue(card, out c);
-                    requestPlayer.handCards.Remove(card);
-                    requestPlayer.boardCards.Add(c.cid, c);
+                // Move a card to the board
+                Card c;
+                requestPlayer.handCards.TryGetValue(card, out c);
+                requestPlayer.handCards.Remove(card);
+                requestPlayer.boardCards.Add(c.cid, c);
 
 
-                    //Next turn
-                    requestPlayer.gameRoom.NextTurn();
+                //Next turn
+                requestPlayer.gameRoom.NextTurn();
 
-                    // Send Reply
-                    requestPlayer.playerContext.SendTo(new Response(
-                        GameService.GameResponseType.GAME_USECARD_OK, new Dictionary<string, int> 
+                // Send Reply
+                requestPlayer.playerContext.SendTo(new Response(
+                    GameService.GameResponseType.GAME_USECARD_OK, new Dictionary<string, int> 
                         { 
                             {"card",card},
                             {"slot",slot} 
                         }));
-                    Console.WriteLine("Sent!");
-
-
-
-                }
-
+                Console.WriteLine(">[GAME] Sent!");
 
 
 
             }
 
+
         }
 
-        public bool IsPlayerTurn(GamePlayer player)
+        public void Request_NextRound(Player player)
         {
+            GamePlayer requestPlayer = player.gPlayer;
 
-            if (!player.Equals(player.gameRoom.currentPlaying))
-            {
-                return false;
-            }
-            return true;
-        }
+            // Validate player turn
+            if (!requestPlayer.IsPlayerTurn()) return;
 
-        public void NextRoundRequest(Player context)
-        {
-            // Authenticate the player
-            GamePlayer authPlayer = null;
-            if ((authPlayer = AuthenticatePlayer(context)) != null)
-            {
-                // Validate player turn
-                if (!IsPlayerTurn(authPlayer)) return;
+            // Run next round
+            requestPlayer.gameRoom.NextRound();
 
-                // Run next round
-                authPlayer.gameRoom.NextRound();
+            // Send back game state (update)
 
-                // Send back game state (update)
-
-                Pair<Response> response = GenerateGameUpdate(authPlayer.gameRoom);
-                authPlayer.GetOpponent().playerContext.SendTo(response.First);
-                authPlayer.playerContext.SendTo(response.Second);
-            }
-        }
-
-        public void NextRoundResponse()
-        {
+            Pair<Response> response = requestPlayer.gameRoom.GenerateGameUpdate();
+            requestPlayer.GetOpponent().playerContext.SendTo(response.First);
+            requestPlayer.playerContext.SendTo(response.Second);
 
         }
 
-        public void RequestCardAttack(Player player)
+
+        public void Request_CardAttack(Player player)
         {
             int attacker = player.gameContext.data.attacker;
             int defender = player.gameContext.data.defender;
@@ -310,104 +313,48 @@ namespace SoulsServer
             bool cardAttackPlayer = player.gameContext.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
             bool playerAttackCard = player.gameContext.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
 
-            // Authenticate the player
-            GamePlayer authPlayer = null;
-            if ((authPlayer = AuthenticatePlayer(player)) != null)
+
+
+            GamePlayer requestPlayer = player.gPlayer;
+
+            if (!requestPlayer.IsPlayerTurn())
             {
-                if (!IsPlayerTurn(authPlayer))
+                return;
+            }
+
+
+            GamePlayer opponent = requestPlayer.GetOpponent();
+            if (opponent != null)
+            {
+                // Attack Card and shaise, must authenticate the Move
+                Card atkCard = requestPlayer.handCards[attacker];
+                Card defCard = opponent.handCards[defender];
+
+
+                if (cardAttackPlayer)
                 {
-                    return;
+                    atkCard.Attack(ref opponent); // Card on Player attack
                 }
-
-
-                GamePlayer opponent = authPlayer.GetOpponent();
-                if (opponent != null)
+                else if (playerAttackCard)
                 {
-                    // Attack Card and shaise, must authenticate the Move
-                    Card atkCard = authPlayer.handCards[attacker];
-                    Card defCard = opponent.handCards[defender];
-
-
-                    if (cardAttackPlayer)
-                    {
-                        atkCard.Attack(ref opponent); // Card on Player attack
-                    }
-                    else if (playerAttackCard)
-                    {
-                        authPlayer.Attack(defCard); // Player on Card attack
-                    }
-                    else
-                    {
-                        atkCard.Attack(ref defCard); // Card on Card
-                    }
-
-                    // Send back game update
-                    Pair<Response> response = GenerateGameUpdate(authPlayer.gameRoom);
-                    opponent.playerContext.SendTo(response.First);
-                    authPlayer.playerContext.SendTo(response.Second);
-
+                    requestPlayer.Attack(defCard); // Player on Card attack
                 }
                 else
                 {
-                    player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
+                    atkCard.Attack(ref defCard); // Card on Card
                 }
-            }
-        }
 
-        /// <summary>
-        /// This object sends current game state to the game players, This happens every turn.
-        /// </summary>
-        /// <param name="room"></param>
-        /// <returns></returns>
-        public Pair<Response> GenerateGameUpdate(GameRoom room, bool create = false)
-        {
+                // Send back game update
+                Pair<Response> response = requestPlayer.gameRoom.GenerateGameUpdate();
+                opponent.playerContext.SendTo(response.First);
+                requestPlayer.playerContext.SendTo(response.Second);
 
-            // Game Data player 1
-            GameData gData = new GameData(room);
-
-
-            var p1Data = gData.Get(true);
-            var p2Data = gData.Get(false);
-
-
-            GameService.GameResponseType responseType = GameService.GameResponseType.GAME_UPDATE;
-            if (create)
-            {
-                responseType = GameService.GameResponseType.GAME_CREATE;
-            }
-
-            Pair<Response> gUpdates = new Pair<Response>(
-                new Response(responseType, p1Data),
-                new Response(responseType, p2Data)
-                );
-
-            return gUpdates;
-        }
-
-        public GamePlayer AuthenticatePlayer(Player player)
-        {
-            int gameId = player.gameContext.payload.gameId;
-
-            GamePlayer gPlayer = null;
-            if (gameRooms[gameId].players.First.hash == player.hash)
-            {
-                gPlayer = gameRooms[gameId].players.First;
-            }
-            else if (gameRooms[gameId].players.Second.hash == player.hash)
-            {
-                gPlayer = gameRooms[gameId].players.Second;
-
-            }
-
-            if (gPlayer != null)
-            {
-                return gPlayer;
             }
             else
             {
-                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_AUTH_FAIL, "Authentication failed!"));
-                return null;
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
             }
         }
+
     }
 }

@@ -28,7 +28,6 @@ namespace SoulsServer
         public void SetId()
         {
             cid = ++Card.idCounter;
-            Console.WriteLine(cid);
         }
 
         public static Card toCard(string json)

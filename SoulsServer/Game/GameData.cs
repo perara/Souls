@@ -12,35 +12,12 @@ namespace SoulsServer.Game
 {
     public class GameData
     {
-
-        public Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
-        public GameRoom room { get; set; }
-        /// <summary>
-        /// Its important that the PREFIX p1_ or p2_ is specified on those fields which is seperate from both players. this will be used to determine the final structure of the JSON
-        /// </summary>
-        /// <param name="room"></param>
-        public GameData(GameRoom room)
+       
+        private GameData()
         {
-            this.room = room;
-
-
-            data.Add("p1_hand", room.players.First.handCards.Values);
-            data.Add("p2_hand", room.players.Second.handCards.Values);
-            data.Add("p1_board", room.players.First.boardCards.Values);
-            data.Add("p2_board", room.players.Second.boardCards.Values);
-            data.Add("gameId", room.gameId);
-            data.Add("round", room.round);
-            data.Add("p1_hand_count", room.players.First.handCards.Count);
-            data.Add("p2_hand_count", room.players.Second.handCards.Count);
-            data.Add("p1", room.players.First.GetPlayerData());
-            data.Add("p2", room.players.Second.GetPlayerData());
-            data.Add("p1_ident", 1);
-            data.Add("p2_ident", 2);
-
-
         }
 
-        public JObject Get(bool playerOne)
+        public static JObject Get(GameRoom room, bool playerOne)
         {
             GamePlayer player;
             GamePlayer opponent;
@@ -55,10 +32,7 @@ namespace SoulsServer.Game
                 opponent = room.players.First;
             }
 
-
-  
-
-
+            // Construct a game update object 
             JObject obj = new JObject(
                  new JProperty("gameId", room.gameId),
                  new JProperty("round", room.round),

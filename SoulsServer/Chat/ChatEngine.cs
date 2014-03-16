@@ -274,32 +274,5 @@ namespace SoulsServer.Chat
             client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_DISABLED, "Deactivated chat for " + client.name));
             Console.WriteLine("[CHAT] User \"" + client.name + "\" exited chat");
         }*/
-
-
-        public void ChatLogin(General client)
-        {
-            string hash = client.payload.hash;
-
-            Console.WriteLine("Should be +1: " + OnlinePlayers.GetInstance().list.Count());
-
-            KeyValuePair<General, Player> cli = OnlinePlayers.GetInstance().list.Where(x => x.Value.hash == hash).FirstOrDefault();
-            if (cli.Key != null)
-            {
-                Console.WriteLine("> [CHAT]: Found game connection. Adding link Chat.friendCon<-->Game.friendCon client!");
-
-
-
-            }
-
-
-
-
-
-        }
-
-        public void ChatLogout(General client)
-        {
-
-        }
     }
 }

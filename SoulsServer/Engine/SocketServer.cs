@@ -79,46 +79,36 @@ namespace SoulsServer.Engine
             type = this.data.Type;
 
 
-            // TODO: Check payload integrity, missing elements causes crash
-
-
-
-            if (type != (int)GENERAL.LOGIN && type != (int)GENERAL.HEARTBEAT)
-            {
-                if (!Authenticate(this)) return;
-            }
-
             switch ((GameType)type)
             {
                 // GAME LOGIC REQUESTS
                 case GameType.QUEUE:
-                    engine.QueuePlayer(OnlinePlayers.GetInstance().list[this]);
+                    engine.Request_QueuePlayer(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case GameType.ATTACK:
-                    engine.RequestCardAttack(data.Payload);
+                    engine.Request_CardAttack(data.Payload);
                     break;
 
                 case GameType.USECARD:
-                    engine.UseCardRequest(OnlinePlayers.GetInstance().list[this]);
+                    engine.Request_UseCard(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case GameType.NEXTROUND:
-                    engine.NextRoundRequest(data.Payload);
+                    engine.Request_NextRound(data.Payload);
                     break;
                 case GameType.MOVE_CARD:
-                    engine.MovedCard(OnlinePlayers.GetInstance().list[this]);
+                    engine.Request_MoveCard(OnlinePlayers.GetInstance().list[this]);
                     break;
                 case GameType.RELEASE_CARD:
-                    engine.ReleasedCard(OnlinePlayers.GetInstance().list[this]);
+                    engine.Request_ReleaseCard(OnlinePlayers.GetInstance().list[this]);
                     break;
 
             }
-
             switch ((GENERAL)type)
             {
                 case GENERAL.LOGIN:
-                    this.Login();
+                    this.GameLogin();
                     break;
 
                 case GENERAL.LOGOUT:
@@ -138,12 +128,70 @@ namespace SoulsServer.Engine
 
         protected override void OnError(ErrorEventArgs e)
         {
-            Console.WriteLine("[GAME]: Error on Player {0}", "UNKNOWN :(");
+            Console.WriteLine("[GAME]: Error on Player: " + e.Message.ToString());
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
             Console.WriteLine("[GAME]: Player {0} disconnected!", e.Reason);
+        }
+
+        /// <summary>
+        /// Register a user's context for the first time with a username, and add it to the list of online users
+        /// </summary>
+        /// <param name="name">The name to register the user under</param>
+        /// <param name="context">The user's connection context</param>
+        public void GameLogin()
+        {
+            string hash = this.payload.hash;
+
+            if (hash != "null")
+            {
+                Player newPlayer = new Player();
+                newPlayer.hash = this.payload.hash;
+                newPlayer.gameContext = this;
+
+
+                // Check if the same player tries to log in twice (Same user/hash)
+                General origUser;
+                if ((origUser = (OnlinePlayers.GetInstance().list.Where(x => x.Value.UpdateHash() == newPlayer.hash).FirstOrDefault().Key)) != null)
+                {
+                    Console.WriteLine("> [GAME]: User tried to log in twice");
+
+                    // Closes the Original connection
+                    //  origUser.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.NORMAL, "Same user connected twice, terminating first user");
+
+                    // Swaps out the old Connection with the new one.
+                    this.SwapOutClient(origUser);
+
+
+
+
+                }
+                else
+                {
+
+                    // Add the new player
+                    OnlinePlayers.GetInstance().list.TryAdd(this, newPlayer);
+
+                    // Updates the hash and loads the player info from the database if not already loaded
+                    bool success = newPlayer.fetchPlayerInfo();
+                    if (success)
+                    {
+                        SendTo(new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers.GetInstance().list[this].name));
+                        Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
+                        Console.WriteLine("> Online players: " + OnlinePlayers.GetInstance().list.Count());
+                    }
+                    else
+                    {
+                        Player trash;
+                        SendError("Problem fetching player info, client and server hash mismatch");
+                        OnlinePlayers.GetInstance().list.TryRemove(this, out trash);
+                        Console.WriteLine("> Client login failed for: " + Context.UserEndPoint);
+                    }
+
+                }
+            }
         }
 
     }
@@ -206,10 +254,6 @@ namespace SoulsServer.Engine
 
             // TODO: Check payload integrity, missing elements causes crash
 
-            if (type != (int)ChatType.CHAT_LOGIN && type != (int)GENERAL.HEARTBEAT)
-            {
-                if (!Authenticate(this)) return;
-            }
 
             switch ((ChatType)type)
             {
@@ -241,17 +285,13 @@ namespace SoulsServer.Engine
                 case ChatType.LEAVE:
                     engine.LeaveRoom(OnlinePlayers.GetInstance().list[this]);
                     break;
-                case ChatType.CHAT_LOGIN:
-                    engine.ChatLogin(this);
-                    break;
-                case ChatType.CHAT_LOGOUT:
-                    engine.ChatLogout(this);
-                    break;
-
             }
 
             switch ((GENERAL)this.type)
             {
+                case GENERAL.LOGIN:
+                    ChatLogin();
+                    break;
                 case GENERAL.HEARTBEAT:
                     this.HeartBeat();
                     break;
@@ -273,8 +313,31 @@ namespace SoulsServer.Engine
         protected override void OnClose(CloseEventArgs e)
         {
             Console.WriteLine("[CHAT]: Player {0} disconnected!");
+
         }
 
+
+
+        public void ChatLogin()
+        {
+            string hash = this.payload.hash;
+
+            Console.WriteLine("Should be +1: " + OnlinePlayers.GetInstance().list.Count());
+
+            KeyValuePair<General, Player> cli = OnlinePlayers.GetInstance().list.Where(x => x.Value.hash == hash).FirstOrDefault();
+            if (cli.Key != null)
+            {
+                Console.WriteLine("> [CHAT]: Found game connection. Adding link Chat.friendCon<-->Game.friendCon client!");
+
+
+
+            }
+
+
+
+
+
+        }
     }
 
     public abstract class General : WebSocketService
@@ -283,51 +346,6 @@ namespace SoulsServer.Engine
         public dynamic data { get; set; }
         public dynamic payload { get; set; }
         public int type { get; set; }
-
-        /// <summary>
-        /// Register a user's context for the first time with a username, and add it to the list of online users
-        /// </summary>
-        /// <param name="name">The name to register the user under</param>
-        /// <param name="context">The user's connection context</param>
-        public void Login()
-        {
-
-            string hash = this.payload.hash;
-
-            if (hash != "null")
-            {
-                Player newPlayer = new Player();
-                newPlayer.hash = this.payload.hash;
-                newPlayer.gameContext = this;
-
-
-               /* if ((OnlinePlayers.GetInstance().list.Where(x => x.Value.hash == newPlayer.hash).FirstOrDefault().Key) != null)
-                {
-                    Console.WriteLine("Someone here :)");
-                }*/
-
-
-
-                // Add the new player
-                OnlinePlayers.GetInstance().list.TryAdd(this, newPlayer);
-
-                // Updates the hash and loads the player info from the database if not already loaded
-                bool success = newPlayer.fetchPlayerInfo();
-                if (success)
-                {
-                    SendTo(new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers.GetInstance().list[this].name));
-                    Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
-                    Console.WriteLine("> Online players: " + OnlinePlayers.GetInstance().list.Count());
-                }
-                else
-                {
-                    Player trash;
-                    SendError("Problem fetching player info, client and server hash mismatch");
-                    OnlinePlayers.GetInstance().list.TryRemove(this, out trash);
-                    Console.WriteLine("> Client login failed for: " + Context.UserEndPoint);
-                }
-            }
-        }
 
         public void Logout()
         {
@@ -356,46 +374,36 @@ namespace SoulsServer.Engine
             }
         }
 
+        /// <summary>
+        /// Swaps out a client with another in the OnlinePlayers list
+        /// </summary>
+        public void SwapOutClient(General swapOut)
+        {
 
+            Player outP;
+
+            // Gets the Player object
+            OnlinePlayers.GetInstance().list.TryRemove(swapOut, out outP);
+
+            OnlinePlayers.GetInstance().list.TryAdd(this, outP);
+
+            // Update Contexts
+            outP.gameContext = this;
+            if (outP.gPlayer != null)
+            {
+                outP.gPlayer.playerContext = this;
+            }
+
+
+
+            Console.WriteLine("> [GENERAL] Swapped out the General Object!");
+        }
 
         public void HeartBeat()
         {
             string d = this.payload.heartbeat;
             Response response = new Response(ResponseType.HEARTBEAT_REPLY, JsonConvert.DeserializeObject("{first:" + this.payload.heartbeat + ", last:" + this.payload.last + "}"));
             SendTo(response);
-        }
-
-        //TODO FIX THIS, retrurning else every time probably string cast
-        public bool Authenticate(General context)
-        {
-
-            // Check if the player actually exists
-            if (OnlinePlayers.GetInstance().list.ContainsKey(this))
-            {
-
-                //  Console.WriteLine(data.hash);
-                string hash = context.payload.hash;
-                if (OnlinePlayers.GetInstance().list[this].hash.Equals(hash))
-                {
-                    return true;
-                }
-                else if (data.hash == "")
-                {
-
-                    SendTo(new Response(ResponseType.LOGIN_NO_HASH, "No hash were given (Not logged in?)"));
-                    return false;
-                }
-                else
-                {
-                    SendTo(new Response(ResponseType.LOGIN_WRONG_HASH, "Hash did not match, Wannabe hacker?"));
-                    return false;
-                }
-            }
-            else
-            {
-                SendTo(new Response(ResponseType.LOGIN_NOT_LOGGED_IN, "You are not logged in"));
-                return false;
-            }
         }
 
         /// <summary>

@@ -10,6 +10,7 @@ using SoulsServer.Tools;
 using Newtonsoft.Json.Linq;
 using SoulsServer.Model;
 using SoulsServer.Controller;
+using SoulsServer.Game;
 
 namespace SoulsServer
 {
@@ -35,46 +36,42 @@ namespace SoulsServer
 
         }
 
-        public void AddGamePlayer(Pair<GamePlayer> players)
+        public void AddGamePlayers(Pair<GamePlayer> players)
         {
             this.players = players;
 
-
             currentPlaying = players.First;
-
-            // this.players = new Pair<GamePlayer>(players.First, players.Second);
 
 
             List<Card> p1Cards = GetRandomCards(3);
             List<Card> p2Cards = GetRandomCards(3);
             foreach (var c in p1Cards)
-            { 
+            {
                 this.players.First.handCards.Add(c.cid, c);
             }
             foreach (var c in p2Cards)
             {
                 this.players.Second.handCards.Add(c.cid, c);
             }
-
         }
 
         // Gets a specific number of random cards from the card database
         public List<Card> GetRandomCards(int amount = 1)
         {
-                List<Card> getCard = new List<Card>();
-                Random rand = new Random();
+            List<Card> getCard = new List<Card>();
+            Random rand = new Random();
 
-                for (var i = 0; i < amount; i++ )
-                {
-                    Card c = (Card)GameEngine.cards[rand.Next(GameEngine.cards.Count() - 1)].Clone();
-                    c.SetId();
-                    getCard.Add(c);
-                }
-               
-    
-                return getCard;
+            for (var i = 0; i < amount; i++)
+            {
+                Card c = (Card)GameEngine.cards[rand.Next(GameEngine.cards.Count() - 1)].Clone();
+                c.SetId();
+                getCard.Add(c);
+            }
+
+
+            return getCard;
         }
- 
+
         // Return GamePlayers of the game troom
         public Pair<GamePlayer> getPlayers()
         {
@@ -94,7 +91,7 @@ namespace SoulsServer
         public void NextRound()
         {
             currentPlaying = (++round % 2 == 0) ? players.First : players.Second;
-            
+
             // Add a new card to players
 
             Card p1Card = this.GetRandomCards()[0];
@@ -105,6 +102,33 @@ namespace SoulsServer
             // Set mana equal to the round (unless +10)
             currentPlaying.mana = (this.round < 10) ? this.round : 10;
         }
+
+        /// <summary>
+        /// This object sends current game state to the game players, This happens every turn.
+        /// </summary>
+        /// <param name="room"></param>
+        /// <returns></returns>
+        public Pair<Response> GenerateGameUpdate(bool create = false)
+        {
+
+            var p1Data = GameData.Get(this, true);
+            var p2Data = GameData.Get(this, false);
+
+
+            GameService.GameResponseType responseType = GameService.GameResponseType.GAME_UPDATE;
+            if (create)
+            {
+                responseType = GameService.GameResponseType.GAME_CREATE;
+            }
+
+            Pair<Response> gUpdates = new Pair<Response>(
+                new Response(responseType, p1Data),
+                new Response(responseType, p2Data)
+                );
+
+            return gUpdates;
+        }
+
 
 
 

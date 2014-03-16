@@ -20,7 +20,7 @@ namespace SoulsServer.Engine
         /// <summary>
         /// If its PLAYER 1 or 2
         /// </summary>
-        public int playernum { get; set; }
+        public bool isPlayerOne { get; set; }
 
 
         public Dictionary<int,Card> handCards { get; set; }
@@ -91,5 +91,15 @@ namespace SoulsServer.Engine
             isDead = true;
         }
 
+
+        public bool IsPlayerTurn()
+        {
+
+            if (!this.Equals(this.gameRoom.currentPlaying))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
