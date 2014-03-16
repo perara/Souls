@@ -1,19 +1,9 @@
 ﻿define("opponent", ["jquery", "asset", "playerbase"], function ($, asset, playerBase) {
 
 
-    Opponent = function (jsonObject) {
+    Opponent = function (engine) {
         var texture = asset.GetTexture(asset.Textures.PLAYER_NONE);
-        PlayerBase.call(this, texture, jsonObject)
-
-        this.pickedUpCard = undefined;
-
-        this.mouse =
-        {
-            x: 0,
-            y: 0
-        }
-
-        this.Arrow = new Arrow();
+        playerBase.call(this, texture, engine)
 
 
 
@@ -22,8 +12,17 @@
     Opponent.prototype = Object.create(PlayerBase.prototype);
     Opponent.prototype.constructor = Opponent;
 
+    Opponent.prototype.Init = function () {
+        this.cardManager = new CardManager();
+        this.engine.addChild("Opponent", this);
+        this.SetPosition(
+            {
+                x: (this.engine.conf.width / 2),
+                y: this.height / 2
+            });
 
- 
+    }
+
 
 
 

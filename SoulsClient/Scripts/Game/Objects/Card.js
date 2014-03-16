@@ -1,7 +1,9 @@
-﻿define("card", ["pixi", 'asset', 'tween'], function (pixi, asset, buzz, tween) {
+﻿define("card", ["pixi", 'asset', 'tween', 'stopwatch', 'messages'], function (pixi, asset, tween, StopWatch, Message) {
 
-
-    Card = function (jsonData) {
+    var that = this;
+    Card = function (engine, jsonData) {
+        that = this;
+        this.engine = engine;
         var texture = asset.GetTexture(asset.Textures.CARD_NONE);
         pixi.Sprite.call(this, texture);
 
@@ -12,24 +14,18 @@
 
         this.width = 120;
         this.height = 150;
+        this.networkStopWatch = new Stopwatch();
+        this.networkStopWatch.start();
 
-        this.CardData = jsonData;
-
-        // TODO? 
-        if (jsonData == undefined) {
-            this.CardData =
-                {
-                    name: "Unknown",
-                    health: "N",
-                    mana: "N",
-                    attack: "N",
-                    cost: "N",
-                    ability:
-                    {
-                        name: "NO",
-                    }
-                }
+        this.cid = (!!jsonData.cid) ? jsonData.cid : "NA";
+        this.name = (!!jsonData.name) ? jsonData.name : "NA";
+        this.health = (!!jsonData.health || jsonData.health == 0) ? jsonData.health : "NA";
+        this.attack = (!!jsonData.attack || jsonData.attack == 0) ? jsonData.attack : "NA";
+        this.cost = (!!jsonData.cost || jsonData.cost == 0) ? jsonData.cost : "NA"; //TODO, 0 might  turn this false?
+        this.ability = {
+            name: (!!jsonData.ability) ? jsonData.ability.name : "NO"
         }
+
 
         this.SetupCard(this);
         this.inSlot = null;
@@ -125,7 +121,7 @@
         cAttack.y = (that.height / 2) - (cAttack.height / 2) - 3;
 
         // CardFactory Health Label
-        var cHealthText = new pixi.Text(that.CardData.health,
+        var cHealthText = new pixi.Text(that.health,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -137,7 +133,7 @@
         cHealthText.position.y = (that.height / 2) - (cHealthText.height / 2);
 
         // CardFactory Mana Label
-        var cManaText = new pixi.Text(that.CardData.cost, //TODO (COST? != mana)
+        var cManaText = new pixi.Text(that.cost, //TODO (COST? != mana)
             {
                 font: "18px Arial",
                 fill: "white",
@@ -150,7 +146,7 @@
 
 
         // CardFactory Attack Label
-        var cAttackText = new pixi.Text(that.CardData.attack,
+        var cAttackText = new pixi.Text(that.attack,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -162,7 +158,7 @@
         cAttackText.position.y = (that.height / 2) - (cAttackText.height / 2) - 2;
 
         // CardFactory Ability Label
-        var cAbilityPanelText = new pixi.Text(this.CardData.ability.name,
+        var cAbilityPanelText = new pixi.Text(this.ability.name,
              {
                  font: "12px Arial",
                  fill: "black",
@@ -183,7 +179,7 @@
 
 
         // CardFactory Name Label
-        var cNamePanelText = new pixi.Text(that.CardData.name,
+        var cNamePanelText = new pixi.Text(that.name,
             {
                 font: "18px Arial bold",
                 fill: "black",
@@ -309,73 +305,76 @@
     }
 
 
-    Card.prototype.AnimateBack = function () {
+    Card.prototype.AnimateBack = function (c) {
 
-        var position = { x: this.x, y: this.y, rotation: this.rotation };
-        var target = { x: this.originX, y: this.originY, rotation: this.originRot * (Math.PI / 180) };
-        var tween = new TWEEN.Tween(position).to(target, 500);
-        tween.easing(TWEEN.Easing.Elastic.Out)
+        var position = { x: c.x, y: c.y, rotation: c.rotation };
+        var target = { x: c.originX, y: c.originY, rotation: c.originRot * (Math.PI / 180) };
 
-        var that = this;
-        tween.onUpdate(function () {
-            that.rotation = position.rotation;
-            that.x = position.x;
-            that.y = position.y;
+
+
+
+        var sween = new TWEEN.Tween(position).to(target, 500);
+        sween.easing(TWEEN.Easing.Elastic.Out)
+
+
+        sween.onUpdate(function () {
+            c.rotation = position.rotation;
+            c.x = position.x;
+            c.y = position.y;
         });
 
-        tween.start();
+        sween.start();
     }
 
 
     Card.prototype.Process = function () {
 
+        if (this.dragging && this.networkStopWatch.getElapsed().milliseconds > 200)
+        {
+            this.networkStopWatch.reset();
+            this.RequestMove();
+            
+
+        }
+     
+
 
     }
 
+    Card.prototype.RequestMove = function()
+    {
+        var json = Message.GAME.MOVE_CARD;
+        json.Payload.x = this.x;
+        json.Payload.y = this.y;
+        json.Payload.cid = this.cid;
+        json.Payload.gameId = this.engine.gameId;
 
+        this.engine.gameSocket.send(json);
+    }
 
+    Card.prototype.RequestRelease = function()
+    {
+        var json = Message.GAME.RELEASE_CARD;
+        json.Payload.cid = this.cid;
+        json.Payload.gameId = this.engine.gameId;
+        this.engine.gameSocket.send(json);
+    }
 
-    // A available callback function which is used for firing events to a parent class when an interaction is done in the Card class
-    // This is therfore called at the end of each of the Mouse movement events.
-    Card.prototype.InteractionCallback = function (func) { this.InteractionCallback = func }
 
 
     Card.prototype.mouseover = function (data) {
         this.mouseOver = true;
 
-        if (!this.inSlot) {
-            this.scale.x = 1.0;
-            this.scale.y = 1.0
-        } else {
-            this.scale.x = 1.2;
-            this.scale.y = 1.2;
-        }
-
-        // Call the GAME callback
-        this.InteractionCallback(this, "hover");
     };
 
     Card.prototype.mouseout = function (data) {
         // Downscale the card when leaving it
 
-        if (!this.inSlot) {
-            this.scale.x = 0.80;
-            this.scale.y = 0.80;
-        }
-        else {
-            this.scale.x = 1.0;
-            this.scale.y = 1.0;
-        }
-
-        // Run callback to game
-        this.InteractionCallback(this, "leave");
     }
 
-
-    // Mouse - Click
     Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
-
         asset.GetSound(asset.Sound.CARD_PICKUP).play()
+
         // Scale up the card while mousedown (20%)
         this.scale.x = 1.2;
         this.scale.y = 1.2;
@@ -395,9 +394,6 @@
 
         this.mouseDown = true;
         this.dragging = true;
-
-        // Call the GAME callback
-        this.InteractionCallback(this, (this.inSlot != null) ? "click-slot" : "click");
     };
 
     // Mouse - Release
@@ -410,14 +406,14 @@
         this.mouseDown = false;
         this.dragging = false;
 
-        // This property must be forced because PIXI does not update this before after this even is done.
-        //this.__mouseIsDown = false;
-
-        // Call the GAME callback
-        this.InteractionCallback(this, (this.inSlot != null) ? "release-slot" : "release");
+        // If the card is not in a slot, we want to tween it back to original position.
+        if (!this.inSlot) {
+            this.RequestRelease();
+            Card.prototype.AnimateBack(this);
+        }
     };
 
-    // Mouse - Move
+    // Dragging Callback
     Card.prototype.mousemove = Card.prototype.touchmove = function (data) {
 
         if (this.dragging) {
@@ -426,22 +422,15 @@
 
 
                 // console.log(" x offset is " + this.position.click.offset.x);
-                this.position.x = mouse.x - this.position.click.offset.x;
-                this.position.y = mouse.y - this.position.click.offset.y;
+                this.x = mouse.x - this.position.click.offset.x;
+                this.y = mouse.y - this.position.click.offset.y;
 
 
-                // Call the GAME callback
-                this.InteractionCallback(this, "drag");
-                return;
+
             }
-
-            // Call the GAME callback (While in slot)
-            this.InteractionCallback(this, "drag-slot");
-            return;
-
         }
-
     };
+
 
     return Card;
 

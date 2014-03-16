@@ -111,7 +111,7 @@ namespace SoulsServer.Chat
                 return false;
             }
 
-            Player toInvite = General.OnlinePlayers.Where(x => x.Value.name == name).FirstOrDefault().Value;
+            Player toInvite = OnlinePlayers.GetInstance().list.Where(x => x.Value.name == name).FirstOrDefault().Value;
 
             if (toInvite != null && !toInvite.chatActive)
             {
@@ -152,7 +152,7 @@ namespace SoulsServer.Chat
                 return false;
             }
 
-            Player toKick = General.OnlinePlayers.FirstOrDefault(x => x.Value.name == name).Value;
+            Player toKick = OnlinePlayers.GetInstance().list.FirstOrDefault(x => x.Value.name == name).Value;
 
             if (chatRooms[room].RemoveClient(toKick))
             {
@@ -191,7 +191,7 @@ namespace SoulsServer.Chat
             else
             {
                 chatRooms[room].Broadcast(new Response(ChatService.ResponseType.CHAT_MESSAGE, client.name + " left the room"));
-                if (wasLeader) 
+                if (wasLeader)
                     chatRooms[room].clients.First().context.SendTo(new Response(ChatService.ResponseType.MADE_LEADER, "You are now the leader of room " + room));
                 client.context.SendTo(new Response(ChatService.ResponseType.LEFT_ROOM, "You left room " + room));
                 Console.WriteLine("[CHAT] " + client.name + " left room " + room);
@@ -259,6 +259,33 @@ namespace SoulsServer.Chat
             client.chatActive = false;
             client.context.SendTo(new Response(ChatService.ResponseType.CHAT_DISABLED, "Deactivated chat for " + client.name));
             Console.WriteLine("[CHAT] User \"" + client.name + "\" exited chat");
+        }
+
+
+        public void ChatLogin(General client)
+        {
+            string hash = client.payload.hash;
+
+            Console.WriteLine("Should be +1: " + OnlinePlayers.GetInstance().list.Count());
+
+            KeyValuePair<General,Player> cli = OnlinePlayers.GetInstance().list.Where(x => x.Value.hash == hash).FirstOrDefault();
+            if (cli.Key != null)
+            {
+                Console.WriteLine("> [CHAT]: Found game connection. Adding link Chat.friendCon<-->Game.friendCon client!");
+                cli.Key.friendCon = client;
+                client.friendCon = cli.Key;
+
+            }
+
+
+
+
+
+        }
+
+        public void ChatLogout(General client)
+        {
+
         }
     }
 }

@@ -22,6 +22,14 @@
     * @type String, PIXI.Sprite
     */
     State.prototype.addChild = function (groupName, sprite) {
+        
+        // Check if group exists
+        if (!this.Groups[groupName])
+        {
+            console.log("> [State]: Group " + groupName + " does not exist, creating...");
+            this.addGroup(groupName, new Pixi.DisplayObjectContainer());
+        }
+
         this.Groups[groupName].addChild(sprite);
     }
 

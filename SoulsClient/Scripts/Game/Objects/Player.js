@@ -1,33 +1,40 @@
-﻿define("player", ["jquery", "pixi", "asset", "playerbase", "arrow"], function ($, pixi, asset, playerBase, Arrow) {
+﻿define("player", ["jquery", "pixi", "asset", "playerbase", "arrow", "cardmanager"], function ($, pixi, asset, playerBase, Arrow, CardManager) {
 
 
-    Player = function (jsonObject) {
+    Player = function (engine) {
         var texture = asset.GetTexture(asset.Textures.PLAYER_NONE);
-        PlayerBase.call(this, texture, jsonObject)
-
-        this.pickedUpCard = undefined;
-
-        this.mouse =
-        {
-            x: 0,
-            y: 0
-        }
-
-        this.Arrow = new Arrow();
-        
-
-
+        playerBase.call(this, texture, engine)
     }
     // Constructor
-    Player.prototype = Object.create(PlayerBase.prototype);
+    Player.prototype = Object.create(playerBase.prototype);
     Player.prototype.constructor = Player;
 
 
     Player.prototype.Process = function () {
-        this.ProcessArrow();
+        this.arrow.Process();
+
+        // Process Hand Cards
+        for (var cardIndex in this.cardManager.hand) {
+            this.cardManager.hand[cardIndex].Process();
+        }
+
+        // Process Board Cards
+        for (var cardIndex in this.cardManager.board) {
+            this.cardManager.board[cardIndex].Process();
+        }
+
     }
 
+    Player.prototype.Init = function () {
+        this.arrow = new Arrow();
+        this.engine.addChild("Player", this);
+        this.SetPosition(
+            {
+                x: (this.engine.conf.width / 2),
+                y: (this.engine.conf.height - this.height / 2)
+            });
 
+    }
 
 
 

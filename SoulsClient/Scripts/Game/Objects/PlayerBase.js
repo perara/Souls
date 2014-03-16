@@ -1,13 +1,14 @@
-﻿define("playerbase", ["jquery", "pixi", "asset"], function ($, pixi, asset) {
+﻿define("playerbase", ["jquery", "pixi", "asset", "card"], function ($, pixi, asset, Card) {
 
-    PlayerBase = function (texture, json) {
+    PlayerBase = function (texture, engine) {
         pixi.Sprite.call(this, texture);
 
-        this.NetworkData = undefined;
-        this.cards = new Array();
+        this.engine = engine;
 
-        ///TODODODO
-        this.NetworkData =
+        this.cardManager = new CardManager();
+
+        var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };
+        this.graphicText =
             {
                 name: json.name,
                 attack: json.attack,
@@ -85,7 +86,7 @@
         pHealthImage.y = this.height / 2 - pHealthImage.height;
 
 
-        var pNamePanelText = new pixi.Text(this.NetworkData.name,
+        this.pNamePanelText = new pixi.Text(this.graphicText.name,
             {
                 font: "26px Helvetica",
                 fill: "black",
@@ -94,12 +95,12 @@
 
                 wordWrapWidth: this.width
             });
-        pNamePanelText.anchor = { x: 0.5, y: 1 };
-        pNamePanelText.x = 0;
-        pNamePanelText.y = this.height / 2;
+        this.pNamePanelText.anchor = { x: 0.5, y: 1 };
+        this.pNamePanelText.x = 0;
+        this.pNamePanelText.y = this.height / 2;
 
 
-        var pAttackText = new pixi.Text(this.NetworkData.attack,
+        this.pAttackText = new pixi.Text(this.graphicText.attack,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -109,11 +110,11 @@
 
                 wordWrapWidth: this.width
             });
-        pAttackText.anchor = { x: 0.5, y: 1 };
-        pAttackText.x = -this.width / 4;;
-        pAttackText.y = this.height / 2 - pAttackImage.height;
+        this.pAttackText.anchor = { x: 0.5, y: 1 };
+        this.pAttackText.x = -this.width / 4;;
+        this.pAttackText.y = this.height / 2 - pAttackImage.height;
 
-        var pManaText = new pixi.Text(this.NetworkData.mana,
+        this.pManaText = new pixi.Text(this.graphicText.mana,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -123,12 +124,12 @@
 
                 wordWrapWidth: this.width
             });
-        pManaText.anchor = { x: 0.5, y: 1 };
-        pManaText.x = -this.width / 4;
-        pManaText.y = 0;
+        this.pManaText.anchor = { x: 0.5, y: 1 };
+        this.pManaText.x = -this.width / 4;
+        this.pManaText.y = 0;
 
 
-        var pHealthText = new pixi.Text(this.NetworkData.health,
+        this.pHealthText = new pixi.Text(this.graphicText.health,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -138,9 +139,9 @@
 
                 wordWrapWidth: this.width
             });
-        pHealthText.anchor = { x: 0.5, y: 1 };
-        pHealthText.x = this.width / 4;
-        pHealthText.y = this.height / 2 - pHealthImage.height;
+        this.pHealthText.anchor = { x: 0.5, y: 1 };
+        this.pHealthText.x = this.width / 4;
+        this.pHealthText.y = this.height / 2 - pHealthImage.height;
 
 
         // TODO ATTACK, MANA, HEALTH
@@ -152,15 +153,99 @@
         this.addChild(pManaImage);
         this.addChild(pHealthImage);
 
-        this.addChild(pNamePanelText);
-        this.addChild(pAttackText);
-        this.addChild(pManaText);
-        this.addChild(pHealthText);
-
+        this.addChild(this.pNamePanelText);
+        this.addChild(this.pAttackText);
+        this.addChild(this.pManaText);
+        this.addChild(this.pHealthText);
 
     }
     // Constructor
     PlayerBase.prototype = Object.create(pixi.Sprite.prototype);
     PlayerBase.prototype.constructor = PlayerBase;
 
+    PlayerBase.prototype.Process = function () {
+        console.log("> [PlayerBase]: Implement Process()");
+    }
+
+    PlayerBase.prototype.Init = function () {
+        console.log("> [PlayerBase]: Implement Init()");
+    }
+
+    /*var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };*/
+    PlayerBase.prototype.SetText = function (jsonData) {
+        this.graphicText = jsonData;
+        this.pAttackText.setText(this.graphicText.attack);
+        this.pHealthText.setText(this.graphicText.health);
+        this.pManaText.setText(this.graphicText.mana);
+        this.pNamePanelText.setText(this.graphicText.name);
+    }
+
+    PlayerBase.prototype.SetPosition = function (xy) {
+        this.position = xy;
+    }
+
+    // playoropp = "Player" or "Opponent" 
+    // Conf: {x,y,playoropp}
+    PlayerBase.prototype.GiveCards = function(jsonCards, conf)
+    {
+        console.log(jsonCards)
+
+        var count = 0;
+        // Iterate over car
+        for (var cJson in jsonCards)
+        {
+            count++;
+            var c = new Card(this.engine, jsonCards[cJson]);
+            c.x = c.originX = conf.x + (120 * (count));
+            c.y = c.originY = conf.y;
+            c.originRot = 0;
+            this.cardManager.AddCardHand(c);
+
+
+            this.engine.addChild(conf.playoropp, c);
+
+            if (conf.playoropp == "Player")
+            {
+                c.interactive = true;
+            }
+        }
+
+
+
+        /*
+
+        var count = 0;
+        for (var i in data.hand) {
+            count++;
+            var cid;
+            if (config.player) {
+                cid = i;
+            }
+            else {
+                cid = data.hand[i];
+            }
+
+            var cardData = (config.player) ? data.hand[i] : undefined;
+            console.log(cardData);
+            var c = new Card(cardData);
+            c.x = c.originX = config.x + (120 * (count));
+            c.y = c.originY = config.y;
+            c.originRot = 0;
+
+            if (!!config.player) {
+                c.interactive = true;
+                c.InteractionCallback(this.CardInteractionCallback);
+                this.Player.cards[cardData.cid] = c;
+            }
+            else {
+                c.CardData.cid = cid;
+                this.Opponent.cards[cid] = c;
+            }
+
+            this.addChild("Card", c);
+
+        }*/
+    }
+
+    return PlayerBase
 });

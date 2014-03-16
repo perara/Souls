@@ -4,11 +4,17 @@
 require.config({
     //baseUrl: "Scripts/GamePLS",
     paths: {
-        "jquery": "/Scripts/jquery-2.1.0",
+        // Third party
+        "jquery": "/Scripts/jquery-1.11.0.min",
+        "jqueryUI": "/Scripts/jquery-ui-1.10.4.min",
+        "jquery.dialogExtend": "/Scripts/jquery.dialogextend.min",
+
+
         "pixi": "/Scripts/pixi.dev", // PIXI.js
         "tween": "/Scripts/tween.min",
         "soundjs": "/Scripts/soundjs-0.5.2.min",
-        "stats" : "/Scripts/stats.min",
+        "stats": "/Scripts/stats.min",
+        "stopwatch": "/Scripts/stopwatch",
 
         // Toolbox - General Tools
         "toolbox": "Toolbox/Toolbox",
@@ -31,12 +37,21 @@ require.config({
         "player": "Objects/Player",
         "playerbase": "Objects/PlayerBase",
         "arrow": "Objects/Arrow",
-        "opponent": "Objects/Opponent"
+        "opponent": "Objects/Opponent",
+        "networkmanager": "Objects/NetworkManager",
+        "cardmanager": "Objects/CardManager",
+        "inputmanager": "Objects/InputManager",
+        "background": "Objects/Background",
+        "chat": "Objects/Chat"
     },
     shim: {
         'pixi': {
             exports: 'PIXI'
-        }
+        },
+        'jqueryUI': ['jquery'],
+        'jquery.dialogExtend': ['jqueryUI']
+      
+
     }
 });
 
@@ -45,27 +60,12 @@ require.config({
 var Engine = {};
 define('conf', ['/Player/hash?callback=define'], function (define) {
 
-    this.Data = null;
     function Conf() {
-        this.Data = new Object();
-        this.Data.width = 1920;
-        this.Data.height = 1080;
-        this.Data.frame = 0;
-        this.Data.fps = 1;
-        this.Data.mouseX = 0;
-        this.Data.mouseY = 0;
-
-        // These configurations origins from JSONP service
-        this.Data.hash = define.hash;
-    }
-
-
-    Conf.prototype.get = function (obj) {
-        return this.Data.obj;
-    }
-
-    Conf.prototype.save = function (obj, data) {
-        this.Data.obj = data;
+        this.width = 1920;
+        this.height = 1080;
+        this.Frame = 0;
+        this.FPS = 30;
+        this.hash = define.hash;
     }
 
     return new Conf();
@@ -73,78 +73,75 @@ define('conf', ['/Player/hash?callback=define'], function (define) {
 
 
 //Engine class
-require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket'], function ($, Pixi, Asset, Conf, Gamestate, Game, Socket) {
+require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stats'], function ($, Pixi, Asset, Conf, Gamestate, Game, Socket, stats) {
 
-    Engine.window = null;
-    Engine.stage = null;
 
-    // This function initialize all required dependencies for the game to work. Window, Resources etc                  
     function Initialize() {
         // Create a stage and the renderer
-        Engine.stage = new Pixi.Stage(0x000000, true);
-        Engine.window = new Pixi.autoDetectRenderer(Conf.Data.width, Conf.Data.height, null, false,true);
-        $("#game-window").html(Engine.window.view);
+        this.stage = new Pixi.Stage(0x000000, true);
+        this.renderer = new Pixi.autoDetectRenderer(Conf.width, Conf.height, null, false, true);
+        $("#game-window").html(this.renderer.view);
+
+
+        this.gameEngine = new Game();
+
+        // Show stats
+
+
+        var stats = new Stats();
+        stats.setMode(1); // 0: fps, 1: ms
+
+        // Align top-left
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+
+        document.body.appendChild(stats.domElement);
 
 
         // Set start to game
         Conf.currentState = Gamestate.GAME;
 
-        TempSocketStuff();
 
         // Fire onReady after init stuff
         OnResize();
-        OnReady();
-
-    }
-
-    function TempSocketStuff() {
-        // Connect to server
 
 
-        Socket.send(Socket.Message.GENERAL.LOGIN);
-        Socket.send(Socket.Message.GAME.QUEUE);
-    }
+        setInterval(function () {
+            stats.begin();
+            GameLoop();
+            stats.end();
+        }, 1000 / Conf.FPS);
 
-    function OnReady() {
-        console.log("> All classes loaded");
-
-        Game.Process();
-
-        // start the game loop
-        setInterval(function () { GameLoop() }, 1000 / Conf.fps);
     }
 
     function OnResize() {
         var width = $(window).width();
         var height = $(window).height();
 
-        Engine.window.view.style.width = $(window).width() + "px";
-        Engine.window.view.style.height = $(window).height() - $(".navbar").height() + "px";
+
+        this.renderer.view.style.width = $(window).width() + "px";
+        this.renderer.view.style.height = $(window).height() - $(".navbar").height() + "px";
 
     }
 
     function GameLoop() {
 
-        // console.log(Game);
+        if (Conf.currentState == Gamestate.MENU) {
 
-        switch (Conf.currentState) {
 
-            case Gamestate.MENU:
-                //console.log("MENU")
-                break;
-            case Gamestate.GAME:
-                Engine.window.render(Game.Process());
-                break;
-            case Gamestate.PAUSED:
-                // console.log("PAUSED")
-                break;
+        }
+        else if (Conf.currentState == Gamestate.GAME) {
+            this.renderer.render(this.gameEngine.Process());
+        }
+
+        else if (Conf.currentState == Gamestate.PAUSED) {
+
         }
     }
 
-    /*
-    Socket.onMessage(function (data) {
 
-    });*/
+
 
     // Run the game
     $(document).ready(Initialize());

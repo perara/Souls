@@ -103,30 +103,47 @@ namespace SoulsServer
 
         public void MovedCard(Player player)
         {
-
-            JObject retData = new JObject(
-                new JProperty("cid", player.context.data.Payload.cid),
-                new JProperty("x", player.context.data.Payload.x),
-                new JProperty("y", player.context.data.Payload.y)
-                );
-
-           
-
-            Response response = new Response(
-                GameService.GameResponseType.GAME_OPPONENT_MOVE,
-                retData
-                );
-
             // Authenticate the player
             GamePlayer requestPlayer = null;
             if ((requestPlayer = AuthenticatePlayer(player)) != null)
             {
+                JObject retData = new JObject(
+                    new JProperty("cid", player.context.data.Payload.cid),
+                    new JProperty("x", player.context.data.Payload.x),
+                    new JProperty("y", player.context.data.Payload.y)
+                    );
+
+
+
+                Response response = new Response(
+                    GameService.GameResponseType.GAME_OPPONENT_MOVE,
+                    retData
+                    );
+
+
                 requestPlayer.GetOpponent().playerContext.SendTo(response);
             }
 
 
         }
 
+        public void ReleasedCard(Player player)
+        {
+            // Authenticate the player
+            GamePlayer requestPlayer = null;
+            if ((requestPlayer = AuthenticatePlayer(player)) != null)
+            {
+                JObject retData = new JObject(
+                 new JProperty("cid", player.context.data.Payload.cid));
+
+                Response response = new Response(
+                    GameService.GameResponseType.GAME_OPPONENT_RELEASE,
+                    retData
+                    );
+
+                requestPlayer.GetOpponent().playerContext.SendTo(response);
+            }
+        }
 
         // Starts the game from the matchmaked players in a new gameroom
         public void initGame(Pair<Player> players)

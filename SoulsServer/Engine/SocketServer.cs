@@ -41,8 +41,9 @@ namespace SoulsServer.Engine
 
             GAME_USECARD_OK = 207,
             GAME_USECARD_OOM = 208,
-            
-            GAME_OPPONENT_MOVE = 209
+
+            GAME_OPPONENT_MOVE = 209,
+            GAME_OPPONENT_RELEASE = 210
 
         }
 
@@ -60,6 +61,7 @@ namespace SoulsServer.Engine
             USECARD = 201,
             NEXTROUND = 202,
             MOVE_CARD = 203,
+            RELEASE_CARD = 204
 
         }
         public GameEngine engine;
@@ -87,27 +89,30 @@ namespace SoulsServer.Engine
             }
 
             switch ((GameType)type)
-
             {
                 // GAME LOGIC REQUESTS
                 case GameType.QUEUE:
-                    engine.QueuePlayer(OnlinePlayers[this]);
+                    engine.QueuePlayer(OnlinePlayers.GetInstance().list[this]);
                     break;
 
-                    case GameType.ATTACK:
+                case GameType.ATTACK:
                     engine.RequestCardAttack(data.Payload);
                     break;
 
                 case GameType.USECARD:
-                    engine.UseCardRequest(OnlinePlayers[this]);
+                    engine.UseCardRequest(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case GameType.NEXTROUND:
                     engine.NextRoundRequest(data.Payload);
                     break;
                 case GameType.MOVE_CARD:
-                       engine.MovedCard(OnlinePlayers[this]);
+                    engine.MovedCard(OnlinePlayers.GetInstance().list[this]);
                     break;
+                case GameType.RELEASE_CARD:
+                    engine.ReleasedCard(OnlinePlayers.GetInstance().list[this]);
+                    break;
+
             }
 
             switch ((GENERAL)type)
@@ -180,7 +185,9 @@ namespace SoulsServer.Engine
             NEWROOM = 1003,
             INVITE = 1004,
             KICK = 1005,
-            LEAVE = 1006
+            LEAVE = 1006,
+            CHAT_LOGIN = 1007,
+            CHAT_LOGOUT = 1008,
         }
 
         public ChatEngine engine;
@@ -199,52 +206,52 @@ namespace SoulsServer.Engine
 
             // TODO: Check payload integrity, missing elements causes crash
 
-            if (type != (int)GENERAL.LOGIN || type != (int)GENERAL.LOGIN)
+            if (type != (int)ChatType.CHAT_LOGIN && type != (int)GENERAL.HEARTBEAT)
+            {
                 if (!Authenticate(this)) return;
+            }
 
             switch ((ChatType)type)
             {
                 // CHAT REQUESTS
                 case ChatType.ENABLE:
-                    engine.EnableChat(OnlinePlayers[this]);
+                    engine.EnableChat(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.DISABLE:
-                    engine.DisableChat(OnlinePlayers[this]);
+                    engine.DisableChat(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.MESSAGE:
-                    engine.SendMessage(OnlinePlayers[this]);
+                    engine.SendMessage(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.NEWROOM:
-                    engine.AddChatRoom(OnlinePlayers[this]);
+                    engine.AddChatRoom(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.INVITE:
-                    engine.Invite(OnlinePlayers[this]);
+                    engine.Invite(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.KICK:
-                    engine.Kick(OnlinePlayers[this]);
+                    engine.Kick(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.LEAVE:
-                    engine.LeaveRoom(OnlinePlayers[this]);
+                    engine.LeaveRoom(OnlinePlayers.GetInstance().list[this]);
+                    break;
+                case ChatType.CHAT_LOGIN:
+                    engine.ChatLogin(this);
+                    break;
+                case ChatType.CHAT_LOGOUT:
+                    engine.ChatLogout(this);
                     break;
 
             }
 
             switch ((GENERAL)this.type)
             {
-                case GENERAL.LOGIN:
-                    this.Login();
-                    break;
-
-                case GENERAL.LOGOUT:
-                    Logout();
-                    break;
-
                 case GENERAL.HEARTBEAT:
                     this.HeartBeat();
                     break;
@@ -259,7 +266,8 @@ namespace SoulsServer.Engine
 
         protected override void OnError(ErrorEventArgs e)
         {
-            Console.WriteLine("[CHAT]: Error on Player {0}");
+
+            Console.WriteLine("[CHAT]: Error on Player {0}" + e.Message.ToString());
         }
 
         protected override void OnClose(CloseEventArgs e)
@@ -271,11 +279,12 @@ namespace SoulsServer.Engine
 
     public abstract class General : WebSocketService
     {
-        public static ConcurrentDictionary<General, Player> OnlinePlayers = new ConcurrentDictionary<General, Player>();
 
         public dynamic data { get; set; }
         public dynamic payload { get; set; }
         public int type { get; set; }
+
+        public General friendCon { get; set; }
 
         /// <summary>
         /// Register a user's context for the first time with a username, and add it to the list of online users
@@ -285,7 +294,12 @@ namespace SoulsServer.Engine
         public void Login()
         {
 
-            if (this.payload.hash != null)
+            string hash = this.payload.hash;
+
+
+
+
+            if (hash != "null")
             {
                 Player newPlayer = new Player();
                 newPlayer.SessionID = this.ID;
@@ -293,32 +307,30 @@ namespace SoulsServer.Engine
                 newPlayer.context = this;
                 newPlayer.chatActive = true;
 
-                // Check if user is already in OnlineUsers //TODO WHAT IF ANOTHER CLIENT CONNECTS?
 
-              /*  if ((OnlinePlayers.Where(x => x.Value.hash == newPlayer.hash).FirstOrDefault().Key) != null)
-                {                
-
-
-                    SendError("Player already logged in or maybe hash is wrong or missing");
-                    return;
+               /* if ((OnlinePlayers.GetInstance().list.Where(x => x.Value.hash == newPlayer.hash).FirstOrDefault().Key) != null)
+                {
+                    Console.WriteLine("Someone here :)");
                 }*/
 
+
+
                 // Add the new player
-                OnlinePlayers.TryAdd(this, newPlayer);
+                OnlinePlayers.GetInstance().list.TryAdd(this, newPlayer);
 
                 // Updates the hash and loads the player info from the database if not already loaded
                 bool success = newPlayer.fetchPlayerInfo();
                 if (success)
                 {
-                    SendTo(new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers[this].name));
+                    SendTo(new Response(ResponseType.AUTHENTICATED, "Logged in as " + OnlinePlayers.GetInstance().list[this].name));
                     Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
-                    Console.WriteLine("> Online players: " + OnlinePlayers.Count());
+                    Console.WriteLine("> Online players: " + OnlinePlayers.GetInstance().list.Count());
                 }
                 else
                 {
                     Player trash;
                     SendError("Problem fetching player info, client and server hash mismatch");
-                    OnlinePlayers.TryRemove(this, out trash);
+                    OnlinePlayers.GetInstance().list.TryRemove(this, out trash);
                     Console.WriteLine("> Client login failed for: " + Context.UserEndPoint);
                 }
             }
@@ -330,17 +342,17 @@ namespace SoulsServer.Engine
             try
             {
 
-                GameQueue.GetInstance().removePlayer(OnlinePlayers[this]);
+                GameQueue.GetInstance().removePlayer(OnlinePlayers.GetInstance().list[this]);
 
                 Player trash;
-                success = OnlinePlayers.TryRemove(this, out trash);
+                success = OnlinePlayers.GetInstance().list.TryRemove(this, out trash);
 
                 if (success)
                 {
                     Response response = new Response(ResponseType.DISCONNECTED, "You are now logged out!");
                     SendTo(response);
                     Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
-                    Console.WriteLine("> Online players: " + OnlinePlayers.Count());
+                    Console.WriteLine("> Online players: " + OnlinePlayers.GetInstance().list.Count());
 
                 }
             }
@@ -365,29 +377,30 @@ namespace SoulsServer.Engine
         {
 
             // Check if the player actually exists
-            if (OnlinePlayers.ContainsKey(this))
+            if (OnlinePlayers.GetInstance().list.ContainsKey(this))
             {
 
                 //  Console.WriteLine(data.hash);
                 string hash = context.payload.hash;
-                if (OnlinePlayers[this].hash.Equals(hash))
+                if (OnlinePlayers.GetInstance().list[this].hash.Equals(hash))
                 {
                     return true;
                 }
                 else if (data.hash == "")
                 {
-                    SendError("> Hash is NULL");
+
+                    SendTo(new Response(ResponseType.LOGIN_NO_HASH, "No hash were given (Not logged in?)"));
                     return false;
                 }
                 else
                 {
-                    SendError("> Hash was WRONG!");
+                    SendTo(new Response(ResponseType.LOGIN_WRONG_HASH, "Hash did not match, Wannabe hacker?"));
                     return false;
                 }
             }
             else
             {
-                SendError("> User is not logged in!");
+                SendTo(new Response(ResponseType.LOGIN_NOT_LOGGED_IN, "You are not logged in"));
                 return false;
             }
         }
@@ -418,14 +431,19 @@ namespace SoulsServer.Engine
             Send(response.ToJSON());
         }
 
-        // Responses 0-100
+        // Responses 0-99
         public enum ResponseType
         {
             AUTHENTICATED = 0,
             DISCONNECTED = 1,
             HEARTBEAT_REPLY = 5,
             DEBUG = 99,
-            ERROR = 100,
+            ERROR = 98,
+
+            LOGIN_OK = 10,
+            LOGIN_NO_HASH = 11,
+            LOGIN_WRONG_HASH = 12,
+            LOGIN_NOT_LOGGED_IN = 13,
         }
 
 
@@ -464,5 +482,26 @@ namespace SoulsServer.Engine
         {
 
         }
+    }
+
+    public class OnlinePlayers
+    {
+        private static OnlinePlayers instance;
+        public ConcurrentDictionary<General, Player> list { get; set; }
+        private OnlinePlayers()
+        {
+            list = new ConcurrentDictionary<General, Player>();
+        }
+
+        public static OnlinePlayers GetInstance()
+        {
+            if (instance == null)
+            {
+                instance = new OnlinePlayers();
+            }
+
+            return instance;
+        }
+
     }
 }

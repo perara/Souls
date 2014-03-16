@@ -55,6 +55,10 @@ namespace SoulsServer.Game
                 opponent = room.players.First;
             }
 
+
+  
+
+
             JObject obj = new JObject(
                  new JProperty("gameId", room.gameId),
                  new JProperty("round", room.round),
@@ -67,7 +71,12 @@ namespace SoulsServer.Game
                 new JProperty("opponent", new JObject(
                     new JProperty("info", JObject.FromObject(opponent.GetPlayerData())),
                     new JProperty("board", JObject.FromObject(opponent.boardCards)),
-                    new JProperty("hand", opponent.handCards.Keys)
+                    new JProperty("hand", from h in opponent.handCards
+                                          select
+                                              new JObject(
+                                                   new JObject(
+                                                    new JProperty("cid", h.Value.cid))
+                                       ))
                     )
                 ));
 

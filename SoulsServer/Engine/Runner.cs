@@ -10,7 +10,6 @@ using System.Security.Cryptography;
 using System.Threading;
 using Newtonsoft.Json;
 using SoulsServer.Game;
-using Alchemy.Classes;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
 using SoulsServer.Chat;

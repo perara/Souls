@@ -1,19 +1,17 @@
-﻿define("socket", ['messages'], function (Messages) {
+﻿define("socket", [], function (Messages) {
 
     Socket.con = undefined;
     Socket.msg = undefined;
-    function Socket() {
-        Messages.call(this);
+    function Socket(url) {
         this.msg = new Array();
-
-        this.connect();
+        this.con;
+        this.url = url;
     }
-    Socket.prototype = Object.create(Messages.prototype);
     Socket.constructor = Socket;
 
-    Socket.prototype.connect = function () {
+    Socket.prototype.connect = function (url) {
         //this.con = new WebSocket("ws://hybel.keel.no:8140");
-        this.con = new WebSocket("ws://tux.persoft.no:8140/game");
+        this.con = new WebSocket(this.url);
     }
 
 
@@ -35,9 +33,9 @@
 
     // Handle messages sent by the server.
     Socket.prototype.onMessage = function (callback) {
-        this.con.onmessage = function (event) {
-            callback(event);
-        };
+            this.con.onmessage = function (event) {
+                callback(event);
+            };
     }
 
     // Show a disconnected message when the WebSocket is closed.
@@ -55,6 +53,7 @@
             if (that.con.bufferedAmount == 0 && that.msg.length > 0 && that.con.readyState === 1) {
                 var tmpData = that.msg.shift();
 
+                console.log(tmpData.Type);
                 that.con.send(JSON.stringify(tmpData));
 
 
@@ -80,5 +79,5 @@
 
 
 
-    return new Socket();
+    return Socket;
 });
