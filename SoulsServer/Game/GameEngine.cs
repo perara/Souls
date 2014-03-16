@@ -108,9 +108,9 @@ namespace SoulsServer
             if ((requestPlayer = AuthenticatePlayer(player)) != null)
             {
                 JObject retData = new JObject(
-                    new JProperty("cid", player.context.data.Payload.cid),
-                    new JProperty("x", player.context.data.Payload.x),
-                    new JProperty("y", player.context.data.Payload.y)
+                    new JProperty("cid", player.gameContext.data.Payload.cid),
+                    new JProperty("x", player.gameContext.data.Payload.x),
+                    new JProperty("y", player.gameContext.data.Payload.y)
                     );
 
 
@@ -134,7 +134,7 @@ namespace SoulsServer
             if ((requestPlayer = AuthenticatePlayer(player)) != null)
             {
                 JObject retData = new JObject(
-                 new JProperty("cid", player.context.data.Payload.cid));
+                 new JProperty("cid", player.gameContext.data.Payload.cid));
 
                 Response response = new Response(
                     GameService.GameResponseType.GAME_OPPONENT_RELEASE,
@@ -152,7 +152,7 @@ namespace SoulsServer
 
             GameRoom newRoom = new GameRoom();
 
-            GamePlayer p1 = new GamePlayer(players.First.context)
+            GamePlayer p1 = new GamePlayer(players.First.gameContext)
             {
                 hash = players.First.hash,
                 name = players.First.name,
@@ -161,7 +161,7 @@ namespace SoulsServer
                 gameRoom = newRoom,
             };
 
-            GamePlayer p2 = new GamePlayer(players.Second.context)
+            GamePlayer p2 = new GamePlayer(players.Second.gameContext)
             {
                 hash = players.Second.hash,
                 name = players.Second.name,
@@ -177,8 +177,8 @@ namespace SoulsServer
             // Send a full game update
             Pair<Response> response = GenerateGameUpdate(newRoom, true);
 
-            players.First.context.SendTo(response.First);
-            players.Second.context.SendTo(response.Second);
+            players.First.gameContext.SendTo(response.First);
+            players.Second.gameContext.SendTo(response.Second);
 
 
             // Send "Its your turn to the start player"
@@ -192,20 +192,20 @@ namespace SoulsServer
             {
                 GameQueue.GetInstance().AddPlayer(player);
                 Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " queued!");
-                player.context.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
             }
             else
             {
                 Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " tried to queue twice!");
-                player.context.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
             }
         }
 
 
         public void UseCardRequest(Player player)
         {
-            int slot = player.context.data.Payload.slotId; //  This is the slot which is the cards destination
-            int card = player.context.data.Payload.cid; // This is the card which the player has on hand
+            int slot = player.gameContext.data.Payload.slotId; //  This is the slot which is the cards destination
+            int card = player.gameContext.data.Payload.cid; // This is the card which the player has on hand
 
 
             // Authenticate the player
@@ -304,11 +304,11 @@ namespace SoulsServer
 
         public void RequestCardAttack(Player player)
         {
-            int attacker = player.context.data.attacker;
-            int defender = player.context.data.defender;
+            int attacker = player.gameContext.data.attacker;
+            int defender = player.gameContext.data.defender;
 
-            bool cardAttackPlayer = player.context.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
-            bool playerAttackCard = player.context.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
+            bool cardAttackPlayer = player.gameContext.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
+            bool playerAttackCard = player.gameContext.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
 
             // Authenticate the player
             GamePlayer authPlayer = null;
@@ -349,7 +349,7 @@ namespace SoulsServer
                 }
                 else
                 {
-                    player.context.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
+                    player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
                 }
             }
         }
@@ -386,7 +386,7 @@ namespace SoulsServer
 
         public GamePlayer AuthenticatePlayer(Player player)
         {
-            int gameId = player.context.payload.gameId;
+            int gameId = player.gameContext.payload.gameId;
 
             GamePlayer gPlayer = null;
             if (gameRooms[gameId].players.First.hash == player.hash)
@@ -405,7 +405,7 @@ namespace SoulsServer
             }
             else
             {
-                player.context.SendTo(new Response(GameService.GameResponseType.GAME_AUTH_FAIL, "Authentication failed!"));
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_AUTH_FAIL, "Authentication failed!"));
                 return null;
             }
         }

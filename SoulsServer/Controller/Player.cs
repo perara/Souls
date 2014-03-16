@@ -7,16 +7,24 @@ using SoulsServer.Engine;
 
 namespace SoulsServer
 {
-    public class Player : Model.db_Player
+    public class Player
     {
-        public string SessionID { get; set; }
+        /// <summary>
+        /// Player information from database
+        /// </summary>
+        public int rank { get; set; }
+        public string name { get; set; }
         public string hash { get; set; }
-        public bool chatActive { get; set; } //TODO
+
+        /// <summary>
+        /// Variables which is used to determine state of the player in the server
+        /// </summary>
         public bool inQueue { get; set; }
+        public General gameContext { get; set; }
+        public General chatContext { get; set; }
 
-        public General context { get; set; }
 
-        public bool validateHash()
+        public bool ValidateHash()
         {
             using (var db = new Model.soulsEntities())
             {
@@ -35,7 +43,6 @@ namespace SoulsServer
                 // TODO this.
                 var dbPlayer = db.db_Player_Hash.FirstOrDefault(x => x.hash == hash).db_Player;
 
-                this.id = dbPlayer.id;
                 this.name = dbPlayer.name;
                 this.rank = dbPlayer.rank;
 

@@ -215,11 +215,11 @@ namespace SoulsServer.Engine
             {
                 // CHAT REQUESTS
                 case ChatType.ENABLE:
-                    engine.EnableChat(OnlinePlayers.GetInstance().list[this]);
+                    //engine.EnableChat(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.DISABLE:
-                    engine.DisableChat(OnlinePlayers.GetInstance().list[this]);
+                    //engine.DisableChat(OnlinePlayers.GetInstance().list[this]);
                     break;
 
                 case ChatType.MESSAGE:
@@ -284,8 +284,6 @@ namespace SoulsServer.Engine
         public dynamic payload { get; set; }
         public int type { get; set; }
 
-        public General friendCon { get; set; }
-
         /// <summary>
         /// Register a user's context for the first time with a username, and add it to the list of online users
         /// </summary>
@@ -296,16 +294,11 @@ namespace SoulsServer.Engine
 
             string hash = this.payload.hash;
 
-
-
-
             if (hash != "null")
             {
                 Player newPlayer = new Player();
-                newPlayer.SessionID = this.ID;
                 newPlayer.hash = this.payload.hash;
-                newPlayer.context = this;
-                newPlayer.chatActive = true;
+                newPlayer.gameContext = this;
 
 
                /* if ((OnlinePlayers.GetInstance().list.Where(x => x.Value.hash == newPlayer.hash).FirstOrDefault().Key) != null)

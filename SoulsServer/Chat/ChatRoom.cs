@@ -107,8 +107,9 @@ namespace SoulsServer.Chat
             
             foreach (Player client in clients)
             {
-                if (!client.chatActive) continue;
-                client.context.SendTo(response);
+                if (client.chatContext == null) continue;
+           
+                client.gameContext.SendTo(response);
             }
         }
     }
