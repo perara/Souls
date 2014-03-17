@@ -216,10 +216,12 @@ namespace SoulsServer
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate(true);
                 if(player.gPlayer.isPlayerOne)
                 {
+                    response.First.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.First);
                 }
                 else
                 {
+                    response.Second.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.Second);
                 }
 

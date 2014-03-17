@@ -18,7 +18,7 @@
         this.RegisterResponseAction(["11", "12", "13"], Response_NotLoggedIn);
         this.RegisterResponseAction(["10"], Response_LoggedIn);
         this.RegisterResponseAction(["100"], Response_QueueOK);
-        this.RegisterResponseAction(["206"], Response_GameCreate);
+        this.RegisterResponseAction(["206", "220"], Response_GameCreate);
         this.RegisterResponseAction(["209"], Response_GameOpponentMove);
         this.RegisterResponseAction(["210"], Response_GameOpponentRelease);
     }
@@ -46,7 +46,7 @@
 
     }
 
-    function Response_GameCreate(data) // 206
+    function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.SetText(data.Payload.player.info);
@@ -64,7 +64,7 @@
 
 
         // Create Chat room (If you are player 1)
-        if (data.Payload.ident == 1) {
+        if (data.Payload.ident == 1 && data.Type != 220) {
             that.engine.chatService.RequestNewGameRoom();
         }
 
@@ -162,7 +162,9 @@
 
 
     GameService.prototype.TrafficHandler = function (json) {
-        GameService.prototype.networkBuffer.push(JSON.parse(json.data));
+        var prsJson = JSON.parse(json.data);
+        console.log("[GAME]Received: " + prsJson.Type);
+        GameService.prototype.networkBuffer.push(prsJson);
     }
 
 

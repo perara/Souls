@@ -169,6 +169,8 @@ namespace SoulsServer.Engine
                     // Swaps out the old Connection with the new one.
                     this.SwapOutClient(origUser);
 
+                    // Send LOGIN Ok
+                    SendTo(new Response(ResponseType.LOGIN_OK, "Logged in as " + OnlinePlayers.GetInstance().gameList[this].name));
                 }
                 else
                 {
@@ -218,11 +220,13 @@ namespace SoulsServer.Engine
             GOT_KICKED = 1009,
             MADE_LEADER = 1010,
 
+            CHAT_CLIENT_CONNECT = 1094,
+            CHAT_CLIENT_DISCONNECT = 1095,
             CHAT_NOT_MEMBER = 1096,
             NOT_LEADER = 1097,
             CLIENT_NOT_FOUND = 1098,
-            CHAT_ERROR = 1099
-            
+            CHAT_ERROR = 1099,
+
         }
 
         /// <summary>
@@ -272,11 +276,11 @@ namespace SoulsServer.Engine
                     break;
 
                 case ChatType.MESSAGE:
-                    engine.SendMessage(OnlinePlayers.GetInstance().gameList[this].chPlayer);
+                    engine.SendMessage(OnlinePlayers.GetInstance().chatList[this].chPlayer);
                     break;
 
                 case ChatType.NEWROOM:
-                    engine.Request_NewGameRoom(OnlinePlayers.GetInstance().gameList[this].chPlayer);
+                    engine.Request_NewGameRoom(OnlinePlayers.GetInstance().chatList[this].chPlayer);
                     break;
                 case ChatType.NEWGAMEROOM:
 
@@ -333,6 +337,8 @@ namespace SoulsServer.Engine
         {
             Console.WriteLine("[CHAT]: Player {0} disconnected!");
 
+            // Announce to all channels that the player disconnected
+            OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
         }
 
 
@@ -343,18 +349,27 @@ namespace SoulsServer.Engine
 
             Console.WriteLine("Should be +1: " + OnlinePlayers.GetInstance().gameList.Count());
 
-            KeyValuePair<General, Player> cli = OnlinePlayers.GetInstance().gameList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Game Record
-            if (cli.Key != null)
+            KeyValuePair<General, Player> chClient = OnlinePlayers.GetInstance().chatList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Chat Record
+            // Remove chat client if it already exists //TODO?
+            if(chClient.Key != null)
+            {
+                Player p;
+                OnlinePlayers.GetInstance().chatList.TryRemove(chClient.Key, out p);
+            }
+
+            KeyValuePair<General, Player> gClient = OnlinePlayers.GetInstance().gameList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Game Record
+            if (gClient.Key != null)
             {
                 Console.WriteLine("> [CHAT]: Found open game connection Linking.....");
           
-                Player existingPlayer = cli.Value;
-
-                // Insert the chatConnection record
-                OnlinePlayers.GetInstance().chatList.TryAdd(this, existingPlayer);
+                Player existingPlayer = gClient.Value;
 
                 // Update the playerObject contexts
                 existingPlayer.chatContext = this;
+
+
+                // Insert the chatConnection record
+                OnlinePlayers.GetInstance().chatList.TryAdd(this, existingPlayer);
 
                 // Create a new chatPlayer
                 if (existingPlayer.chPlayer == null)
@@ -363,8 +378,16 @@ namespace SoulsServer.Engine
                     existingPlayer.chPlayer = chPlayer;
                     chPlayer.chatContext = existingPlayer.chatContext;
                 }
+                else
+                {
+                    // Update the context
+                    existingPlayer.chPlayer.chatContext = existingPlayer.chatContext;
+                    existingPlayer.chPlayer.AnnounceConnect();
+                }
+
 
             }
+
             else // No existing game Player was found, create new player
             {
                  // General function for creating player

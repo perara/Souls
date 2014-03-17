@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Chat;
+using SoulsServer.Engine;
 
 namespace SoulsServer.Controller
 {
-   public class ChatPlayer
+    public class ChatPlayer
     {
         public Dictionary<int, ChatRoom> memberRooms { get; set; }
         public string name { get; set; }
@@ -23,6 +24,27 @@ namespace SoulsServer.Controller
         {
             memberRooms.Add(room.id, room);
         }
+
+
+        /// <summary>
+        /// Announces to all of the players member channels that he disconnected
+        /// </summary>
+        public void AnnounceDisconnect()
+        {
+            foreach (var room in this.memberRooms)
+            {
+                room.Value.Broadcast(new Response(ChatService.ResponseType.CHAT_CLIENT_DISCONNECT, "Player \"" + this.name + "\" disconnected!"));
+            }
+        }
+
+        public void AnnounceConnect()
+        {
+            foreach (var room in this.memberRooms)
+            {
+                room.Value.Broadcast(new Response(ChatService.ResponseType.CHAT_CLIENT_CONNECT, "Player \"" + this.name + "\" connected!"));
+            }
+        }
+
 
 
 

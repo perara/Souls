@@ -17,6 +17,8 @@
 
         // Response callbacks
         this.RegisterResponseAction([1004], Response_NewGameRoom);
+        this.RegisterResponseAction([1003], Response_Message);
+        this.RegisterResponseAction([1095,1094], Response_ClientDisconnected);
 
     };
     ChatService.prototype.constructor = ChatService;
@@ -32,10 +34,20 @@
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     function Response_NewGameRoom(json) {
-        $("#chat_window").append(json.Payload);
+        $("#chat_window").append("[" + json.Payload.name + "]: " + json.Payload.message + "\n");
+  
+        $("#chat_writing").attr("chRoomId", json.Payload.chRoomId);
     }
 
+    function Response_Message(json)
+    {
+        $("#chat_window").append("[" + json.Payload.name + "]: " + json.Payload.message + "\n");
+    }
 
+    function Response_ClientDisconnected(json) // 1095 // 1094
+    {
+        $("#chat_window").append("[SERVER]: " + json.Payload + "\n");
+    }
 
 
     //////////////////////////////////////////////////////////////////////////////
@@ -57,51 +69,54 @@
 
     };
 
+    ChatService.prototype.Message = function(roomId, msg) // 1002
+    {
+        var json = this.message.CHAT.MESSAGE;
+
+        json.Payload.room = 0; ///////////////////////////////////////////TODOOOOOO
+        json.Payload.message = msg;
+
+        
+        this.Send(json);
+    }
+
     ChatService.prototype.OpenChatWindow = function () {
-
+        var that = this;
         $("#game-window").append(
-            "<div id='chat'>" +
-            "<textarea id='chat_window' disabled style='float:left'></textarea>" +
-            "<textarea id ='chat_writing' placeholder='Write here...' style=''></textarea><br>" +
-            "<select disabled multiple class='form-control' style='width:auto; display:inline'>" +
-            "<option>1</option>" +
-            "<option>2</option>" +
-            "<option>3</option>" +
-            "<option>4</option>" +
-            "<option>5</option>" +
-            "</select>" +
-            "</div>");
-        $("#chat").dialog();
+            "<div id='chat' style='width:auto; height:auto; background:rgba(0,0,0,0.5);'>" +
+            //Tab menus
+             "<ul>" +
+                "<li><a href='#tab-general'>General</a></li>" +
+                "<li><a href='#tab-chat1'>Chat</a></li>" +
+            "</ul>" +
 
-        $('textarea#chat_writing').keydown(function (e) {
-            if (e.keyCode === 13 && e.ctrlKey) {
-                $(this).val(function (i, val) {
-                    return val + "\n";
-                });
-            }
-        }).keypress(function (e) {
-            if (e.keyCode === 13 && !e.ctrlKey) {
-                $("#chat_window").append("[NAME]:" + $(this).val() + "\n");
-                $(this).val(undefined);
-                return false;
-            }
-        }).keyup(function (e) {
-            if (e.keyCode === 17) {
-                ctrlKeyDown = false;
-            }
-        });
+            // General tab for managment
+            "<div id='tab-general'>JOIN/LEAVE/OSV</div>" +
 
-        //Bind to event by type
-        //NOTE : You must bind() the <dialogextendload> event before dialog-extend is created
-        $("#chat")
-          .bind("dialogextendload", function (evt) {  })
+            // Chat Tabs (Automaticly generated)
+            "<div id='tab-chat1'>" +
+             "<select disabled multiple class='form-control' style='width:20%; min-height:200px; float:right'>" +
+                    "<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>" +
+                "</select>" +
+                "<textarea id='chat_window' disabled style='float:left; min-width:80%; min-height:200px;'></textarea>" +
+                "<textarea id ='chat_writing' placeholder='Write here...' style='float:left; min-width:80%; min-height:50px;'></textarea><br>" +
+               
+            "</div>" +
+        "</div>");
+
+
+        $("#chat").tabs();
+        $("#chat").dialog({
+            height: 400,
+            width:500,
+        })
             .dialogExtend({
                 "closable": true,
                 "maximizable": true,
                 "minimizable": true,
                 "collapsable": true,
                 "dblclick": "collapse",
-                // "titlebar": "transparent",
+                "titlebar": "transparent",
                 "minimizeLocation": "right",
                 "icons": {
                     "close": "ui-icon-circle-close",
@@ -120,6 +135,29 @@
                 "minimize": function (evt, dlg) { },
                 "restore": function (evt, dlg) { }
             });
+
+
+        $('textarea#chat_writing').keydown(function (e) {
+            if (e.keyCode === 13 && e.ctrlKey) {
+                $(this).val(function (i, val) {
+                    return val + "\n";
+                });
+            }
+        }).keypress(function (e) {
+            if (e.keyCode === 13 && !e.ctrlKey) {
+
+                // Send message!
+                that.Message($(this).attr("chroomid"), $(this).val());
+                
+                $(this).val(undefined);
+                
+                return false;
+            }
+        }).keyup(function (e) {
+            if (e.keyCode === 17) {
+                ctrlKeyDown = false;
+            }
+        });
     };
 
 

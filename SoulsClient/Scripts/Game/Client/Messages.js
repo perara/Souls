@@ -133,9 +133,8 @@
             MESSAGE: {
                 "Type": Messages.prototype.Type.Chat.MESSAGE,
                 "Payload": {
-                    "room": 0, ///// TODO
-                    "hash": Conf.hash, //// TODO
-                    "message": "HELLO TODO MESSAGE" ///// TODO
+                    "room": undefined,
+                    "message": undefined
                 }
             },
             NEWROOM: {

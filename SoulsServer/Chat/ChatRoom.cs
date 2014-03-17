@@ -60,7 +60,8 @@ namespace SoulsServer.Chat
         {
             isStatic = true;
             clients = new LinkedList<ChatPlayer>();
-            clients.Concat(clients);
+            clients.AddLast(clientList.First);
+            clients.AddLast(clientList.Second);
         }
 
 

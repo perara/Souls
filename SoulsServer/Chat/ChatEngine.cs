@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace SoulsServer.Chat
 {
@@ -63,9 +64,15 @@ namespace SoulsServer.Chat
             clients.First.addRoom(chatRoom);
             clients.Second.addRoom(chatRoom);
 
+            JObject returnObj = new JObject(
+                new JProperty("name", "Server"),
+                new JProperty("message", "Made chatroom \"" + roomCounter + "\""),
+                new JProperty("chRoomId", roomCounter)
+                );
 
-            clients.First.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
-            clients.Second.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
+
+            clients.First.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, returnObj));
+            clients.Second.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, returnObj));
             Console.WriteLine("[CHAT] Game chat made for " + clients.First.name + " and " + clients.Second.name);
 
             return (chatRooms[roomCounter++].Equals(chatRoom)) ? true : false;
@@ -212,14 +219,8 @@ namespace SoulsServer.Chat
         public void SendMessage(ChatPlayer client)
         {
             int room = client.chatContext.payload.room;
-            string message = client.name + ": " + client.chatContext.payload.message;
-
-            // TODO Solve the id,message payload issue in a better way, throws exceptions in console  o.O
-            Dictionary<string, dynamic> elements = new Dictionary<string, dynamic>();
-            elements.Add("id", room);
-            elements.Add("message", message);
-            dynamic payload = elements;
-
+            string message = client.chatContext.payload.message;
+            string name = client.name;
 
 
             ChatRoom chRoom;
@@ -227,7 +228,14 @@ namespace SoulsServer.Chat
 
             if (success)
             {
-                chRoom.Broadcast(new Response(ChatService.ResponseType.CHAT_MESSAGE, payload));
+
+                JObject retObj = new JObject(
+                    new JProperty("message", message),
+                    new JProperty("room", room),
+                    new JProperty("name", name)
+                    );
+
+                chRoom.Broadcast(new Response(ChatService.ResponseType.CHAT_MESSAGE, retObj));
             }
             else
             {

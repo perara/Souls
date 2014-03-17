@@ -33,7 +33,7 @@
 
             // Connect to the chat service
             this.chatService = new ChatService(this);
-            //this.chatService.OpenChatWindow(this);
+            this.chatService.OpenChatWindow(this);
 
             // Connect to the game service
             this.gameService = new GameService(this)
@@ -57,10 +57,6 @@
             this.gameService.Connect();
             this.gameService.Login();
             this.chatService.Connect();
-
-
-
-            console.log(this.stage);
         }
 
         Engine.prototype.OnEnd = function () {
