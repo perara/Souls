@@ -3,7 +3,7 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
     var num = 0;
     CardSlot = function (x, y) {
         //console.log("> CardSlot Class")
-        var texture = asset.GetTexture(asset.Textures.CARD_NONE);
+        var texture = asset.GetTexture(asset.Textures.CARD_SLOT);
         pixi.Sprite.call(this, texture);
 
         this.anchor = { x: 0.5, y: 0.5 };
@@ -16,7 +16,7 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
 
        
         // Create the card bound back (Which will ultimately be a border)
-        var cBorder = new pixi.Graphics(this);
+        /*var cBorder = new pixi.Graphics(this);
         cBorder.beginFill(0x000000);
         cBorder.lineStyle(2, 0xC0EC0EE);
         cBorder.fillAlpha = 0.2;
@@ -27,7 +27,7 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
         cBorder.y = -(this.height / 2);
 
         this.addChild(cBorder);
-
+        */
 
         //////////////////////////////////
         /////Flags which is used//////////
@@ -44,7 +44,7 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
     CardSlot.prototype = Object.create(pixi.Sprite.prototype);
     CardSlot.prototype.constructor = CardSlot;
 
-    CardSlot.counter = 0; //TODO ??? 
+    CardSlot.counter = 3; //TODO ??? 
 
     CardSlot.prototype.Process = function () {
 
@@ -61,9 +61,7 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
         else {
             this.scale.x = 1.0;
             this.scale.y = 1.0;
-
         }
-
     }
 
 

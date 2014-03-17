@@ -22,17 +22,17 @@
             this.conf = Conf;
 
             // Network
-            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
-            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
+            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
 
             // Objects
-            this.player = new Player(this);
+            this.background = new Background(this);
             this.opponent = new Opponent(this);
+            this.player = new Player(this);
             this.inputManager = new InputManager(this);
             this.gameService = new GameService(this)
-            this.background = new Background(this);
             this.chatService = new ChatService(this);
-            this.chatService.OpenChatWindow(this);
+            //this.chatService.OpenChatWindow(this);
 
            // this.cardSlots = new CardSlot
 
@@ -49,7 +49,7 @@
             this.background.Init();
             this.player.Init();
             this.opponent.Init();
-
+            //conlosle.log(this.Groups);
             this.gameService.Connect();
             this.gameService.Login();
         }
@@ -67,7 +67,7 @@
 
         Engine.prototype.Process = function () {
             this.gameService.Process();
-
+            //this.background.Process();
             this.inputManager.Process();
             this.player.Process();
             TWEEN.update();
