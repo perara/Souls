@@ -394,6 +394,8 @@
 
         this.mouseDown = true;
         this.dragging = true;
+        this.engine.player.currentCard = this;
+        this.engine.getGroup("CardSlot").visible = true;
     };
 
     // Mouse - Release
@@ -405,6 +407,8 @@
 
         this.mouseDown = false;
         this.dragging = false;
+        this.engine.player.currentCard = undefined;
+        this.engine.getGroup("CardSlot").visible = false;
 
         // If the card is not in a slot, we want to tween it back to original position.
         if (!this.inSlot) {

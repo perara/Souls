@@ -60,7 +60,7 @@ namespace SoulsServer
 
             using (var db = new Model.soulsEntities())
             {
-
+                
                 // TODO this.
                 var dbPlayer = db.db_Player_Hash.FirstOrDefault(x => x.hash == hash).db_Player;
                 this.id = dbPlayer.id;

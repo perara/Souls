@@ -51,12 +51,12 @@
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.SetText(data.Payload.player.info);
         that.engine.opponent.SetText(data.Payload.opponent.info);
-        that.engine.player.GiveCards(data.Payload.player.hand, {
+        that.engine.player.cardManager.GiveCards(data.Payload.player.hand, {
             x: 200,
             y: 1000,
             playoropp: "Player"
         });
-        that.engine.opponent.GiveCards(data.Payload.opponent.hand, {
+        that.engine.opponent.cardManager.GiveCards(data.Payload.opponent.hand, {
             x: 200,
             y: 200,
             playoropp: "Opponent"
