@@ -16,10 +16,6 @@
         bg.height = this.engine.conf.height;
         bg.interactive = true;
         this.engine.addChild("Background", bg);
-    }
-
-    Background.prototype.Process = function()
-    {
 
     }
 

@@ -1,4 +1,4 @@
-﻿define("card", ["pixi", 'asset', 'tween', 'stopwatch', 'messages'], function (pixi, asset, tween, StopWatch, Message) {
+﻿define("card", ['pixi', 'asset', 'tween', 'stopwatch', 'messages'], function (pixi, asset, tween, StopWatch, Message) {
 
     var that = this;
     Card = function (engine, jsonData) {
@@ -431,6 +431,9 @@
         }
     };
 
+    Card.prototype.isAboveSlot = function () {
+
+    }
 
     return Card;
 

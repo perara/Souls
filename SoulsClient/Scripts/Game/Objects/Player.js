@@ -28,6 +28,7 @@
     Player.prototype.Init = function () {
         this.arrow = new Arrow();
         this.engine.addChild("Player", this);
+        this.cardManager = new CardManager(this.engine);
         this.SetPosition(
             {
                 x: (this.engine.conf.width / 2),

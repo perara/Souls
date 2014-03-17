@@ -33,12 +33,12 @@
 
             // Connect to the chat service
             this.chatService = new ChatService(this);
-            this.chatService.OpenChatWindow(this);
+            //this.chatService.OpenChatWindow(this);
 
             // Connect to the game service
             this.gameService = new GameService(this)
 
-           // this.cardSlots = new CardSlot
+   
 
             this.OnStart();
 
@@ -53,10 +53,14 @@
             this.background.Init();
             this.player.Init();
             this.opponent.Init();
-
+            //conlosle.log(this.Groups);
             this.gameService.Connect();
             this.gameService.Login();
             this.chatService.Connect();
+
+
+
+            console.log(this.stage);
         }
 
         Engine.prototype.OnEnd = function () {
@@ -77,6 +81,7 @@
             this.inputManager.Process();
             this.player.Process();
             TWEEN.update();
+
             return this.stage;
         };
 

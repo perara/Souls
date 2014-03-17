@@ -5,8 +5,6 @@
 
         this.engine = engine;
 
-        this.cardManager = new CardManager();
-
         var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };
         this.graphicText =
             {

@@ -13,8 +13,8 @@
     Opponent.prototype.constructor = Opponent;
 
     Opponent.prototype.Init = function () {
-        this.cardManager = new CardManager();
         this.engine.addChild("Opponent", this);
+        this.cardManager = new CardManager(this.engine);
         this.SetPosition(
             {
                 x: (this.engine.conf.width / 2),
