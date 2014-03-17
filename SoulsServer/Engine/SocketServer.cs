@@ -150,7 +150,7 @@ namespace SoulsServer.Engine
         {
             string hash = this.payload.hash;
 
-            if (hash != "null")
+            if (hash != null)
             {
                 Player newPlayer = new Player();
                 newPlayer.hash = this.payload.hash;
@@ -195,6 +195,10 @@ namespace SoulsServer.Engine
                     }
 
                 }
+            }
+            else
+            {
+                this.Context.WebSocket.Close(CloseStatusCode.UNDEFINED ,"Hash was null");
             }
         }
 
@@ -288,11 +292,11 @@ namespace SoulsServer.Engine
                     //TODO CLEANUP Should check that this.player != null
 
 
-                    Player requestPlayer = OnlinePlayers.GetInstance().chatList[this];
+                    //Player requestPlayer = OnlinePlayers.GetInstance().chatList[this];
                     // Go via the game player object to get opponent context.
-                    Player opponentPlayer = OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent().playerContext];
+                    //Player opponentPlayer = OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent().playerContext];
                     
-                    engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
+                    //engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
 
                   
 

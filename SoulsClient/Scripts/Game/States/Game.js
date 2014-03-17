@@ -20,6 +20,11 @@
             // Variables
             this.gameId = undefined;
             this.conf = Conf;
+            // Create Groups
+            this.addGroup("Background");
+            this.addGroup("CardSlot");
+            this.addGroup("Opponent");
+            this.addGroup("Player");
 
             // Network
             this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
@@ -51,12 +56,14 @@
 
         Engine.prototype.OnStart = function () {
             this.background.Init();
-            this.player.Init();
             this.opponent.Init();
+            this.player.Init();
+
             //conlosle.log(this.Groups);
             this.gameService.Connect();
             this.gameService.Login();
             this.chatService.Connect();
+
         }
 
         Engine.prototype.OnEnd = function () {
@@ -80,11 +87,6 @@
 
             return this.stage;
         };
-
-
-
-
-
 
         return Engine;
     });

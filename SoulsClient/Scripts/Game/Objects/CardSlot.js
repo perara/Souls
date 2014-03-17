@@ -9,12 +9,13 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
         this.anchor = { x: 0.5, y: 0.5 };
         this.position.x = this.position.originX = x;
         this.position.y = this.position.originY = y;
-        this.width = 120;
+        this.width = 100;
         this.height = 150;
         this.interactive = true;
         this.slotId = CardSlot.counter++;
+        this.used = false;
+        this.isHoverd = false;
 
-       
         // Create the card bound back (Which will ultimately be a border)
         /*var cBorder = new pixi.Graphics(this);
         cBorder.beginFill(0x000000);
@@ -54,19 +55,17 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
 
     CardSlot.prototype.doScaling = function () {
 
-        if (this.isHovering() == true) {
-            this.scale.x = 1.20;
-            this.scale.y = 1.20;
+        if (this.isHoverd == true) {
+            this.width = 140;
+            this.height = 170;;
         }
         else {
-            this.scale.x = 1.0;
-            this.scale.y = 1.0;
+            this.width = 120;
+            this.height = 150;
         }
     }
 
-
-
-    CardSlot.prototype.isHovering = function () {
+    CardSlot.prototype.isHoverd = function () {
         return this.card.hover;
     }
 

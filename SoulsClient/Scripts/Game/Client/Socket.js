@@ -53,7 +53,7 @@
             if (that.con.bufferedAmount == 0 && that.msg.length > 0 && that.con.readyState === 1) {
                 var tmpData = that.msg.shift();
 
-                console.log("Sent: "+tmpData.Type);
+                //console.log("Sent: "+tmpData.Type);
                 that.con.send(JSON.stringify(tmpData));
 
 

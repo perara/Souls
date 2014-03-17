@@ -184,65 +184,7 @@
 
     // playoropp = "Player" or "Opponent" 
     // Conf: {x,y,playoropp}
-    PlayerBase.prototype.GiveCards = function(jsonCards, conf)
-    {
-
-        var count = 0;
-        // Iterate over car
-        for (var cJson in jsonCards)
-        {
-            count++;
-            var c = new Card(this.engine, jsonCards[cJson]);
-            c.x = c.originX = conf.x + (120 * (count));
-            c.y = c.originY = conf.y;
-            c.originRot = 0;
-            this.cardManager.AddCardHand(c);
-
-
-            this.engine.addChild(conf.playoropp, c);
-
-            if (conf.playoropp == "Player")
-            {
-                c.interactive = true;
-            }
-        }
-
-
-
-        /*
-
-        var count = 0;
-        for (var i in data.hand) {
-            count++;
-            var cid;
-            if (config.player) {
-                cid = i;
-            }
-            else {
-                cid = data.hand[i];
-            }
-
-            var cardData = (config.player) ? data.hand[i] : undefined;
-            console.log(cardData);
-            var c = new Card(cardData);
-            c.x = c.originX = config.x + (120 * (count));
-            c.y = c.originY = config.y;
-            c.originRot = 0;
-
-            if (!!config.player) {
-                c.interactive = true;
-                c.InteractionCallback(this.CardInteractionCallback);
-                this.Player.cards[cardData.cid] = c;
-            }
-            else {
-                c.CardData.cid = cid;
-                this.Opponent.cards[cid] = c;
-            }
-
-            this.addChild("Card", c);
-
-        }*/
-    }
+   
 
     return PlayerBase
 });

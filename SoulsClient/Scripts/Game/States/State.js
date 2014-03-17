@@ -11,6 +11,12 @@
         this.stage.addChild(group);
     }
 
+    State.prototype.addGroup = function (name) {
+        console.log("> [State]: Creating group " + name);
+        this.Groups[name] = new Pixi.DisplayObjectContainer();
+        this.stage.addChild(this.Groups[name]);
+    }
+
     State.prototype.getGroup = function (name) {
         return this.Groups[name];
     }
