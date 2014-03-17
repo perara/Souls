@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\CardType.cs" />
+    <Compile Include="Controller\ChatPlayer.cs" />
     <Compile Include="Engine\Response.cs" />
     <Compile Include="Chat\ChatEngine.cs" />
     <Compile Include="Chat\ChatRoom.cs" />

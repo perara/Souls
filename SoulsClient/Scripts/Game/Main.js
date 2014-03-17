@@ -38,7 +38,9 @@ require.config({
         "playerbase": "Objects/PlayerBase",
         "arrow": "Objects/Arrow",
         "opponent": "Objects/Opponent",
-        "networkmanager": "Objects/NetworkManager",
+        "gameService": "Networking/GameService",
+        "chatService": "Networking/ChatService",
+        "networkBase" : "Networking/NetworkBase",
         "cardmanager": "Objects/CardManager",
         "inputmanager": "Objects/InputManager",
         "background": "Objects/Background",
@@ -48,9 +50,17 @@ require.config({
         'pixi': {
             exports: 'PIXI'
         },
-        'jqueryUI': ['jquery'],
-        'jquery.dialogExtend': ['jqueryUI']
-      
+        'jqueryUI':
+            {
+                deps: ['jquery']
+            },
+        'jquery.dialogExtend':
+            {
+                deps: ['jquery', 'jqueryUI']
+            },
+
+
+
 
     }
 });

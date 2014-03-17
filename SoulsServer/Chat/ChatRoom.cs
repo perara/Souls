@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
+using SoulsServer.Controller;
 
 namespace SoulsServer.Chat
 {
@@ -16,37 +17,37 @@ namespace SoulsServer.Chat
         public int id { get; set; }
 
         /// <summary>
-        /// If this is false the first client in the "clients" list is leader and may kick or invite other clients
+        /// If this is false the first client in the "clients" gameList is leader and may kick or invite other clients
         /// </summary>
         public bool isStatic { get; set; }
 
         /// <summary>
-        /// List of clients in room. First in list is leader.
+        /// List of clients in room. First in gameList is leader.
         /// </summary>
-        public LinkedList<Player> clients { get; set; }
+        public LinkedList<ChatPlayer> clients { get; set; }
 
 
         /// <summary>
         /// Creates a dynamic chat room with the specified player as leader
         /// </summary>
         /// <param name="client"></param>
-        public ChatRoom(Player client)
+        public ChatRoom(ChatPlayer client)
         {
             isStatic = false;
-            clients = new LinkedList<Player>();
+            clients = new LinkedList<ChatPlayer>();
             clients.AddFirst(client);
             
         }
 
 
         /// <summary>
-        /// Creates a dynamic chat room with multiple clients from a linked list. The first client in the list becomes leader
+        /// Creates a dynamic chat room with multiple clients from a linked gameList. The first client in the gameList becomes leader
         /// </summary>
         /// <param name="clientList"></param>
-        public ChatRoom(LinkedList<Player> clientList)
+        public ChatRoom(LinkedList<ChatPlayer> clientList)
         {
             isStatic = false;
-            clients = new LinkedList<Player>();
+            clients = new LinkedList<ChatPlayer>();
             clients.Concat(clients);
         }
 
@@ -55,10 +56,10 @@ namespace SoulsServer.Chat
         /// Creates a chat room designed for use during gameplay. This is a static room with only the 2 competing players
         /// </summary>
         /// <param name="clientList"></param>
-        public ChatRoom(Pair<Player> clientList)
+        public ChatRoom(Pair<ChatPlayer> clientList)
         {
             isStatic = true;
-            clients = new LinkedList<Player>();
+            clients = new LinkedList<ChatPlayer>();
             clients.Concat(clients);
         }
 
@@ -68,7 +69,7 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public bool AddClient(Player client)
+        public bool AddClient(ChatPlayer client)
         {
             if (clients.Contains(client) || client == null) return false; // Prevents adding duplicates or nulls
             clients.AddLast(client); // Add client to room
@@ -81,7 +82,7 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public bool RemoveClient(Player client)
+        public bool RemoveClient(ChatPlayer client)
         {
             return (clients.Remove(client)) ? true : false;
         }
@@ -92,7 +93,7 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public bool IsLeader(Player client)
+        public bool IsLeader(ChatPlayer client)
         {
             return (this.clients.First().Equals(client)) ? true : false;
         }
@@ -104,12 +105,12 @@ namespace SoulsServer.Chat
         /// <param name="response"></param>
         public void Broadcast(Response response)
         {
-            
-            foreach (Player client in clients)
+
+            foreach (ChatPlayer client in clients)
             {
                 if (client.chatContext == null) continue;
-           
-                client.gameContext.SendTo(response);
+
+                client.chatContext.SendTo(response);
             }
         }
     }

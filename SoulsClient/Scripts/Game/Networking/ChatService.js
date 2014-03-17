@@ -1,26 +1,78 @@
-﻿define('chat', ['jquery', 'jqueryUI', 'jquery.dialogExtend', 'messages'], function ($, jQueryUI, dialogExtend, Message) {
+﻿define('chatService', ['jquery', 'jqueryUI', 'jquery.dialogExtend', "networkBase"], function ($, jQueryUI, dialogExtend, NetworkBase) {
 
-    Chat = function (engine) {
+    var that;
+    ChatService = function (engine) {
+        NetworkBase.call(this);
         console.log("> Chat loaded!");
+        that = this;
         this.engine = engine;
         this.socket = this.engine.chatSocket;
+
+
+        /// Chat
+        this.RegisterResponseAction(["1004"], Response_NewGameRoom);
+
+    };
+    ChatService.prototype = Object.create(NetworkBase.prototype);
+    ChatService.prototype.constructor = ChatService;
+
+    ChatService.prototype.Login = function () {
+        this.socket.send(this.message.CHAT.CHAT_LOGIN);
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////CHAT-RESPONSES////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+    function Response_NewGameRoom(json) {
+
+        console.log(json);
+
+    }
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+    //////////////////////////CHAT-REQUESTS///////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+
+    ChatService.prototype.RequestNewGameRoom = function () {
+        var json = that.message.CHAT.NEWGAMEROOM;
+        this.socket.send(json);
+    };
+
+    ChatService.prototype.RequestInvite = function () {
+
+    };
+
+    ChatService.prototype.RequestKick = function () {
 
     };
 
 
 
-    Chat.prototype.Connect = function () {
-        this.socket.connect();
 
-        // Recieves all Data from server
-       // this.socket.onMessage(TrafficHandler);
-    }
 
-    Chat.prototype.Login = function () {
-        this.socket.send(Message.CHAT.CHAT_LOGIN);
-    }
 
-    Chat.prototype.OpenChatWindow = function () {
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ChatService.prototype.OpenChatWindow = function () {
 
         $("#game-window").append(
             "<div id='chat'>" +
@@ -85,19 +137,6 @@
             });
     };
 
-    Chat.prototype.RequestNewRoom = function () {
 
-    };
-
-    Chat.prototype.RequestInvite = function () {
-
-    };
-
-    Chat.prototype.RequestKick = function () {
-
-    };
-
-    Chat.prototype.constructor = Chat;
-
-    return Chat;
+    return ChatService;
 });

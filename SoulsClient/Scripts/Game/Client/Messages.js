@@ -31,8 +31,7 @@
                 INVITE: 1004,
                 KICK: 1005,
                 LEAVE: 1006,
-                CHAT_LOGIN: 1007,
-                CHAT_LOGOUT: 1008
+                NEWGAMEROOM : 1009
             }
         }
 
@@ -145,6 +144,12 @@
                     "hash": Conf.hash
                 }
             },
+            NEWGAMEROOM: {
+                "Type": Messages.prototype.Type.Chat.NEWGAMEROOM,
+                "Payload": {
+                    //"hash": Conf.hash
+                }
+            },
             INVITE: {
                 "Type": Messages.prototype.Type.Chat.INVITE,
                 "Payload": {
@@ -169,13 +174,13 @@
                 }
             },
             CHAT_LOGIN: {
-                "Type": Messages.prototype.Type.Chat.CHAT_LOGIN,
+                "Type": Messages.prototype.Type.General.LOGIN,
                 "Payload": {
                     "hash": Conf.hash
                 }
             },
             CHAT_LOGOUT: {
-                "Type": Messages.prototype.Type.Chat.CHAT_LOGOUT,
+                "Type": Messages.prototype.Type.General.LOGOUT,
                 "Payload": {
                     "hash": Conf.hash
                 }

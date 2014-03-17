@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SoulsServer.Controller;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
 using System;
@@ -33,17 +34,17 @@ namespace SoulsServer.Chat
 
 
         /// <summary>
-        /// Adds a chat room with a list of players, the first player in the list is leader. Room is dynamic by default. Leader may invite and kick.
+        /// Adds a chat room with a gameList of players, the first player in the gameList is leader. Room is dynamic by default. Leader may invite and kick.
         /// </summary>
         /// <param name="clients"></param>
         /// <returns></returns>
-        public bool AddChatRoom(LinkedList<Player> clients)
+        public bool Request_NewGameRoom(LinkedList<ChatPlayer> clients)
         {
             ChatRoom chatRoom = new ChatRoom(clients);
             chatRooms.Add(roomCounter, chatRoom);
 
-            foreach (Player client in clients)
-                client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Someone created a new chat with you with room id " + roomCounter));
+            foreach (ChatPlayer client in clients)
+                client.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Someone created a new chat with you with room id " + roomCounter));
 
             return (chatRooms[roomCounter++].Equals(chatRoom)) ? true : false;
         }
@@ -54,13 +55,14 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="clients"></param>
         /// <returns></returns>
-        public bool AddChatRoom(Pair<Player> clients)
+        public bool Request_NewGameRoom(Pair<ChatPlayer> clients)
         {
+            Console.WriteLine("Hello");
             ChatRoom chatRoom = new ChatRoom(clients);
             chatRooms.Add(roomCounter, chatRoom);
 
-            clients.First.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
-            clients.Second.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
+            clients.First.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
+            clients.Second.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
             Console.WriteLine("[CHAT] Game chat made for " + clients.First.name + " and " + clients.Second.name);
 
             return (chatRooms[roomCounter++].Equals(chatRoom)) ? true : false;
@@ -72,12 +74,12 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public bool AddChatRoom(Player client)
+        public bool Request_NewGameRoom(ChatPlayer client)
         {
             ChatRoom chatRoom = new ChatRoom(client);
             chatRooms.Add(roomCounter, chatRoom);
 
-            client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "You made a new chat room with id " + roomCounter));
+            client.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "You made a new chat room with id " + roomCounter));
             Console.WriteLine("[CHAT] " + client.name + " created room with id: " + roomCounter);
 
             return (chatRooms[roomCounter++].Equals(chatRoom)) ? true : false;
@@ -98,36 +100,36 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="inviter"></param>
         /// <returns></returns>
-        public bool Invite(Player inviter)
+        public bool Invite(ChatPlayer inviter)
         {
-            int room = inviter.gameContext.payload.room;
-            string name = inviter.gameContext.payload.name;
+            int room = inviter.chatContext.payload.room;
+            string name = inviter.chatContext.payload.name;
 
             // Checks if client is leader
             if (!chatRooms.ContainsKey(room) || !chatRooms[room].IsLeader(inviter) || chatRooms[room].isStatic)
             {
-                inviter.gameContext.SendTo(new Response(ChatService.ResponseType.NOT_LEADER, "You are not the leader of room " + room));
+                inviter.chatContext.SendTo(new Response(ChatService.ResponseType.NOT_LEADER, "You are not the leader of room " + room));
                 Console.WriteLine("[CHAT] " + inviter.name + " tried to invite without being leader");
                 return false;
             }
 
-            Player toInvite = OnlinePlayers.GetInstance().list.Where(x => x.Value.name == name).FirstOrDefault().Value;
+            ChatPlayer toInvite = OnlinePlayers.GetInstance().gameList.Where(x => x.Value.name == name).FirstOrDefault().Value.chPlayer;
 
             if (toInvite != null && toInvite.chatContext == null)
             {
-                inviter.gameContext.SendTo(new Response(ChatService.ResponseType.INVITED_CLIENT, toInvite.name + " has deactivated the chat"));
+                inviter.chatContext.SendTo(new Response(ChatService.ResponseType.INVITED_CLIENT, toInvite.name + " has deactivated the chat"));
                 return false;
             }
             else if (chatRooms[room].AddClient(toInvite))
             {
-                inviter.gameContext.SendTo(new Response(ChatService.ResponseType.INVITED_CLIENT, "You invited " + toInvite.name + " to room " + room));
-                toInvite.gameContext.SendTo(new Response(ChatService.ResponseType.GOT_INVITED, "You got invited to room " + room + " by " + inviter.name));
+                inviter.chatContext.SendTo(new Response(ChatService.ResponseType.INVITED_CLIENT, "You invited " + toInvite.name + " to room " + room));
+                toInvite.chatContext.SendTo(new Response(ChatService.ResponseType.GOT_INVITED, "You got invited to room " + room + " by " + inviter.name));
                 Console.WriteLine("[CHAT] " + inviter.name + " invited " + name + " to room: " + room);
                 return true;
             }
             else
             {
-                inviter.gameContext.SendTo(new Response(ChatService.ResponseType.CLIENT_NOT_FOUND, "Problem adding " + name + " to room " + room + ". Is the player online?"));
+                inviter.chatContext.SendTo(new Response(ChatService.ResponseType.CLIENT_NOT_FOUND, "Problem adding " + name + " to room " + room + ". Is the player online?"));
                 Console.WriteLine("[CHAT] Problem adding " + name + " to room " + room + ". Already in room?");
                 return false;
             }
@@ -139,25 +141,25 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="kicker"></param>
         /// <returns></returns>
-        public bool Kick(Player kicker)
+        public bool Kick(ChatPlayer kicker)
         {
-            int room = kicker.gameContext.payload.room;
-            string name = kicker.gameContext.payload.name;
+            int room = kicker.chatContext.payload.room;
+            string name = kicker.chatContext.payload.name;
 
             // Checks if client is leader
             if (!chatRooms[room].IsLeader(kicker) || chatRooms[room].isStatic)
             {
-                kicker.gameContext.SendTo(new Response(ChatService.ResponseType.NOT_LEADER, "You are not leader of room " + room));
+                kicker.chatContext.SendTo(new Response(ChatService.ResponseType.NOT_LEADER, "You are not leader of room " + room));
                 Console.WriteLine("[CHAT] " + kicker.name + " tried to kick without being leader");
                 return false;
             }
 
-            Player toKick = OnlinePlayers.GetInstance().list.FirstOrDefault(x => x.Value.name == name).Value;
+            ChatPlayer toKick = OnlinePlayers.GetInstance().gameList.FirstOrDefault(x => x.Value.name == name).Value.chPlayer;
 
             if (chatRooms[room].RemoveClient(toKick))
             {
-                kicker.gameContext.SendTo(new Response(ChatService.ResponseType.KICKED_CLIENT, "You kicked " + toKick.name + " from room " + room));
-                toKick.gameContext.SendTo(new Response(ChatService.ResponseType.GOT_KICKED, "You got kicked from room " + room + " by " + kicker.name));
+                kicker.chatContext.SendTo(new Response(ChatService.ResponseType.KICKED_CLIENT, "You kicked " + toKick.name + " from room " + room));
+                toKick.chatContext.SendTo(new Response(ChatService.ResponseType.GOT_KICKED, "You got kicked from room " + room + " by " + kicker.name));
                 Console.WriteLine("[CHAT] " + kicker.name + " kicked " + name + " from room: " + room);
             }
             else Console.WriteLine("[CHAT] Problem kicking " + name + " from room " + room + ". Client not in room?");
@@ -170,9 +172,9 @@ namespace SoulsServer.Chat
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public bool LeaveRoom(Player client)
+        public bool LeaveRoom(ChatPlayer client)
         {
-            int room = client.gameContext.payload.room;
+            int room = client.chatContext.payload.room;
             bool wasLeader = chatRooms[room].IsLeader(client);
 
             chatRooms[room].RemoveClient(client);
@@ -184,7 +186,7 @@ namespace SoulsServer.Chat
             }
             else if (chatRooms[room].clients.Contains(client))
             {
-                client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ERROR, "Error leaving room " + room));
+                client.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ERROR, "Error leaving room " + room));
                 Console.WriteLine("[CHAT] Error removing " + client.name + " from room " + room);
                 return false;
             }
@@ -193,7 +195,7 @@ namespace SoulsServer.Chat
                 chatRooms[room].Broadcast(new Response(ChatService.ResponseType.CHAT_MESSAGE, client.name + " left the room"));
                 if (wasLeader)
                     chatRooms[room].clients.First().chatContext.SendTo(new Response(ChatService.ResponseType.MADE_LEADER, "You are now the leader of room " + room));
-                client.gameContext.SendTo(new Response(ChatService.ResponseType.LEFT_ROOM, "You left room " + room));
+                client.chatContext.SendTo(new Response(ChatService.ResponseType.LEFT_ROOM, "You left room " + room));
                 Console.WriteLine("[CHAT] " + client.name + " left room " + room);
                 return true;
             }
@@ -204,10 +206,10 @@ namespace SoulsServer.Chat
         /// Broadcasts a message to all members in the specified room unless they have deactivated chat (checked in Broadcast function)
         /// </summary>
         /// <param name="client"></param>
-        public void SendMessage(Player client)
+        public void SendMessage(ChatPlayer client)
         {
-            int room = client.gameContext.payload.room;
-            string message = client.name + ": " + client.gameContext.payload.message;
+            int room = client.chatContext.payload.room;
+            string message = client.name + ": " + client.chatContext.payload.message;
 
             // TODO Solve the id,message payload issue in a better way, throws exceptions in console  o.O
             Dictionary<string, dynamic> elements = new Dictionary<string, dynamic>();
@@ -222,7 +224,7 @@ namespace SoulsServer.Chat
             if (client.chatContext == null)
             {
 
-                client.gameContext.SendError("You are not connected to the chat service!"); //TODO UNIQUE ERROR MESSAGE
+                client.chatContext.SendError("You are not connected to the chat service!"); //TODO UNIQUE ERROR MESSAGE
                 return;
             }
             else if (!chatRooms.ContainsKey(room))

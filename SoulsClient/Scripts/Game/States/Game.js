@@ -6,12 +6,12 @@
     "opponent",
     "inputmanager",
     "conf",
-    "networkmanager",
+    "gameService",
     "background",
     "tween",
     "cardslot",
-    "chat",
-    "socket"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, NetworkManager, Background, Tween, CardSlots, Chat, Socket) {
+    "chatService",
+    "socket"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, Tween, CardSlots, ChatService, Socket) {
 
 
         Engine = function () {
@@ -29,10 +29,10 @@
             this.player = new Player(this);
             this.opponent = new Opponent(this);
             this.inputManager = new InputManager(this);
-            this.networkManager = new NetworkManager(this)
+            this.gameService = new GameService(this)
             this.background = new Background(this);
-            this.chat = new Chat(this);
-            this.chat.OpenChatWindow(this);
+            this.chatService = new ChatService(this);
+            this.chatService.OpenChatWindow(this);
 
            // this.cardSlots = new CardSlot
 
@@ -50,15 +50,8 @@
             this.player.Init();
             this.opponent.Init();
 
-            this.networkManager.Connect();
-            this.networkManager.Login();
-
-            this.chat.Connect();
-
-            // Login should happen AFTER gamelogin is complete!
-            var that = this;
-            setTimeout(function () { that.chat.Login() }, 3000);
-          
+            this.gameService.Connect();
+            this.gameService.Login();
         }
 
         Engine.prototype.OnEnd = function () {
@@ -73,7 +66,7 @@
 
 
         Engine.prototype.Process = function () {
-            this.networkManager.Process();
+            this.gameService.Process();
 
             this.inputManager.Process();
             this.player.Process();

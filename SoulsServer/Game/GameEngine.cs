@@ -147,7 +147,6 @@ namespace SoulsServer
         public void Request_CreateGame(Pair<Player> players)
         {
 
-
             GameRoom newRoom = new GameRoom();
 
             GamePlayer p1 = new GamePlayer(players.First.gameContext)
@@ -173,9 +172,11 @@ namespace SoulsServer
             players.Second.gPlayer = p2;
 
 
-            // Create a game room
-            newRoom.AddGamePlayers(new Pair<GamePlayer>(p1, p2));
+            Pair<GamePlayer> playerPair = new Pair<GamePlayer>(p1, p2);
 
+            // Create a game room
+            newRoom.AddGamePlayers(playerPair);   
+            
 
             Pair<Response> response = newRoom.GenerateGameUpdate(true);
             players.First.gameContext.SendTo(response.First);

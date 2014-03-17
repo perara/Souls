@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Engine;
+using SoulsServer.Controller;
 
 namespace SoulsServer
 {
@@ -27,6 +28,11 @@ namespace SoulsServer
         /// Contains the game player corresponding to this player
         /// </summary>
         public GamePlayer gPlayer { get; set; }
+
+        /// <summary>
+        /// Contains chatPlayer which controls all of the chat handling
+        /// </summary>
+        public ChatPlayer chPlayer { get; set; }
 
         /// <summary>
         /// Context (Connection) to the GameServer
@@ -67,7 +73,7 @@ namespace SoulsServer
         }
 
         /// <summary>
-        /// This fetches the newest hash available for the player //TODO this may fail? Make a list with all the hashes ? NEED TEST
+        /// This fetches the newest hash available for the player //TODO this may fail? Make a gameList with all the hashes ? NEED TEST
         /// </summary>
         /// <returns></returns>
         public string UpdateHash()

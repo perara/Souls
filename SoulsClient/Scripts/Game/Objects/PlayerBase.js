@@ -188,7 +188,6 @@
     // Conf: {x,y,playoropp}
     PlayerBase.prototype.GiveCards = function(jsonCards, conf)
     {
-        console.log(jsonCards)
 
         var count = 0;
         // Iterate over car

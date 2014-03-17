@@ -21,13 +21,16 @@ namespace SoulsServer.Game
         {
             GamePlayer player;
             GamePlayer opponent;
+            var ident = -1;
             if (playerOne)
             {
+                ident = 1;
                 player = room.players.First;
                 opponent = room.players.Second;
             }
             else
             {
+                ident = 2;
                 player = room.players.Second;
                 opponent = room.players.First;
             }
@@ -36,7 +39,7 @@ namespace SoulsServer.Game
             JObject obj = new JObject(
                  new JProperty("gameId", room.gameId),
                  new JProperty("round", room.round),
-                 new JProperty("ident", 1),
+                 new JProperty("ident", ident),
                  new JProperty("player", new JObject(
                     new JProperty("info", JObject.FromObject(player.GetPlayerData())),
                     new JProperty("board", JObject.FromObject(player.boardCards)),
