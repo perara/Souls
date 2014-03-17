@@ -1,11 +1,11 @@
 ﻿define("socket", [], function (Messages) {
 
-    Socket.con = undefined;
-    Socket.msg = undefined;
+
     function Socket(url) {
         this.msg = new Array();
         this.con;
         this.url = url;
+
     }
     Socket.constructor = Socket;
 
@@ -53,7 +53,7 @@
             if (that.con.bufferedAmount == 0 && that.msg.length > 0 && that.con.readyState === 1) {
                 var tmpData = that.msg.shift();
 
-                console.log(tmpData.Type);
+                console.log("Sent: "+tmpData.Type);
                 that.con.send(JSON.stringify(tmpData));
 
 

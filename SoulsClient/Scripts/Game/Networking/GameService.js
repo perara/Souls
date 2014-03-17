@@ -1,8 +1,7 @@
-﻿define("gameService", ["networkBase"], function (NetworkBase) {
+﻿define("gameService", ["messages", "networkBase"], function (Message) {
 
     var that;
     GameService = function (engine, socket) {
-        NetworkBase.call(this);
 
         that = this;
         console.log("> Network Manager")
@@ -10,7 +9,10 @@
         this.engine = engine;
         this.socket = this.engine.gameSocket;
 
-
+        // Create what is needed for the network to work
+        this.responseAction = new Object();
+        this.networkBuffer = GameService.prototype.networkBuffer = new Array();
+        this.message = Message;
 
         /// Game 
         this.RegisterResponseAction(["11", "12", "13"], Response_NotLoggedIn);
@@ -19,10 +21,8 @@
         this.RegisterResponseAction(["206"], Response_GameCreate);
         this.RegisterResponseAction(["209"], Response_GameOpponentMove);
         this.RegisterResponseAction(["210"], Response_GameOpponentRelease);
-
     }
     // Constructor
-    GameService.prototype = Object.create(NetworkBase.prototype);
     GameService.prototype.constructor = GameService;
 
 
@@ -38,8 +38,6 @@
     }
 
     function Response_LoggedIn() {
-        console.log(":D");
-        that.engine.chatService.Connect();
         that.engine.chatService.Login();
     }
 
@@ -50,7 +48,6 @@
 
     function Response_GameCreate(data) // 206
     {
-        console.log("heh");
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.SetText(data.Payload.player.info);
         that.engine.opponent.SetText(data.Payload.opponent.info);
@@ -119,6 +116,61 @@
         this.socket.send(this.message.GENERAL.LOGIN);
         this.socket.send(this.message.GAME.QUEUE); // TODO, this should not be called here.
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    //NETWORKBASEHERPDERPFUCKINHERITANCE.
+    ////////////////////////////////////////////////////////////////
+    GameService.prototype.RegisterResponseAction = function (responseArray, func) {
+        for (var response in responseArray) {
+            this.responseAction[responseArray[response]] = func;
+        }
+    }
+
+    GameService.prototype.GetResponseAction = function (responseId) {
+        if (!this.responseAction[responseId]) {
+            console.log("Could not find RESPONSE!" + responseId)
+
+        }
+        return this.responseAction[responseId];
+    }
+
+
+    GameService.prototype.Process = function () {
+        if (GameService.prototype.networkBuffer.length > 0) {
+            // Get a packet
+            var packet = GameService.prototype.networkBuffer.shift();
+
+            if (!!this.GetResponseAction(packet.Type))
+                this.GetResponseAction(packet.Type)(packet);
+        }
+
+    }
+
+    GameService.prototype.Send = function (json) {
+        this.socket.send(json);
+    }
+
+    GameService.prototype.Connect = function () {
+        this.socket.connect();
+
+        // Recieves all Data from server
+        this.socket.onMessage(GameService.prototype.TrafficHandler);
+    }
+
+
+    GameService.prototype.TrafficHandler = function (json) {
+        GameService.prototype.networkBuffer.push(JSON.parse(json.data));
+    }
+
+
+
+
+
+
+
 
 
 

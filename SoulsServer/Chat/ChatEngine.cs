@@ -57,9 +57,12 @@ namespace SoulsServer.Chat
         /// <returns></returns>
         public bool Request_NewGameRoom(Pair<ChatPlayer> clients)
         {
-            Console.WriteLine("Hello");
             ChatRoom chatRoom = new ChatRoom(clients);
             chatRooms.Add(roomCounter, chatRoom);
+
+            clients.First.addRoom(chatRoom);
+            clients.Second.addRoom(chatRoom);
+
 
             clients.First.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
             clients.Second.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Automatically made chatroom with id " + roomCounter));
@@ -218,37 +221,17 @@ namespace SoulsServer.Chat
             dynamic payload = elements;
 
 
-            /// <summary>
-            /// Check that diverse criterias is met, before sending a message.
-            /// </summary>
-            if (client.chatContext == null)
+
+            ChatRoom chRoom;
+            bool success = client.memberRooms.TryGetValue(room, out chRoom);
+
+            if (success)
             {
-
-                client.chatContext.SendError("You are not connected to the chat service!"); //TODO UNIQUE ERROR MESSAGE
-                return;
-            }
-            else if (!chatRooms.ContainsKey(room))
-            {
-
-                client.chatContext.SendError("Room does not exist");
-                return;
-            }
-            else if (payload == null)
-            {
-                client.chatContext.SendError("No payload was given");
-                return;
-            }
-
-
-
-            if (chatRooms[room].clients.Contains(client))
-            {
-                chatRooms[room].Broadcast(new Response(ChatService.ResponseType.CHAT_MESSAGE, payload));
-                Console.WriteLine("[CHAT] " + client.name + ": " + payload);
+                chRoom.Broadcast(new Response(ChatService.ResponseType.CHAT_MESSAGE, payload));
             }
             else
             {
-                client.chatContext.SendError("You are not a member of room " + room);
+                client.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_NOT_MEMBER, "You are not a member of that room!"));
             }
 
         }
@@ -258,23 +241,23 @@ namespace SoulsServer.Chat
         /// Activates the chat for the specified client
         /// </summary>
         /// <param name="client"></param>
-      /*  public void EnableChat(Player client)
-        {
-            client.chatActive = true;
-            client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ENABLED, "Activated chat for " + client.name));
-            Console.WriteLine("[CHAT] User \"" + client.name + "\" logged in to chat");
-        }*/
+        /*  public void EnableChat(Player client)
+          {
+              client.chatActive = true;
+              client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_ENABLED, "Activated chat for " + client.name));
+              Console.WriteLine("[CHAT] User \"" + client.name + "\" logged in to chat");
+          }*/
 
 
         /// <summary>
         /// Deactivates the chat for the specified client
         /// </summary>
         /// <param name="client"></param>
-       /* public void DisableChat(Player client)
-        {
-            client.chatActive = false;
-            client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_DISABLED, "Deactivated chat for " + client.name));
-            Console.WriteLine("[CHAT] User \"" + client.name + "\" exited chat");
-        }*/
+        /* public void DisableChat(Player client)
+         {
+             client.chatActive = false;
+             client.gameContext.SendTo(new Response(ChatService.ResponseType.CHAT_DISABLED, "Deactivated chat for " + client.name));
+             Console.WriteLine("[CHAT] User \"" + client.name + "\" exited chat");
+         }*/
     }
 }

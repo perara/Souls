@@ -29,10 +29,14 @@
             this.player = new Player(this);
             this.opponent = new Opponent(this);
             this.inputManager = new InputManager(this);
-            this.gameService = new GameService(this)
             this.background = new Background(this);
+
+            // Connect to the chat service
             this.chatService = new ChatService(this);
             this.chatService.OpenChatWindow(this);
+
+            // Connect to the game service
+            this.gameService = new GameService(this)
 
            // this.cardSlots = new CardSlot
 
@@ -52,6 +56,7 @@
 
             this.gameService.Connect();
             this.gameService.Login();
+            this.chatService.Connect();
         }
 
         Engine.prototype.OnEnd = function () {
@@ -67,6 +72,7 @@
 
         Engine.prototype.Process = function () {
             this.gameService.Process();
+            this.chatService.Process();
 
             this.inputManager.Process();
             this.player.Process();

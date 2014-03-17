@@ -1,19 +1,24 @@
-﻿define('chatService', ['jquery', 'jqueryUI', 'jquery.dialogExtend', "networkBase"], function ($, jQueryUI, dialogExtend, NetworkBase) {
+﻿define('chatService', ['jquery', 'jqueryUI', 'jquery.dialogExtend', "messages"], function ($, jQueryUI, dialogExtend, Message) {
 
     var that;
     ChatService = function (engine) {
-        NetworkBase.call(this);
         console.log("> Chat loaded!");
         that = this;
         this.engine = engine;
         this.socket = this.engine.chatSocket;
 
+        // Chat window elements
+        this.chatWindow = ChatService.prototype.chatWindow = $("#chat");
 
-        /// Chat
-        this.RegisterResponseAction(["1004"], Response_NewGameRoom);
+        // Create what is needed for the network to work
+        this.responseAction = new Object();
+        this.networkBuffer = ChatService.prototype.networkBuffer = new Array();
+        this.message = Message;
+
+        // Response callbacks
+        this.RegisterResponseAction([1004], Response_NewGameRoom);
 
     };
-    ChatService.prototype = Object.create(NetworkBase.prototype);
     ChatService.prototype.constructor = ChatService;
 
     ChatService.prototype.Login = function () {
@@ -27,9 +32,7 @@
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     function Response_NewGameRoom(json) {
-
-        console.log(json);
-
+        $("#chat_window").append(json.Payload);
     }
 
 
@@ -53,24 +56,6 @@
     ChatService.prototype.RequestKick = function () {
 
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     ChatService.prototype.OpenChatWindow = function () {
 
@@ -109,7 +94,7 @@
         //Bind to event by type
         //NOTE : You must bind() the <dialogextendload> event before dialog-extend is created
         $("#chat")
-          .bind("dialogextendload", function (evt) { console.log("LOAD"); })
+          .bind("dialogextendload", function (evt) {  })
             .dialogExtend({
                 "closable": true,
                 "maximizable": true,
@@ -136,6 +121,62 @@
                 "restore": function (evt, dlg) { }
             });
     };
+
+
+
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    //NETWORKBASEHERPDERPFUCKINHERITANCE.
+    ////////////////////////////////////////////////////////////////
+    ChatService.prototype.RegisterResponseAction = function (responseArray, func) {
+        for (var response in responseArray) {
+            this.responseAction[responseArray[response]] = func;
+        }
+    }
+
+    ChatService.prototype.GetResponseAction = function (responseId) {
+        if (!this.responseAction[responseId]) {
+            console.log("Could not find RESPONSE!" + responseId)
+
+        }
+        return this.responseAction[responseId];
+    }
+
+
+    ChatService.prototype.Process = function () {
+        if (ChatService.prototype.networkBuffer.length > 0) {
+            // Get a packet
+            var packet = ChatService.prototype.networkBuffer.shift();
+
+            if (!!this.GetResponseAction(packet.Type))
+                this.GetResponseAction(packet.Type)(packet);
+        }
+
+    }
+
+    ChatService.prototype.Send = function (json) {
+        this.socket.send(json);
+    }
+
+    ChatService.prototype.Connect = function () {
+        this.socket.connect();
+
+        // Recieves all Data from server
+        this.socket.onMessage(ChatService.prototype.TrafficHandler);
+    }
+
+
+    ChatService.prototype.TrafficHandler = function (json) {
+        ChatService.prototype.networkBuffer.push(JSON.parse(json.data));
+    }
+
+
+
+
+
+
+
 
 
     return ChatService;

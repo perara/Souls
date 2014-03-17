@@ -1,13 +1,19 @@
-﻿define("networkBase", ["jquery", "messages"], function ($, Message) {
+﻿define("networkBase", ["messages"], function (Message) {
 
-    NetworkBase = function () {
-        var that = this;
-        this.message = Message;
+    NetworkBase = function (socket) {
+        this.socket = socket;
+
+        // Create what is needed for the network to work
         this.responseAction = new Object();
         this.networkBuffer = NetworkBase.prototype.networkBuffer = new Array();
-
+        this.message = Message;
     }
 
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    //NETWORKBASEHERPDERPFUCKINHERITANCE.
+    ////////////////////////////////////////////////////////////////
     NetworkBase.prototype.RegisterResponseAction = function (responseArray, func) {
         for (var response in responseArray) {
             this.responseAction[responseArray[response]] = func;
@@ -47,9 +53,12 @@
 
 
     NetworkBase.prototype.TrafficHandler = function (json) {
-        console.log(json.data);
+        console.log(json);
         NetworkBase.prototype.networkBuffer.push(JSON.parse(json.data));
     }
+
+
+
 
 
     return NetworkBase;

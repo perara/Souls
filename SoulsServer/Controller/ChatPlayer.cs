@@ -16,6 +16,7 @@ namespace SoulsServer.Controller
         public ChatPlayer(string name)
         {
             this.name = name;
+            memberRooms = new Dictionary<int, ChatRoom>();
         }
 
         public void addRoom(ChatRoom room)

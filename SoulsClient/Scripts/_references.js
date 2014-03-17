@@ -32,11 +32,11 @@
 /// <reference path="respond.js" />
 /// <reference path="jquery-1.11.0.js" />
 /// <reference path="jquery-ui-1.10.4.js" />
-/// <reference path="game/networking/networkbase.js" />
 /// <reference path="game/networking/gameservice.js" />
 /// <reference path="game/networking/chatservice.js" />
 /// <reference path="jquery.dialogextend.js" />
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
 /// <reference path="tween.js" />
+/// <reference path="game/networking/networkbase.js" />
 

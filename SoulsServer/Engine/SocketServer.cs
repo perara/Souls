@@ -218,9 +218,11 @@ namespace SoulsServer.Engine
             GOT_KICKED = 1009,
             MADE_LEADER = 1010,
 
+            CHAT_NOT_MEMBER = 1096,
             NOT_LEADER = 1097,
             CLIENT_NOT_FOUND = 1098,
-            CHAT_ERROR = 1099,
+            CHAT_ERROR = 1099
+            
         }
 
         /// <summary>
