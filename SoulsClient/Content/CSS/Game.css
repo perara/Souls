@@ -18,4 +18,15 @@ div#game-window{
 
 }
 
-//
+/*CHAT STUFF*/
+
+div.chat_messages{
+    min-height: 50%;
+    background-color: #CAECAE;
+    min-width: 80%;
+    max-width: 80%;
+}
+
+div.chat_window{
+    
+}

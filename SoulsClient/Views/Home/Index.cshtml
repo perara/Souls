@@ -1,44 +1,136 @@
 ﻿@Styles.Render("~/Content/style.css")
 @Scripts.Render("~/Scripts/WebSocketClient.js")
+@Scripts.Render("~/Scripts/app.js")
 <script>
-       var Conf =
-        {
-            Data: {
-                hash: "@SoulsClient.Controllers.cSession.Current.hash"
-            }
-        }
+    var Conf =
+     {
+         Data: {
+             hash: "@SoulsClient.Controllers.cSession.Current.hash"
+         }
+     }
 </script>
 
 
-
-@Scripts.Render("~/Scripts/app.js")
-
 <div class="row">
-        <div id="page-wrapper">
-            <h1>Souls API Console</h1>
-            <div id="status">Connecting...</div>
-            <ul id="messages"></ul>
-            <form id="message-form" action="#" method="post">
+    <div id="page-wrapper">
 
-                @Html.ActionLink("Login", "Login", "Player", new { area = "" }, null)
-              
+        <h1>Souls API Console</h1>
+        <div id="status">Connecting...</div>
+        <ul id="messages"></ul>
+        <form id="message-form" action="#" method="post">
 
-                <h2>Write Query</h2>
-                <textarea id="message" placeholder="Write your message here..." @((!ViewBag.loggedIn)? "readonly" : "")></textarea>
+            @Html.ActionLink("Login", "Login", "Player", new { area = "" }, null)
 
 
-               
-               Service:  <select id="service" @((!ViewBag.loggedIn) ? "disabled" : "")>
-                    <option value="?">No selected</option>
-                </select><br><br>
-              
-               Request: <select id="select_query" @((!ViewBag.loggedIn) ? "disabled" : "")>
-                    <option value="?">No selected</option>
-                </select><br><br>
+            <h2>Write Query</h2>
+            <textarea id="message" placeholder="Write your message here..." @((!ViewBag.loggedIn) ? "readonly" : "")></textarea>
 
-           
-                <button type="submit" @((!ViewBag.loggedIn)? "disabled=disabled" : "")>Send Message</button>
-                <button type="button" id="close">Close Connection</button>
-            </form>
+
+
+            Service:  <select id="service" @((!ViewBag.loggedIn) ? "disabled" : "")>
+                <option value="?">No selected</option>
+            </select><br><br>
+
+            Request: <select id="select_query" @((!ViewBag.loggedIn) ? "disabled" : "")>
+                <option value="?">No selected</option>
+            </select><br><br>
+
+
+            <button type="submit" @((!ViewBag.loggedIn) ? "disabled=disabled" : "")>Send Message</button>
+            <button type="button" id="close">Close Connection</button>
+        </form>
+
+
+        <div class="chat-window">
+            <div class="chat_messages">
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+
+            </div>
         </div>
+
+
+    </div>
 </div>
+
+
+
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        /*  $("#game-window").append(
+            "<div id='chat' style='width:auto; height:auto; background:rgba(0,0,0,0.5);'>" +
+            //Tab menus
+             "<ul>" +
+                "<li><a href='#tab-general'>General</a></li>" +
+                "<li><a href='#tab-chat1'>Chat</a></li>" +
+            "</ul>" +
+
+            // General tab for managment
+            "<div id='tab-general'>JOIN/LEAVE/OSV</div>" +
+
+            // Chat Tabs (Automaticly generated)
+            "<div id='tab-chat1'>" +
+             "<select disabled multiple class='form-control' style='width:20%; min-height:200px; float:right'>" +
+                    "<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>" +
+                "</select>" +
+                "<textarea id='chat_window' disabled style='float:left; min-width:80%; min-height:200px;'></textarea>" +
+                "<textarea id ='chat_writing' placeholder='Write here...' style='float:left; min-width:80%; min-height:50px;'></textarea><br>" +
+
+            "</div>" +
+        "</div>");*/
+
+
+        $(".chat-window").tabs();
+        $(".chat-window").dialog({
+            height: 400,
+            width: 500,
+        })
+            .dialogExtend({
+                "closable": true,
+                "maximizable": true,
+                "minimizable": true,
+                "collapsable": true,
+                "dblclick": "collapse",
+                "titlebar": "none",
+                "minimizeLocation": "right",
+                "icons": {
+                    "close": "ui-icon-circle-close",
+                    "maximize": "ui-icon-circle-plus",
+                    "minimize": "ui-icon-circle-minus",
+                    "collapse": "ui-icon-triangle-1-s",
+                    "restore": "ui-icon-bullet"
+                },
+                "load": function (evt, dlg) { },
+                "beforeCollapse": function (evt, dlg) { },
+                "beforeMaximize": function (evt, dlg) { },
+                "beforeMinimize": function (evt, dlg) { },
+                "beforeRestore": function (evt, dlg) { },
+                "collapse": function (evt, dlg) { },
+                "maximize": function (evt, dlg) { },
+                "minimize": function (evt, dlg) { },
+                "restore": function (evt, dlg) { }
+            });
+
+
+
+
+
+
+    });
+
+
+
+</script>
