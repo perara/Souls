@@ -21,7 +21,7 @@
                 USECARD: 201,
                 NEXTROUND: 202,
                 MOVE_CARD: 203,
-                RELEASE_CARD: 204
+                RELEASE_CARD: 204,
             },
             Chat: {
                 ENABLE: 1000,
@@ -75,11 +75,8 @@
             USECARD: {
                 "Type": Messages.prototype.Type.Game.USECARD,
                 "Payload": {
-                    "gameId": undefined,
-                    "hash": Conf.hash,
-                    "cardId": undefined,
+                    "cid": undefined,
                     "slotId": undefined,
-                    "card_genid": undefined
                 }
             },
             NEXTCARD: {

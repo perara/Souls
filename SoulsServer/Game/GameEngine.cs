@@ -274,12 +274,15 @@ namespace SoulsServer
                 requestPlayer.gameRoom.NextTurn();
 
                 // Send Reply
-                requestPlayer.playerContext.SendTo(new Response(
-                    GameService.GameResponseType.GAME_USECARD_OK, new Dictionary<string, int> 
+                Response response = new Response( GameService.GameResponseType.GAME_USECARD_PLAYER_OK, new Dictionary<string, int> 
                         { 
-                            {"card",card},
-                            {"slot",slot} 
-                        }));
+                            {"cid",card},
+                            {"slotId",slot} 
+                        });
+                
+                requestPlayer.playerContext.SendTo(response);
+                response.Type = GameService.GameResponseType.GAME_USECARD_OPPONENT_OK;
+                requestPlayer.GetOpponent().playerContext.SendTo(response);
                 Console.WriteLine(">[GAME] Sent!");
 
 

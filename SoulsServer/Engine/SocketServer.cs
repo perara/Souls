@@ -41,7 +41,8 @@ namespace SoulsServer.Engine
             GAME_OPPONENT_NOEXIST = 205,
             GAME_CREATE = 206,
 
-            GAME_USECARD_OK = 207,
+            GAME_USECARD_PLAYER_OK = 207,
+            GAME_USECARD_OPPONENT_OK = 211,
             GAME_USECARD_OOM = 208,
 
             GAME_OPPONENT_MOVE = 209,
@@ -292,11 +293,11 @@ namespace SoulsServer.Engine
                     //TODO CLEANUP Should check that this.player != null
 
 
-                    //Player requestPlayer = OnlinePlayers.GetInstance().chatList[this];
+                    Player requestPlayer = OnlinePlayers.GetInstance().chatList[this];
                     // Go via the game player object to get opponent context.
-                    //Player opponentPlayer = OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent().playerContext];
+                    Player opponentPlayer = OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent().playerContext];
                     
-                    //engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
+                    engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
 
                   
 
@@ -330,7 +331,7 @@ namespace SoulsServer.Engine
         {
             Console.WriteLine("[CHAT]: Player {0} connected!", Context.UserEndPoint);
         }
-
+        
         protected override void OnError(ErrorEventArgs e)
         {
 
@@ -342,7 +343,7 @@ namespace SoulsServer.Engine
             Console.WriteLine("[CHAT]: Player {0} disconnected!");
 
             // Announce to all channels that the player disconnected
-            OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
+            //OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
         }
 
 

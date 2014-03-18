@@ -4,7 +4,7 @@
 
     CardManager = function (engine) {
         this.engine = engine;
-        this.cardSlots = new Array()
+        this.cardSlots = new Object()
 
         this.holdingCard = null; //Should be a ID of the card
         this.hand = new Object();
@@ -33,12 +33,17 @@
         this.board[c.cid] = c;
     }
 
-    CardManager.prototype.AddCardSlots = function () {
+    CardManager.prototype.AddCardSlots = function (isPlayer) {
+
+        var position = { x: (Conf.width / 13), y: 700 }
+
+        if (!isPlayer) position.y = 420;
 
         for (var i = 0; i < 7; i++) {
-            this.cardSlots[i] = new CardSlot(520 + (Conf.width / 13) * i, 700);
+            this.cardSlots[i] = new CardSlot(520 + position.x * i, position.y, i);
             this.engine.addChild("CardSlot", this.cardSlots[i]);
         }
+        
     }
 
     CardManager.prototype.GiveCards = function (jsonCards, conf) {
@@ -59,16 +64,20 @@
             if (conf.playoropp == "Player") {
                 c.interactive = true;
             }
+
         }
     }
 
     CardManager.prototype.checkHover = function () {
+        var hoverSlot;
+
         for (var index in this.cardSlots) {
             var cardslot = this.cardSlots[index];
 
             // Check if card is hovering a cardSlot
             if ((Toolbox.Rectangle.intersectsYAxis(this.engine.player.currentCard, cardslot, { x: -10, y: -15 }, { x: 3, y: 3 }) == true) && cardslot.used == false) {
                 cardslot.isHoverd = true;
+                hoverSlot = index;
                 cardslot.doScaling();
             }
             else {
@@ -76,8 +85,11 @@
                 cardslot.doScaling();
             }
         }
+        this.engine.player.currentCard.hoverSlot = this.cardSlots[hoverSlot];
+        //console.log(index);
     }
 
+    
 
     return CardManager;
 });

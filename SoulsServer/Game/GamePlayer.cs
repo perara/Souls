@@ -59,7 +59,9 @@ namespace SoulsServer.Engine
             Card cOut;
             this.handCards.TryGetValue(cId, out cOut);
 
-            return this.mana >= cOut.cost;
+            // TODO FIX
+            //return this.mana >= cOut.cost;
+            return true;
         }
 
         public GamePlayer GetOpponent()

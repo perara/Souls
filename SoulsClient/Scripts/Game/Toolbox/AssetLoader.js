@@ -52,6 +52,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             CARD_ABILITY_PANEL: Asset.Path.Textures + "Card/card_ability_pane.png",
             CARD_NAME_PANEL: Asset.Path.Textures + "Card/card_name_pane.png",
             CARD_SLOT: Asset.Path.Textures + "Card/cardslot.png",
+            CARD_BACK: Asset.Path.Textures + "Card/cardback.png",
 
             PLAYER_NONE: Asset.Path.Textures + "Card/player_none.png",
             PLAYER_FRAME: Asset.Path.Textures + "Card/player_frame.png",

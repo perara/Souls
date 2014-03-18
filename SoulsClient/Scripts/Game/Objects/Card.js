@@ -1,4 +1,4 @@
-﻿define("card", ['pixi', 'asset', 'tween', 'stopwatch', 'messages'], function (pixi, asset, tween, StopWatch, Message) {
+﻿define("card", ['pixi', 'asset', 'tween', 'stopwatch', 'messages', 'conf'], function (pixi, asset, tween, StopWatch, Message, Conf) {
 
     var that = this;
     Card = function (engine, jsonData) {
@@ -29,7 +29,7 @@
 
         this.SetupCard(this);
         this.inSlot = null;
-        this.hoverSlot = null;
+        this.hoverSlot = undefined;
 
     };
     // Constructor
@@ -234,44 +234,7 @@
     }
 
 
-    Card.prototype.putInSlot = function (cardslot) {
-        // Check if the cardslot is occupied, if mount the card  into it
-        if (cardslot.card.used == false) {
-            cardslot.card.hover = false;
-            cardslot.card.used = true
-            cardslot.card.card = this;
 
-            this.rotation = 0;
-            this.inSlot = true;
-
-            var position = { x: this.x, y: this.y };
-            var target = { x: cardslot.x, y: cardslot.y };
-            var tween = new TWEEN.Tween(position).to(target, 500);
-            tween.easing(TWEEN.Easing.Elastic.InOut)
-
-            // TODO           (Tweening onComplete, did not play out as we wanted it to.)
-            setTimeout(function () {
-                asset.GetSound(asset.Sound.CARD_MOUNT).play();
-            }), 1000;
-
-            var that = this;
-            tween.onUpdate(function () {
-                that.x = position.x;
-                that.y = position.y;
-            });
-            tween.onStart(function () {
-                that.interactive = false;
-            });
-            tween.onComplete(function () {
-                that.interactive = true;
-                cardslot.visible = false;
-            });
-
-            tween.start();
-
-        }
-
-    }
 
     Card.prototype.Pickup = function () {
 
@@ -329,31 +292,25 @@
 
     Card.prototype.Process = function () {
 
-        if (this.dragging && this.networkStopWatch.getElapsed().milliseconds > 200)
-        {
+        if (this.dragging && this.networkStopWatch.getElapsed().milliseconds > 200) {
             this.networkStopWatch.reset();
             this.RequestMove();
-            
+
 
         }
-     
-
-
     }
 
-    Card.prototype.RequestMove = function()
-    {
+    Card.prototype.RequestMove = function () {
         var json = Message.GAME.MOVE_CARD;
         json.Payload.x = this.x;
-        json.Payload.y = this.y;
+        json.Payload.y = Conf.height - this.y + this.height / 1.5;
         json.Payload.cid = this.cid;
         json.Payload.gameId = this.engine.gameId;
 
         this.engine.gameSocket.send(json);
     }
 
-    Card.prototype.RequestRelease = function()
-    {
+    Card.prototype.RequestRelease = function () {
         var json = Message.GAME.RELEASE_CARD;
         json.Payload.cid = this.cid;
         json.Payload.gameId = this.engine.gameId;
@@ -395,7 +352,11 @@
         this.mouseDown = true;
         this.dragging = true;
         this.engine.player.currentCard = this;
-        this.engine.getGroup("CardSlot").visible = true;
+
+        // Only show cardslots on unslotted cards
+        if (!this.inSlot) {
+            this.engine.getGroup("CardSlot").visible = true;
+        }
     };
 
     // Mouse - Release
@@ -407,14 +368,20 @@
 
         this.mouseDown = false;
         this.dragging = false;
-        this.engine.player.currentCard = undefined;
         this.engine.getGroup("CardSlot").visible = false;
+
+        // Check if card is over a slot and try to use it on that slot
+        if (!!this.hoverSlot) {
+            
+            this.engine.gameService.Request_UseCard(this.cid, this.hoverSlot.slotId);
+        }
 
         // If the card is not in a slot, we want to tween it back to original position.
         if (!this.inSlot) {
             this.RequestRelease();
-            Card.prototype.AnimateBack(this);
         }
+
+        this.engine.player.currentCard = undefined;
     };
 
     // Dragging Callback
@@ -428,12 +395,57 @@
                 // console.log(" x offset is " + this.position.click.offset.x);
                 this.x = mouse.x - this.position.click.offset.x;
                 this.y = mouse.y - this.position.click.offset.y;
-
-
-
             }
         }
     };
+
+    Card.prototype.TrySlot = function (slot) {
+        cardSlot = slot;
+        console.log(slot);
+        // Check if the cardslot is occupied, if mount the card  into it
+        if (cardSlot.used == false) {
+            cardSlot.isHoverd = false;
+            cardSlot.used = true;
+            cardSlot.card = this;
+
+            //this.engine.currentCard.rotation = 0;
+            this.inSlot = true;
+            console.log(this);
+
+            var position = {
+                x: this.x,
+                y: this.y
+            };
+            var target = {
+                x: cardSlot.x,
+                y: cardSlot.y
+            };
+            var tween = new TWEEN.Tween(position).to(target, 500);
+            tween.easing(TWEEN.Easing.Elastic.InOut)
+
+            // TODO           (Tweening onComplete, did not play out as we wanted it to.)
+            setTimeout(function () {
+                asset.GetSound(asset.Sound.CARD_MOUNT).play();
+            }), 1000;
+
+            var that = this;
+            tween.onUpdate(function () {
+                console.log(position.x);
+                that.x = position.x;
+                that.y = position.y;
+            });
+            tween.onStart(function () {
+                that.interactive = false;
+            });
+            tween.onComplete(function () {
+                that.interactive = true;
+                //this.hoverSlot.visible = false;
+            });
+
+            tween.start();
+        }
+    }
+
 
     Card.prototype.isAboveSlot = function () {
 

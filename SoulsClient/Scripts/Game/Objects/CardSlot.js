@@ -1,7 +1,6 @@
 define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
 
-    var num = 0;
-    CardSlot = function (x, y) {
+    CardSlot = function (x, y, id) {
         //console.log("> CardSlot Class")
         var texture = asset.GetTexture(asset.Textures.CARD_SLOT);
         pixi.Sprite.call(this, texture);
@@ -12,9 +11,10 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
         this.width = 100;
         this.height = 150;
         this.interactive = true;
-        this.slotId = CardSlot.counter++;
+        this.slotId = id;
         this.used = false;
         this.isHoverd = false;
+        this.card = undefined;
 
         // Create the card bound back (Which will ultimately be a border)
         /*var cBorder = new pixi.Graphics(this);

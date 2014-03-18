@@ -21,6 +21,7 @@
         this.RegisterResponseAction(["206", "220"], Response_GameCreate);
         this.RegisterResponseAction(["209"], Response_GameOpponentMove);
         this.RegisterResponseAction(["210"], Response_GameOpponentRelease);
+        this.RegisterResponseAction(["204", "211"], Response_UseCard);
     }
     // Constructor
     GameService.prototype.constructor = GameService;
@@ -44,6 +45,24 @@
     function Response_QueueOK() // 100
     {
 
+    }
+
+    function Response_UseCard(json) // 211 // 204
+    {
+        var card;
+        var cardSlot;
+        if (json.Type = "211") // OPPONENT
+        {
+            card = that.engine.opponent.cardManager.hand[json.Payload.cid];
+            cardSlot = that.engine.opponent.cardManager.cardSlots[json.Payload.slotId];
+        }
+        else if (json.Type = "204") // PLAYER
+        {
+            card = that.engine.player.cardManager.hand[json.Payload.cid];
+            cardSlot = that.engine.player.cardManager.cardSlots[json.Payload.slotId];
+        }
+        card.TrySlot(cardSlot);
+        
     }
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
@@ -100,9 +119,9 @@
     function Response_GameOpponentRelease(json) {
         var card = that.engine.opponent.cardManager.hand[json.Payload.cid];
 
-        console.log(card);
+        //console.log(card);
 
-        card.AnimateBack(card);
+        //card.AnimateBack(card);
 
 
     }
@@ -115,6 +134,13 @@
     GameService.prototype.Login = function () {
         this.socket.send(this.message.GENERAL.LOGIN);
         this.socket.send(this.message.GAME.QUEUE); // TODO, this should not be called here.
+    }
+
+    GameService.prototype.Request_UseCard = function (cid, slotId) {
+        var json = this.message.GAME.USECARD;
+        json.Payload.cid = cid;
+        json.Payload.slotId = slotId;
+        this.socket.send(json);
     }
 
 
