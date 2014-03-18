@@ -71,6 +71,13 @@
 
             if (conf.playoropp == "Player") {
                 c.interactive = true;
+                c.owner = this.engine.player;
+            }
+            else if(conf.playoropp == "Opponent") {
+                c.owner = this.engine.opponent;
+            }
+            else{
+                console.log("Error, a non existing ''playoropp''");
             }
 
         }

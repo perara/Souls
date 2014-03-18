@@ -14,9 +14,9 @@
     "socket",
     "pixi"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, Tween, CardSlots, ChatService, Socket, Pixi) {
 
-        // MAKE A CHECK FOR CARDS ON SERVERSIDE (NOT CARD ON ALREADY USED SLOT)
-        // CARD HOVERING / PLACED stuff
-        // CARDS MOVING WHILE IN SLOT ON OPPONENT CLIENT
+        // MAKE A CHECK FOR CARDS ON SERVERSIDE (NOT CARD ON ALREADY USED SLOT) -PAUL
+        // CARD HOVERING / PLACED stuff - PER 
+        // CARDS MOVING WHILE IN SLOT ON OPPONENT CLIENT - PER
 
 
 
