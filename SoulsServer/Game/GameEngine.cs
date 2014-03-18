@@ -135,11 +135,17 @@ namespace SoulsServer
              new JProperty("cid", player.gameContext.data.Payload.cid));
 
             Response response = new Response(
-                GameService.GameResponseType.GAME_OPPONENT_RELEASE,
+                GameService.GameResponseType.GAME_PLAYER_RELEASE,
                 retData
                 );
 
+
+            requestPlayer.playerContext.SendTo(response);
+
+            response.Type = GameService.GameResponseType.GAME_OPPONENT_RELEASE;
             requestPlayer.GetOpponent().playerContext.SendTo(response);
+
+
 
         }
 
@@ -175,8 +181,8 @@ namespace SoulsServer
             Pair<GamePlayer> playerPair = new Pair<GamePlayer>(p1, p2);
 
             // Create a game room
-            newRoom.AddGamePlayers(playerPair);   
-            
+            newRoom.AddGamePlayers(playerPair);
+
 
             Pair<Response> response = newRoom.GenerateGameUpdate(true);
             players.First.gameContext.SendTo(response.First);
@@ -214,7 +220,7 @@ namespace SoulsServer
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate(true);
-                if(player.gPlayer.isPlayerOne)
+                if (player.gPlayer.isPlayerOne)
                 {
                     response.First.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.First);
@@ -225,7 +231,7 @@ namespace SoulsServer
                     player.gPlayer.playerContext.SendTo(response.Second);
                 }
 
-     
+
 
             }
         }
@@ -274,12 +280,15 @@ namespace SoulsServer
                 requestPlayer.gameRoom.NextTurn();
 
                 // Send Reply
-                requestPlayer.playerContext.SendTo(new Response(
-                    GameService.GameResponseType.GAME_USECARD_OK, new Dictionary<string, int> 
+                Response response = new Response(GameService.GameResponseType.GAME_USECARD_PLAYER_OK, new Dictionary<string, int> 
                         { 
-                            {"card",card},
-                            {"slot",slot} 
-                        }));
+                            {"cid",card},
+                            {"slotId",slot} 
+                        });
+
+                requestPlayer.playerContext.SendTo(response);
+                response.Type = GameService.GameResponseType.GAME_USECARD_OPPONENT_OK;
+                requestPlayer.GetOpponent().playerContext.SendTo(response);
                 Console.WriteLine(">[GAME] Sent!");
 
 

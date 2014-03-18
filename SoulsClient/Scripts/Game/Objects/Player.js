@@ -4,7 +4,10 @@
     Player = function (engine) {
         var texture = asset.GetTexture(asset.Textures.PLAYER_NONE);
         playerBase.call(this, texture, engine)
-        this.currentCard = undefined;
+
+        this.holdingCard; // Currently holding card (Object)
+        this.lastHoldingCard; // The last card the player held
+
     }
     // Constructor
     Player.prototype = Object.create(playerBase.prototype);
@@ -23,18 +26,14 @@
         for (var cardIndex in this.cardManager.board) {
             this.cardManager.board[cardIndex].Process();
         }
-        
-        if (!!this.currentCard) {
-            this.cardManager.checkHover();
-        }
-        
+          
     }
 
     Player.prototype.Init = function () {
         this.arrow = new Arrow();
         this.engine.addChild("Player", this);
         this.cardManager = new CardManager(this.engine);
-        this.cardManager.AddCardSlots();
+        this.cardManager.AddCardSlots(true);
         this.engine.getGroup("CardSlot").visible = false;
         this.engine.getGroup("CardSlot").alpha = 1;
         this.SetPosition(
@@ -42,7 +41,7 @@
                 x: (this.engine.conf.width / 2),
                 y: (this.engine.conf.height - this.height / 2)
             });
-
+        
     }
 
     return Player;

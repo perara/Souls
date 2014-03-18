@@ -41,11 +41,13 @@ namespace SoulsServer.Engine
             GAME_OPPONENT_NOEXIST = 205,
             GAME_CREATE = 206,
 
-            GAME_USECARD_OK = 207,
+            GAME_USECARD_PLAYER_OK = 207,
+            GAME_USECARD_OPPONENT_OK = 211,
             GAME_USECARD_OOM = 208,
 
             GAME_OPPONENT_MOVE = 209,
             GAME_OPPONENT_RELEASE = 210,
+            GAME_PLAYER_RELEASE = 212,
           
 
             GAME_RECOVER = 220 // When the client disconnected and needs a recover update.
@@ -330,7 +332,7 @@ namespace SoulsServer.Engine
         {
             Console.WriteLine("[CHAT]: Player {0} connected!", Context.UserEndPoint);
         }
-
+        
         protected override void OnError(ErrorEventArgs e)
         {
 
@@ -342,7 +344,7 @@ namespace SoulsServer.Engine
             Console.WriteLine("[CHAT]: Player {0} disconnected!");
 
             // Announce to all channels that the player disconnected
-            OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
+            //OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
         }
 
 

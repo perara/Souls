@@ -1,4 +1,4 @@
-﻿define("gameService", ["messages", "networkBase"], function (Message) {
+﻿define("gameService", ["messages"], function (Message) {
 
     var that;
     GameService = function (engine, socket) {
@@ -20,7 +20,9 @@
         this.RegisterResponseAction(["100"], Response_QueueOK);
         this.RegisterResponseAction(["206", "220"], Response_GameCreate);
         this.RegisterResponseAction(["209"], Response_GameOpponentMove);
-        this.RegisterResponseAction(["210"], Response_GameOpponentRelease);
+        this.RegisterResponseAction(["210", "212"], Response_GameOpponentRelease);
+        this.RegisterResponseAction(["207", "211"], Response_UseCard);
+        this.RegisterResponseAction(["202"], Repsonse_NotYourTurn);
     }
     // Constructor
     GameService.prototype.constructor = GameService;
@@ -44,6 +46,28 @@
     function Response_QueueOK() // 100
     {
 
+    }
+
+    function Response_UseCard(json) // "207" GAME_USECARD_PLAYER_OK // "211" GAME_USECARD_OPPONENT_OK // TOODO FAILED OSV
+    {
+
+        console.log(json);
+
+        var card;
+        var cardSlot;
+
+        if (json.Type == 211) // OPPONENT
+        {
+            card = that.engine.opponent.cardManager.hand[json.Payload.cid];
+            cardSlot = that.engine.opponent.cardManager.cardSlots[json.Payload.slotId];
+        }
+        else if (json.Type == 207) // PLAYER
+        {
+            card = that.engine.player.cardManager.hand[json.Payload.cid];
+            cardSlot = that.engine.player.cardManager.cardSlots[json.Payload.slotId];
+        }
+
+        card.PutInSlot(cardSlot);
     }
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
@@ -97,15 +121,32 @@
 
     }
 
-    function Response_GameOpponentRelease(json) {
-        var card = that.engine.opponent.cardManager.hand[json.Payload.cid];
-
-        console.log(card);
+    function Response_GameOpponentRelease(json) // 210 GAME_OPPONENT_RELEASE // 212 GAME_PLAYER_RELEASE
+    {
+        var card;
+        if (json.Type == 210) {
+            card = that.engine.opponent.cardManager.hand[json.Payload.cid];
+        }
+        else if (json.Type == 212) {
+            card = that.engine.player.cardManager.hand[json.Payload.cid];
+        }
 
         card.AnimateBack(card);
-
-
     }
+
+    function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
+    {
+        var card = that.engine.player.lastHoldingCard;
+        card.AnimateBack(card);
+
+        
+        that.engine.ScreenMessage(["Not your turn!"], false, function () {
+     
+        });
+
+        
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     ////////////////////////////REQUESTS//////////////////////////////////////////
@@ -115,6 +156,13 @@
     GameService.prototype.Login = function () {
         this.socket.send(this.message.GENERAL.LOGIN);
         this.socket.send(this.message.GAME.QUEUE); // TODO, this should not be called here.
+    }
+
+    GameService.prototype.Request_UseCard = function (cid, slotId) {
+        var json = this.message.GAME.USECARD;
+        json.Payload.cid = cid;
+        json.Payload.slotId = slotId;
+        this.socket.send(json);
     }
 
 

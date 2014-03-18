@@ -1,10 +1,12 @@
 define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
 
-    var num = 0;
-    CardSlot = function (x, y) {
+    CardSlot = function (x, y, id) {
         //console.log("> CardSlot Class")
         var texture = asset.GetTexture(asset.Textures.CARD_SLOT);
         pixi.Sprite.call(this, texture);
+
+
+        this.slotId = id;
 
         this.anchor = { x: 0.5, y: 0.5 };
         this.position.x = this.position.originX = x;
@@ -12,9 +14,10 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
         this.width = 100;
         this.height = 150;
         this.interactive = true;
-        this.slotId = CardSlot.counter++;
-        this.used = false;
-        this.isHoverd = false;
+
+
+        this.card = undefined;
+        this.isHovered = false;
 
         // Create the card bound back (Which will ultimately be a border)
         /*var cBorder = new pixi.Graphics(this);
@@ -29,15 +32,6 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
 
         this.addChild(cBorder);
         */
-
-        //////////////////////////////////
-        /////Flags which is used//////////
-        //////////////////////////////////
-        this.card = {
-            used: false, // Weither the slot is used or not
-            hover: false,  //This flag is set by card when hoverSlot is active.
-        }
-
 
     };
 
@@ -64,12 +58,6 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
             this.height = 150;
         }
     }
-
-    CardSlot.prototype.isHoverd = function () {
-        return this.card.hover;
-    }
-
-
 
     return CardSlot;
 
