@@ -245,6 +245,7 @@ namespace SoulsServer
 
             GamePlayer requestPlayer = player.gPlayer;
 
+            // If opposite players turn
             if (!requestPlayer.IsPlayerTurn())
             {
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
@@ -257,18 +258,26 @@ namespace SoulsServer
                 return;
             }
 
+            // If cardslot is not empty
+            else if (requestPlayer.boardCards[slot] != null)
+            {
+                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, "Not enough mana!"));
+                this.Request_ReleaseCard(player);
+                Console.WriteLine(">[GAME] Slot occupied!");
+                return;
+            }
 
-            if (!requestPlayer.HasEnoughMana(card))
+            // Not enough mana to use card
+            else if (!requestPlayer.HasEnoughMana(card))
             {
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
                 Console.WriteLine(">[GAME] Not enough mana!");
                 return;
             }
+
+            // Use card in defined slot
             else
             {
-
-
-
                 // Move a card to the board
                 Card c;
                 requestPlayer.handCards.TryGetValue(card, out c);
@@ -290,12 +299,7 @@ namespace SoulsServer
                 response.Type = GameService.GameResponseType.GAME_USECARD_OPPONENT_OK;
                 requestPlayer.GetOpponent().playerContext.SendTo(response);
                 Console.WriteLine(">[GAME] Sent!");
-
-
-
             }
-
-
         }
 
         public void Request_NextRound(Player player)

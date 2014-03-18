@@ -43,6 +43,7 @@ namespace SoulsServer.Engine
 
             GAME_USECARD_PLAYER_OK = 207,
             GAME_USECARD_OPPONENT_OK = 211,
+            GAME_USECARD_OCCUPIED = 212,
             GAME_USECARD_OOM = 208,
 
             GAME_OPPONENT_MOVE = 209,
