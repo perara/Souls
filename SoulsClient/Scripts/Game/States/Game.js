@@ -14,6 +14,12 @@
     "socket",
     "pixi"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, Tween, CardSlots, ChatService, Socket, Pixi) {
 
+        // MAKE A CHECK FOR CARDS ON SERVERSIDE (NOT CARD ON ALREADY USED SLOT)
+        // CARD HOVERING / PLACED stuff
+        // CARDS MOVING WHILE IN SLOT ON OPPONENT CLIENT
+
+
+
         var that;
         Engine = function () {
             that = this;
@@ -24,7 +30,8 @@
             this.conf = Conf;
             // Create Groups
             this.addGroup("Background");
-            this.addGroup("CardSlot");
+            this.addGroup("OpponentCardSlot");
+            this.addGroup("PlayerCardSlot");
             this.addGroup("Opponent");
             this.addGroup("Player");
 

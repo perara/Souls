@@ -7,6 +7,18 @@
         var texture = asset.GetTexture(asset.Textures.CARD_NONE);
         pixi.Sprite.call(this, texture);
 
+        // Make card backside
+        this.backCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_BACK));
+        this.backCard.anchor = { x: 0.5, y: 0.5 };
+        this.backCard.height = 190;
+        this.backCard.width = 110;
+
+        // Make card frontside
+        this.frontCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_NONE));
+        this.frontCard.anchor = { x: 0.5, y: 0.5 };
+        this.cardFlipped = false;
+        this.addChild(this.frontCard);
+
         this.anchor = { x: 0.5, y: 0.5 };
         this.position.x = this.position.originX = 0;
         this.position.y = this.position.originY = 0;
@@ -27,8 +39,7 @@
         }
 
 
-        this.SetupCard(this);
-
+        this.SetupFrontCard(this);
 
         this.hoverSlot = undefined;
         this.inSlot = undefined;
@@ -42,7 +53,7 @@
 
 
     Card.counter = 0; //TODO ??? 
-    Card.prototype.SetupCard = function () {
+    Card.prototype.SetupFrontCard = function () {
         var that = this;
 
         // Create the card bound back (Which will ultimately be a border)
@@ -195,46 +206,49 @@
         cNamePanelText.x = 0;
         cNamePanelText.y = 0;
 
+        console.log(that);
+
         // Add wrapper to the card
-        that.addChild(cBorder);
+        that.frontCard.addChild(cBorder);
         // Add background to the card
-        that.addChild(cBackground);
+        that.frontCard.addChild(cBackground);
         // Add abilityPane to the card
-        that.addChild(cAbilityPanel);
+        that.frontCard.addChild(cAbilityPanel);
 
 
         // Add the image to the portrait container
-        that.addChild(cPortrait);
+        that.frontCard.addChild(cPortrait);
         // Add the portrait border to the portrait container
-        that.addChild(cPortraitBorder);
+        that.frontCard.addChild(cPortraitBorder);
         // Add Portraits wrapper to the Portrait container.
-        that.addChild(cPortraitWrapper);
+        that.frontCard.addChild(cPortraitWrapper);
 
         // Add the Health Image to the card
-        that.addChild(cHealth);
+        that.frontCard.addChild(cHealth);
         // Add the Mana Image to the card
-        that.addChild(cMana);
+        that.frontCard.addChild(cMana);
         // Add the Attack Image to the card
-        that.addChild(cAttack);
+        that.frontCard.addChild(cAttack);
 
         // Add the Health text to the CardFactory 
-        that.addChild(cHealthText);
+        that.frontCard.addChild(cHealthText);
         // Add the Mana text to the CardFactory 
-        that.addChild(cManaText);
+        that.frontCard.addChild(cManaText);
         // Add the Attack text to the CardFactory 
-        that.addChild(cAttackText);
+        that.frontCard.addChild(cAttackText);
         // Add the Ability text to the CardFactory
-        that.addChild(cAbilityPanelText);
+        that.frontCard.addChild(cAbilityPanelText);
 
         // Add the Name pane to the CardFactory
-        that.addChild(cNamePanel);
+        that.frontCard.addChild(cNamePanel);
         // Add the Name text to the CardFactory
-        that.addChild(cNamePanelText);
+        that.frontCard.addChild(cNamePanelText);
 
         // TODO SCALE Down cards by 20 (Standard is to big)
         that.scale.x = 0.80;
         that.scale.y = 0.80;
     }
+
 
     Card.prototype.checkHover = function () {
 
@@ -243,15 +257,13 @@
 
         var hoverSlot;
 
-
-
         for (var index in cardSlots) {
             var cardslot = cardSlots[index];
 
             // Check if card is hovering a cardSlot
             if ((Toolbox.Rectangle.intersectsYAxis(this, cardslot, { x: -10, y: -15 }, { x: 3, y: 3 }) == true) && !cardslot.card) {
                 hoverSlot = index;
-              
+
                 cardslot.doScaling();
             }
             else {
@@ -263,13 +275,26 @@
             this.hoverSlot = cardSlots[hoverSlot];
             this.hoverSlot.isHovered = true;
         }
-        else if (!!this.hoverSlot)
-        {
+        else if (!!this.hoverSlot) {
             this.hoverSlot.isHovered = false;
             this.hoverSlot = undefined;
-           
-        }
 
+        }
+    }
+
+
+
+    Card.prototype.FlipCard = function () {
+        if (this.cardFlipped) {
+            this.removeChild(this.backCard)
+            this.addChild(this.frontCard)
+            this.cardFlipped = false;
+        }
+        else {
+            this.removeChild(this.frontCard)
+            this.addChild(this.backCard)
+            this.cardFlipped = true;
+        }
     }
 
 
@@ -409,7 +434,7 @@
 
         // Only show cardslots on unslotted cards
         if (!this.inSlot) {
-            this.engine.getGroup("CardSlot").visible = true;
+            this.engine.getGroup("PlayerCardSlot").visible = true;
         }
     };
 
@@ -420,7 +445,7 @@
 
         this.mouseDown = false;
         this.dragging = false;
-        this.engine.getGroup("CardSlot").visible = false;
+        this.engine.getGroup("PlayerCardSlot").visible = false;
 
 
         // If the card is not in a slot, we want to tween it back to original position.

@@ -32,18 +32,17 @@
     Player.prototype.Init = function () {
         this.arrow = new Arrow();
         this.engine.addChild("Player", this);
-        this.cardManager = new CardManager(this.engine);
-        this.cardManager.AddCardSlots(true);
-        this.engine.getGroup("CardSlot").visible = false;
-        this.engine.getGroup("CardSlot").alpha = 1;
+        this.cardManager = new CardManager(this.engine, true);
+        this.cardManager.AddCardSlots();
+        this.engine.getGroup("PlayerCardSlot").visible = false;
+        this.engine.getGroup("PlayerCardSlot").alpha = 0.7;
+
         this.SetPosition(
             {
                 x: (this.engine.conf.width / 2),
                 y: (this.engine.conf.height - this.height / 2)
             });
-        
     }
-
     return Player;
 
 });
