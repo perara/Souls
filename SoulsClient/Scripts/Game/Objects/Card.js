@@ -44,6 +44,7 @@
         this.hoverSlot = undefined;
         this.inSlot = undefined;
         this.pickedUp = false;
+        this.owner = undefined;
 
     };
     // Constructor
@@ -449,10 +450,11 @@
 
 
         // If the card is not in a slot, we want to tween it back to original position.
+        //console.log("");
         if (!this.inSlot && !this.hoverSlot) {
             this.RequestRelease();
         }
-        else if (!!this.hoverSlot)   // Check if card is over a slot and try to use it on that slot
+        else if (!!this.hoverSlot && !this.inSlot)   // Check if card is over a slot and try to use it on that slot
         {
             this.engine.gameService.Request_UseCard(this.cid, this.hoverSlot.slotId);
         }
@@ -506,7 +508,10 @@
             that.interactive = false;
         });
         tween.onComplete(function () {
-            that.interactive = true;
+            // Check if the card is owned by the player
+            if (that.owner == that.engine.player) {
+                that.interactive = true;
+            }
         });
 
         tween.start();

@@ -43,13 +43,13 @@ namespace SoulsServer.Engine
 
             GAME_USECARD_PLAYER_OK = 207,
             GAME_USECARD_OPPONENT_OK = 211,
-            GAME_USECARD_OCCUPIED = 212,
             GAME_USECARD_OOM = 208,
 
             GAME_OPPONENT_MOVE = 209,
             GAME_OPPONENT_RELEASE = 210,
             GAME_PLAYER_RELEASE = 212,
-          
+            GAME_USECARD_OCCUPIED = 213,
+
 
             GAME_RECOVER = 220 // When the client disconnected and needs a recover update.
 
@@ -109,7 +109,7 @@ namespace SoulsServer.Engine
                     engine.Request_MoveCard(OnlinePlayers.GetInstance().gameList[this]);
                     break;
                 case GameType.RELEASE_CARD:
-                    engine.Request_ReleaseCard(OnlinePlayers.GetInstance().gameList[this]);
+                    engine.Request_OpponentReleaseCard(OnlinePlayers.GetInstance().gameList[this]);
                     break;
 
             }

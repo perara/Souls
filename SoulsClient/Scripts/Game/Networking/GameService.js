@@ -139,14 +139,10 @@
 
     function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
     {
-        var card = that.engine.player.lastHoldingCard;
-        card.AnimateBack(card);
-
+        var card = that.engine.player.cardManager.hand[json.Payload.card];
         
-        that.engine.ScreenMessage(["Not your turn!"], false, function () {
-     
-        });
-
+        that.engine.ScreenMessage(["Not your turn!"], false);
+    
         
     }
 

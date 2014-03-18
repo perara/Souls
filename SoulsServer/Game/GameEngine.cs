@@ -127,7 +127,7 @@ namespace SoulsServer
 
         }
 
-        public void Request_ReleaseCard(Player player)
+        public void Request_OpponentReleaseCard(Player player)
         {
             GamePlayer requestPlayer = player.gPlayer;
 
@@ -248,21 +248,29 @@ namespace SoulsServer
             // If opposite players turn
             if (!requestPlayer.IsPlayerTurn())
             {
+                // Screen warning
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
                 new Dictionary<string, object> 
                         { 
                             {"card",card},
                             {"error","Not your turn!"} 
                         }));
+
+                // Fire releaseCard (to recall the card to origin pos)
+                this.Request_OpponentReleaseCard(player);
                 Console.WriteLine(">[GAME] Not your turn!");
                 return;
             }
 
             // If cardslot is not empty
-            else if (requestPlayer.boardCards[slot] != null)
+            else if (requestPlayer.boardCards.ContainsKey(card))
             {
-                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, "Not enough mana!"));
-                this.Request_ReleaseCard(player);
+                JObject retObj = new JObject(
+                    new JProperty("cid", card)
+                    );
+
+                //requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, retObj));
+                this.Request_OpponentReleaseCard(player);
                 Console.WriteLine(">[GAME] Slot occupied!");
                 return;
             }
