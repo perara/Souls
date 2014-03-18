@@ -139,6 +139,7 @@
 
     function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
     {
+        console.log(json);
         var card = that.engine.player.cardManager.hand[json.Payload.card];
         
         that.engine.ScreenMessage(["Not your turn!"], false);
@@ -158,6 +159,7 @@
     }
 
     GameService.prototype.Request_UseCard = function (cid, slotId) {
+        console.log(cid);
         var json = this.message.GAME.USECARD;
         json.Payload.cid = cid;
         json.Payload.slotId = slotId;

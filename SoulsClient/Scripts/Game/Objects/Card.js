@@ -207,8 +207,6 @@
         cNamePanelText.x = 0;
         cNamePanelText.y = 0;
 
-        console.log(that);
-
         // Add wrapper to the card
         that.frontCard.addChild(cBorder);
         // Add background to the card
@@ -298,11 +296,19 @@
         }
     }
 
+    Card.prototype.ScaleUp = function () {
+        this.scale.x = 1.2;
+        this.scale.y = 1.2;
+    }
+
+    Card.prototype.ScaleDown = function () {
+        this.scale.x = 0.8;
+        this.scale.y = 0.8;
+    }
 
 
     Card.prototype.Pickup = function () {
-        this.scale.x = 1.2;
-        this.scale.y = 1.2;
+        this.ScaleUp();
 
         this.pickedUp = true;
         this.engine.player.holdingCard = this;
@@ -321,8 +327,7 @@
     }
 
     Card.prototype.PutDown = function () {
-        this.scale.x = 1.2;
-        this.scale.y = 1.2;
+        this.ScaleDown();
 
         this.engine.player.lastHoldingCard = this.engine.player.holdingCard;
         this.engine.player.holdingCard = undefined;
@@ -350,10 +355,23 @@
 
     Card.prototype.AnimateBack = function (c) {
 
-        var position = { x: c.x, y: c.y, rotation: c.rotation };
-        var target = { x: c.originX, y: c.originY, rotation: c.originRot * (Math.PI / 180) };
 
+        var position = {
+            x: c.x,
+            y: c.y,
+            rotation: c.rotation,
+            scaleX: 0.8,
+            scaleY: 0.8
+        };
 
+        var target = {
+            x: c.position.originX,
+            y: c.position.originY,
+            rotation: c.position.originRot * (Math.PI / 180),
+            scaleX: 0.8,
+            scaleY: 0.8
+        };
+      
 
 
         var sween = new TWEEN.Tween(position).to(target, 500);
@@ -361,12 +379,86 @@
 
 
         sween.onUpdate(function () {
-            c.rotation = position.rotation;
+            //  console.log(position.);
+            // c.rotation = position.rotation;
+            c.scale.y = position.scaleX;
+            c.scale.x = position.scaleY;
             c.x = position.x;
             c.y = position.y;
         });
 
+        sween.onStart(function () {
+            this.interactive = false;
+        });
+
+        sween.onComplete(function () {
+            this.interactive = true;
+        });
+
         sween.start();
+    }
+
+    Card.prototype.OnHoverEffects = function () {
+        if (this.isOver) {
+            var mouse =
+                {
+                    x: this.engine.stage.getMousePosition().x + (this.width / 2) - 40,
+                    y: this.engine.stage.getMousePosition().y,
+                    width: 80,
+                    height: this.height
+                }
+
+
+            var isMouseHover = Toolbox.Rectangle.intersectsYAxis(this, mouse, { x: 0, y: 0 }, { x: 0, y: 0 });
+            if (isMouseHover && !this.mouseDown) {
+                if (!!this.antiSpam) {
+             
+                    this.scale = { x: 2.2, y: 2.2 };
+
+                    this.engine.toolbox.TweenToPos(this,
+                    {
+                        x: this.position.originX,
+                        y: this.position.originY - (this.width / 2)
+                    }, 200); // Cant be more than 200ms
+
+                    this.engine.addChild("Cards", this);
+
+                    this.antiSpam = false;
+                }
+
+            }
+            else {
+                if (!this.antiSpam ) {
+                   
+                    this.scale = { x: 0.8, y: 0.8 };
+                    this.engine.toolbox.TweenToPos(this,
+                   {
+                       x: this.position.originX,
+                       y: this.position.originY
+                   }, 200);  // Cant be more than 200ms
+
+                    // Fix mouse pos
+                    this.position.click =
+                       {
+                           offset:
+                               {
+                                   x: (mouse.x - this.position.originX),
+                                   y: (mouse.y - this.position.originY)
+                               }
+                       }
+
+                    
+                    this.antiSpam = true;
+                }
+
+            }
+
+
+
+        }
+
+
+
     }
 
 
@@ -380,6 +472,11 @@
         if (this.pickedUp) {
             this.checkHover();
         }
+
+
+         this.OnHoverEffects();
+
+
     }
 
     Card.prototype.RequestMove = function () {
@@ -402,20 +499,20 @@
 
 
     Card.prototype.mouseover = function (data) {
-        this.mouseOver = true;
-
+        this.isOver = true;
+        console.log(":dhe");
     };
 
     Card.prototype.mouseout = function (data) {
-        // Downscale the card when leaving it
-
+        this.isOver = false;
+        console.log(":dhe");
     }
 
     Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
         asset.GetSound(asset.Sound.CARD_PICKUP).play()
 
         this.Pickup();
-        console.log(this);
+
         var mouse = mouseData.getLocalPosition(this.parent);
 
         this.position.click =

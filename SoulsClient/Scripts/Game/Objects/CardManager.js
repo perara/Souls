@@ -61,8 +61,8 @@
         for (var cJson in jsonCards) {
             count++;
             var c = new Card(this.engine, jsonCards[cJson]);
-            c.x = c.originX = conf.x + (120 * (count));
-            c.y = c.originY = conf.y;
+            c.x = c.position.originX = conf.x + (120 * (count));
+            c.y = c.position.originY = conf.y;
             c.originRot = 0;
             this.AddCardHand(c);
 

@@ -12,7 +12,8 @@
     "cardslot",
     "chatService",
     "socket",
-    "pixi"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, Tween, CardSlots, ChatService, Socket, Pixi) {
+    "pixi",
+    "toolbox"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, Tween, CardSlots, ChatService, Socket, Pixi, ToolBox) {
 
         // MAKE A CHECK FOR CARDS ON SERVERSIDE (NOT CARD ON ALREADY USED SLOT) -PAUL
         // CARD HOVERING / PLACED stuff - PER 
@@ -51,6 +52,8 @@
 
             // Connect to the game service
             this.gameService = new GameService(this)
+
+            this.toolbox = new ToolBox();
 
    
 
