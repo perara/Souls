@@ -14,8 +14,10 @@
 
     Opponent.prototype.Init = function () {
         this.engine.addChild("Opponent", this);
-        this.cardManager = new CardManager(this.engine);
-        this.cardManager.AddCardSlots(false);
+        this.cardManager = new CardManager(this.engine, false);
+        this.cardManager.AddCardSlots();
+        this.engine.getGroup("OpponentCardSlot").visible = false;
+
         this.SetPosition(
             {
                 x: (this.engine.conf.width / 2),

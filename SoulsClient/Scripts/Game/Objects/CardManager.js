@@ -2,13 +2,14 @@
 
 
 
-    CardManager = function (engine) {
+    CardManager = function (engine, isPlayer) {
         this.engine = engine;
         this.cardSlots = new Object()
 
         this.holdingCard = null; //Should be a ID of the card
         this.hand = new Object();
         this.board = new Object();
+        this.isPlayer = isPlayer;
 
         //this.cardOverview = cardOverView; // Static list with all cards
 
@@ -25,23 +26,31 @@
 
     }
 
-    CardManager.prototype.AddCardHand = function (c) {
+    CardManager.prototype.AddCardHand = function (c, isPlayer) {
         this.hand[c.cid] = c;
+        if (!this.isPlayer) {
+            this.hand[c.cid].FlipCard();
+        }
     }
 
     CardManager.prototype.AddCardBoard = function (c) {
         this.board[c.cid] = c;
+        this.board[c.cid].FlipCard();
     }
 
-    CardManager.prototype.AddCardSlots = function (isPlayer) {
+    CardManager.prototype.AddCardSlots = function () {
 
         var position = { x: (Conf.width / 13), y: 700 }
+        var groupName = "PlayerCardSlot";
 
-        if (!isPlayer) position.y = 420;
+        if (!this.isPlayer) {
+            position.y = 420;
+            groupName = "OpponentCardSlot";
+        }
 
         for (var i = 0; i < 7; i++) {
             this.cardSlots[i] = new CardSlot(520 + position.x * i, position.y, i);
-            this.engine.addChild("CardSlot", this.cardSlots[i]);
+            this.engine.addChild(groupName, this.cardSlots[i]);
         }
         
     }

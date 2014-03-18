@@ -22,7 +22,8 @@
             this.conf = Conf;
             // Create Groups
             this.addGroup("Background");
-            this.addGroup("CardSlot");
+            this.addGroup("OpponentCardSlot");
+            this.addGroup("PlayerCardSlot");
             this.addGroup("Opponent");
             this.addGroup("Player");
 
