@@ -371,7 +371,7 @@
 
     Card.prototype.Process = function () {
 
-        if (this.dragging && this.networkStopWatch.getElapsed().milliseconds > 200) {
+        if (this.dragging && this.networkStopWatch.getElapsed().milliseconds > 200 && !this.inSlot) {
             this.networkStopWatch.reset();
             this.RequestMove();
         }
