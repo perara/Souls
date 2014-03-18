@@ -49,7 +49,7 @@
         
         Asset.GetSound(Asset.Sound.END_TURN).play();
 
-        var tween = new TWEEN.Tween(position).to(target, 100).onUpdate(onUpdate).onComplete(onComplete).onStart(onStart);
+      /*  var tween = new TWEEN.Tween(position).to(target, 100).onUpdate(onUpdate).onComplete(onComplete).onStart(onStart);
         var tweenBack = new TWEEN.Tween(position).to({ scaleY: this.scale.y }, 100).onUpdate(onUpdate).onComplete(onComplete);
 
         tween.easing(TWEEN.Easing.Linear.None);
@@ -85,7 +85,7 @@
                 that.setTexture(that.disabledTexture);
             }
         }
-        tween.start();
+        tween.start();*/
 
         // Activation or deactivation of the button?
         

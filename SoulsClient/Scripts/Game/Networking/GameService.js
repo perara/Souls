@@ -102,25 +102,20 @@
         var card = that.engine.opponent.cardManager.hand[json.Payload.cid];
 
 
-        var position = {
-            x: card.x,
-            y: card.y
-        };
+        var target =
+          {
+              x: json.Payload.x,
+              y: json.Payload.y
+          }
 
-        var tween = new TWEEN.Tween(position).to({
-            x: json.Payload.x,
-            y: json.Payload.y
-        }, 500)
-            .easing(TWEEN.Easing.Linear.None)
-            .onUpdate(onUpdate)
+        //TODO bug which makes it so that its choppy. CHANGED callback!
+        that.engine.CreateJS.Tween.get(card, { override: true })
+            .to(target, 1000, that.engine.CreateJS.Ease.linear)
+            .call(onComplete);
 
-
-        function onUpdate() {
-            card.x = position.x;
-            card.y = position.y;
+        function onComplete() {
+            // Set Mount variable to true
         }
-
-        tween.start();
 
     }
 

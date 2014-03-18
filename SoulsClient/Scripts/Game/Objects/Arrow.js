@@ -1,11 +1,11 @@
-﻿define("arrow", ["jquery", "pixi", "tween"], function ($, pixi, tween) {
+﻿define("arrow", ["jquery", "pixi"], function ($, pixi) {
 
     Arrow = function()
     {
         pixi.Graphics.call(this);
         this.filter = new pixi.ColorMatrixFilter();
         this.Arrow = undefined;
-        this.Tweens = {};
+  
     }
     // Constructor
     Arrow.prototype = Object.create(pixi.Sprite.prototype);

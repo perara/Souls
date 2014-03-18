@@ -11,8 +11,11 @@ require.config({
 
 
         "pixi": "/Scripts/pixi.dev", // PIXI.js
-        "tween": "/Scripts/tween.min",
+
+        "tweenjs": "/Scripts/tweenjs-0.5.1.min",
+        "easeljs": "/Scripts/easeljs-0.7.1.min",
         "soundjs": "/Scripts/soundjs-0.5.2.min",
+
         "stats": "/Scripts/stats.min",
         "stopwatch": "/Scripts/stopwatch",
 
@@ -40,7 +43,7 @@ require.config({
         "opponent": "Objects/Opponent",
         "gameService": "Networking/GameService",
         "chatService": "Networking/ChatService",
-        "networkBase" : "Networking/NetworkBase",
+        "networkBase": "Networking/NetworkBase",
         "cardmanager": "Objects/CardManager",
         "inputmanager": "Objects/InputManager",
         "background": "Objects/Background",
@@ -59,6 +62,13 @@ require.config({
             {
                 deps: ['jquery', 'jqueryUI']
             },
+        'easeljs': {
+            exports: 'createjs'
+        },
+        'tweenjs': {
+            deps: ['easeljs'],
+            exports: 'Tween'
+        }
 
 
 

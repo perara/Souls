@@ -8,12 +8,13 @@
     "conf",
     "gameService",
     "background",
-    "tween",
     "cardslot",
     "chatService",
     "socket",
     "pixi",
-    "toolbox"], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, Tween, CardSlots, ChatService, Socket, Pixi, ToolBox) {
+    "toolbox",
+    'easeljs',
+    'tweenjs'], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox,CreateJS,_) {
 
         // MAKE A CHECK FOR CARDS ON SERVERSIDE (NOT CARD ON ALREADY USED SLOT) -PAUL
         // CARD HOVERING / PLACED stuff - PER 
@@ -38,8 +39,8 @@
             this.addGroup("Player");
 
             // Network
-            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
-            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
+            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game"); ///hybel.keel.no:8140
+            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat"); ///hybel.keel.no:8140
 
             // Objects
             this.player = new Player(this);
@@ -54,7 +55,9 @@
             // Connect to the game service
             this.gameService = new GameService(this)
 
+            // Tools etc
             this.toolbox = new ToolBox();
+            this.CreateJS = CreateJS;
 
    
 
@@ -96,7 +99,6 @@
 
             this.inputManager.Process();
             this.player.Process();
-            TWEEN.update();
 
             return this.stage;
         };

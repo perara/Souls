@@ -35,9 +35,10 @@
 /// <reference path="game/networking/gameservice.js" />
 /// <reference path="game/networking/chatservice.js" />
 /// <reference path="game/networking/networkbase.js" />
+/// <reference path="game/objects/endturnbutton.js" />
 /// <reference path="jquery.dialogextend.js" />
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
-/// <reference path="tween.js" />
-/// <reference path="game/objects/endturnbutton.js" />
+/// <reference path="tweenjs-0.5.1.js" />
+/// <reference path="easeljs-0.7.1.js" />
 

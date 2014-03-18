@@ -1,4 +1,4 @@
-﻿define("card", ['pixi', 'asset', 'tween', 'stopwatch', 'messages', 'conf'], function (pixi, asset, tween, StopWatch, Message, Conf) {
+﻿define("card", ['pixi', 'asset', 'stopwatch', 'messages', 'conf'], function (pixi, asset, StopWatch, Message, Conf) {
 
     var that = this;
     Card = function (engine, jsonData) {
@@ -51,9 +51,6 @@
     Card.prototype = Object.create(pixi.Sprite.prototype);
     Card.prototype.constructor = Card;
 
-
-
-    Card.counter = 0; //TODO ??? 
     Card.prototype.SetupFrontCard = function () {
         var that = this;
 
@@ -242,10 +239,6 @@
         that.frontCard.addChild(cNamePanel);
         // Add the Name text to the CardFactory
         that.frontCard.addChild(cNamePanelText);
-
-        // TODO SCALE Down cards by 20 (Standard is to big)
-        that.scale.x = 0.80;
-        that.scale.y = 0.80;
     }
 
 
@@ -302,8 +295,8 @@
     }
 
     Card.prototype.ScaleDown = function () {
-        this.scale.x = 0.8;
-        this.scale.y = 0.8;
+        this.scale.x = 1;
+        this.scale.y = 1;
     }
 
 
@@ -314,16 +307,8 @@
         this.engine.player.holdingCard = this;
 
         var position = { rotation: this.rotation };
-        var target = { rotation: 0 };
-        var tween = new TWEEN.Tween(position).to(target, 500);
-        tween.easing(TWEEN.Easing.Elastic.Out)
 
-        var that = this;
-        tween.onUpdate(function () {
-            that.rotation = position.rotation;
-        });
-
-        tween.start();
+        asset.GetSound(asset.Sound.CARD_PICKUP).play();
     }
 
     Card.prototype.PutDown = function () {
@@ -354,48 +339,19 @@
 
 
     Card.prototype.AnimateBack = function (c) {
+        var target =
+            {
+                x: this.position.originX,
+                y: this.position.originY
+            }
 
+        this.engine.CreateJS.Tween.get(c)
+            .to(target, 1000, this.engine.CreateJS.Ease.elasticOut)
+            .call(onComplete);
 
-        var position = {
-            x: c.x,
-            y: c.y,
-            rotation: c.rotation,
-            scaleX: 0.8,
-            scaleY: 0.8
-        };
-
-        var target = {
-            x: c.position.originX,
-            y: c.position.originY,
-            rotation: c.position.originRot * (Math.PI / 180),
-            scaleX: 0.8,
-            scaleY: 0.8
-        };
-      
-
-
-        var sween = new TWEEN.Tween(position).to(target, 500);
-        sween.easing(TWEEN.Easing.Elastic.Out)
-
-
-        sween.onUpdate(function () {
-            //  console.log(position.);
-            // c.rotation = position.rotation;
-            c.scale.y = position.scaleX;
-            c.scale.x = position.scaleY;
-            c.x = position.x;
-            c.y = position.y;
-        });
-
-        sween.onStart(function () {
-            this.interactive = false;
-        });
-
-        sween.onComplete(function () {
-            this.interactive = true;
-        });
-
-        sween.start();
+        function onComplete() {
+            // Set Mount variable to true
+        }
     }
 
     Card.prototype.OnHoverEffects = function () {
@@ -412,7 +368,7 @@
             var isMouseHover = Toolbox.Rectangle.intersectsYAxis(this, mouse, { x: 0, y: 0 }, { x: 0, y: 0 });
             if (isMouseHover && !this.mouseDown) {
                 if (!!this.antiSpam) {
-             
+
                     this.scale = { x: 2.2, y: 2.2 };
 
                     this.engine.toolbox.TweenToPos(this,
@@ -428,8 +384,8 @@
 
             }
             else {
-                if (!this.antiSpam ) {
-                   
+                if (!this.antiSpam) {
+
                     this.scale = { x: 0.8, y: 0.8 };
                     this.engine.toolbox.TweenToPos(this,
                    {
@@ -447,7 +403,7 @@
                                }
                        }
 
-                    
+
                     this.antiSpam = true;
                 }
 
@@ -474,7 +430,7 @@
         }
 
 
-         this.OnHoverEffects();
+        // this.OnHoverEffects();
 
 
     }
@@ -500,18 +456,17 @@
 
     Card.prototype.mouseover = function (data) {
         this.isOver = true;
-        console.log(":dhe");
     };
 
     Card.prototype.mouseout = function (data) {
         this.isOver = false;
-        console.log(":dhe");
     }
 
     Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
-        asset.GetSound(asset.Sound.CARD_PICKUP).play();
 
+        // Pickup the card
         this.Pickup();
+
 
         var mouse = mouseData.getLocalPosition(this.parent);
 
@@ -539,6 +494,7 @@
     // Mouse - Release
     Card.prototype.mouseup = Card.prototype.mouseupoutside = Card.prototype.touchend = Card.prototype.touchendoutside = function (mouseData) {
 
+        // Put the card down
         this.PutDown();
 
         this.mouseDown = false;
@@ -575,43 +531,29 @@
     };
 
     Card.prototype.PutInSlot = function (cardSlot) {
-
-        this.inSlot = true;
         cardSlot.card = this;
+        this.inSlot = true;
+        this.interactive = false;
 
-        var position = {
-            x: this.x,
-            y: this.y
-        };
 
-        var target = {
-            x: cardSlot.x,
-            y: cardSlot.y
-        };
+        var target =
+          {
+              x: cardSlot.x,
+              y: cardSlot.y
+          }
 
-        var tween = new TWEEN.Tween(position).to(target, 500);
-        tween.easing(TWEEN.Easing.Elastic.InOut)
 
-        setTimeout(function () {
-            asset.GetSound(asset.Sound.CARD_MOUNT).play();
-        }), 1000;
+        this.engine.CreateJS.Tween.get(this)
+            .to(target, 500, this.engine.CreateJS.Ease.ElasticInOut)
+            .call(onComplete);
 
-        var that = this;
-        tween.onUpdate(function () {
-            that.x = position.x;
-            that.y = position.y;
-        });
-        tween.onStart(function () {
-            that.interactive = false;
-        });
-        tween.onComplete(function () {
+        function onComplete() {
             // Check if the card is owned by the player
-            if (that.owner == that.engine.player) {
-                that.interactive = true;
+            if (this.owner == this.engine.player) {
+                this.interactive = true;
+                asset.GetSound(asset.Sound.CARD_MOUNT).play();
             }
-        });
-
-        tween.start();
+        }
     }
 
     return Card;
