@@ -320,6 +320,7 @@
     <Content Include="Scripts\Game\Objects\CardManager.js" />
     <Content Include="Scripts\Game\Objects\CardSlot.js" />
     <Content Include="Scripts\Game\Networking\ChatService.js" />
+    <Content Include="Scripts\Game\Objects\EndTurnButton.js" />
     <Content Include="Scripts\Game\Objects\InputManager.js" />
     <Content Include="Scripts\Game\Networking\GameService.js" />
     <Content Include="Scripts\Game\Objects\Opponent.js" />

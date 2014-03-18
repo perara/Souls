@@ -31,14 +31,15 @@
             this.conf = Conf;
             // Create Groups
             this.addGroup("Background");
+            this.addGroup("EndTurn");
             this.addGroup("OpponentCardSlot");
             this.addGroup("PlayerCardSlot");
             this.addGroup("Opponent");
             this.addGroup("Player");
 
             // Network
-            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
-            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
+            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
 
             // Objects
             this.player = new Player(this);

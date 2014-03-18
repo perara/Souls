@@ -1,4 +1,4 @@
-﻿define("background", ["jquery", "asset", "pixi"], function ($, Asset, Pixi) {
+﻿define("background", ["jquery", "asset", "pixi", "endturnbutton"], function ($, Asset, Pixi, EndTurnButton) {
 
     Background = function (engine) {
         console.log("> Background Loaded")
@@ -17,8 +17,12 @@
         bg.interactive = true;
         this.engine.addChild("Background", bg);
 
+        // Add endturn button
+        var endTurnButton = EndTurnButton;
+        endTurnButton.Init();
+        this.engine.addChild("EndTurn", endTurnButton)
+        
     }
-
 
     return Background;
 

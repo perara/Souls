@@ -283,7 +283,7 @@ namespace SoulsServer
                 return;
             }
 
-            // Use card in defined slot
+            
             else
             {
                 // Move a card to the board

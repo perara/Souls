@@ -44,7 +44,8 @@ require.config({
         "cardmanager": "Objects/CardManager",
         "inputmanager": "Objects/InputManager",
         "background": "Objects/Background",
-        "chat": "Objects/Chat"
+        "chat": "Objects/Chat",
+        "endturnbutton": "Objects/EndTurnButton"
     },
     shim: {
         'pixi': {

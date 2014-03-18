@@ -509,7 +509,7 @@
     }
 
     Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
-        asset.GetSound(asset.Sound.CARD_PICKUP).play()
+        asset.GetSound(asset.Sound.CARD_PICKUP).play();
 
         this.Pickup();
 
