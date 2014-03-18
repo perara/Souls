@@ -39,4 +39,5 @@
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
 /// <reference path="tween.js" />
+/// <reference path="game/objects/endturnbutton.js" />
 

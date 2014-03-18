@@ -30,6 +30,7 @@
             this.conf = Conf;
             // Create Groups
             this.addGroup("Background");
+            this.addGroup("EndTurn");
             this.addGroup("OpponentCardSlot");
             this.addGroup("PlayerCardSlot");
             this.addGroup("Opponent");

@@ -55,6 +55,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             CARD_BACK: Asset.Path.Textures + "Card/cardback.png",
             
             END_TURN: Asset.Path.Textures + "endturn.png",
+            END_TURN_DISABLED: Asset.Path.Textures + "endturn_disabled.png",
 
             PLAYER_NONE: Asset.Path.Textures + "Card/player_none.png",
             PLAYER_FRAME: Asset.Path.Textures + "Card/player_frame.png",
@@ -67,7 +68,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             {
                 CARD_PICKUP: Asset.Path.Sound + "fjopp.mp3",
                 CARD_MOUNT: Asset.Path.Sound + "card_mount.mp3",
-
+                END_TURN: Asset.Path.Sound + "scroll.mp3",
 
             }
         Asset.prototype.GetTexture = function (texture) {
