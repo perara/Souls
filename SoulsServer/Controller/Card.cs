@@ -13,16 +13,20 @@ namespace SoulsServer
 {
     public class Card : Model.db_Card, ICloneable
     {
-        private static int idCounter {get; set;}
+        private static int idCounter { get; set; }
         public bool isDead { get; set; }
         public int cid { get; set; }
+
+        // Which slot the card resides in.
+        public int slotId { get; set; }
 
         public Ability ability { get; set; }
         public CardType cardType { get; set; }
 
 
 
-        public Card(){
+        public Card()
+        {
         }
 
         public void SetId()
@@ -85,6 +89,6 @@ namespace SoulsServer
             return this.MemberwiseClone();
         }
 
-   
+
     }
 }

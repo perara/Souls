@@ -242,8 +242,10 @@ namespace SoulsServer
             int slot = player.gameContext.data.Payload.slotId; //  This is the slot which is the cards destination
             int card = player.gameContext.data.Payload.cid; // This is the card which the player has on hand
 
+            
 
             GamePlayer requestPlayer = player.gPlayer;
+
 
             // If opposite players turn
             if (!requestPlayer.IsPlayerTurn())
@@ -263,7 +265,7 @@ namespace SoulsServer
             }
 
             // If cardslot is not empty
-            else if (requestPlayer.boardCards.ContainsKey(card))
+            else if (requestPlayer.boardCards.ContainsKey(slot))
             {
                 JObject retObj = new JObject(
                     new JProperty("cid", card)
@@ -290,8 +292,10 @@ namespace SoulsServer
                 Card c;
                 requestPlayer.handCards.TryGetValue(card, out c);
                 requestPlayer.handCards.Remove(card);
-                requestPlayer.boardCards.Add(c.cid, c);
+                requestPlayer.boardCards.Add(slot, c);
 
+                // Set the slotId to the card
+                c.slotId = slot;
 
                 //Next turn
                 requestPlayer.gameRoom.NextTurn();
