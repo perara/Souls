@@ -126,12 +126,12 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         // Show stats
         var stats = new Stats();
         stats.setMode(1); // 0: fps, 1: ms
+
         // Align top-left
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.left = '0px';
         stats.domElement.style.top = '0px';
         document.body.appendChild(stats.domElement);
-
 
         // Fire onResize after init stuff
         OnResize();
@@ -143,13 +143,13 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
             stats.end();
         }, 1000 / Conf.FPS);
 
+        // Running keepalive each minute
+        setInterval(function () { KeepAlive() }, 60000);
     }
-
 
     function OnResize() {
         var width = $(window).width();
         var height = $(window).height();
-
 
         this.renderer.view.style.width = $(window).width() + "px";
         this.renderer.view.style.height = $(window).height() - $(".navbar").height() + "px";
@@ -179,8 +179,10 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         }
     }
 
-
-
+    function KeepAlive() {
+        $.ajax('/Player/hash?callback=define');
+        console.log("KEEPING ALIVE YES");
+    }
 
     // Run the game
     $(document).ready(Initialize());
