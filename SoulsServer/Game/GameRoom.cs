@@ -22,6 +22,8 @@ namespace SoulsServer
         public int gameId { get; set; }
         public int round { get; set; }
 
+        Random rand = new Random((int)DateTime.Now.Millisecond);
+
         /// <summary>
         /// Count number or cards in the room. is used as identifier on cards with gameId (gameId * cardCount)
         /// </summary>
@@ -59,7 +61,6 @@ namespace SoulsServer
         public List<Card> GetRandomCards(int amount = 1)
         {
             List<Card> getCard = new List<Card>();
-            Random rand = new Random();
 
             for (var i = 0; i < amount; i++)
             {

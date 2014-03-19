@@ -72,19 +72,28 @@
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
+
+        console.log(data);
+
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.SetText(data.Payload.player.info);
         that.engine.opponent.SetText(data.Payload.opponent.info);
-        that.engine.player.cardManager.GiveCards(data.Payload.player.hand, {
+
+        // Give cards to hand
+        that.engine.player.cardManager.JSONToHandCards(data.Payload.player.hand, {
             x: 200,
             y: 1000,
             playoropp: "Player"
         });
-        that.engine.opponent.cardManager.GiveCards(data.Payload.opponent.hand, {
+
+        that.engine.opponent.cardManager.JSONToHandCards(data.Payload.opponent.hand, {
             x: 200,
             y: 200,
             playoropp: "Opponent"
         });
+
+        that.engine.player.cardManager.JSONToBoardCards(data.Payload.player.board);
+        that.engine.opponent.cardManager.JSONToBoardCards(data.Payload.opponent.board);
 
 
         // Create Chat room (If you are player 1)
@@ -151,7 +160,6 @@
     }
 
     GameService.prototype.Request_UseCard = function (cid, slotId) {
-        console.log(cid);
         var json = this.message.GAME.USECARD;
         json.Payload.cid = cid;
         json.Payload.slotId = slotId;
