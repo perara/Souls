@@ -11,7 +11,7 @@
 
         // Create a global tunnel to "this" object
         that = this;
-      
+
         // Card Dimensions
         this.width = 120;
         this.height = 150;
@@ -62,8 +62,7 @@
     Card.prototype = Object.create(pixi.Sprite.prototype);
     Card.prototype.constructor = Card;
 
-    Card.prototype.SetupBackCard = function()
-    {
+    Card.prototype.SetupBackCard = function () {
         // Make card backside
         this.backCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_BACK));
         this.backCard.anchor = { x: 0.5, y: 0.5 };
@@ -269,32 +268,34 @@
     /// Checks if the card is hovered over a cardslot (BROKEN) //TODO
     /// </summary>
     Card.prototype.checkHover = function () {
+        if (this.pickedUp && !this.inSlot) {
 
-        // Get cardSlot group
-        var cardSlots = this.engine.player.cardManager.cardSlots;
+            // Get cardSlot group
+            var cardSlots = this.engine.player.cardManager.cardSlots;
 
-        var hoverSlot;
+            var hoverSlot;
 
-        for (var index in cardSlots) {
-            var cardslot = cardSlots[index];
+            for (var index in cardSlots) {
+                var cardslot = cardSlots[index];
 
 
-            // Check if card is hovering a cardSlot
-            if ((Toolbox.Rectangle.intersectsYAxis(this, cardslot, { x: -10, y: -15 }, { x: 3, y: 3 }) == true)) {
-                hoverSlot = index;
+                // Check if card is hovering a cardSlot
+                if ((Toolbox.Rectangle.intersectsYAxis(this, cardslot, { x: -10, y: -15 }, { x: 3, y: 3 }) == true)) {
+                    hoverSlot = index;
 
-                cardslot.doScaling(true);
+                    cardslot.doScaling(true);
+                }
+                else {
+                    cardslot.doScaling(false);
+                }
             }
-            else {
-                cardslot.doScaling(false);
-            }
-        }
 
-        if (!!hoverSlot) {
-            this.hoverSlot = cardSlots[hoverSlot];
-        }
-        else if (!!this.hoverSlot) {
-            this.hoverSlot = undefined;
+            if (!!hoverSlot) {
+                this.hoverSlot = cardSlots[hoverSlot];
+            }
+            else if (!!this.hoverSlot) {
+                this.hoverSlot = undefined;
+            }
         }
     }
 
@@ -359,10 +360,9 @@
     /// </summary>
     Card.prototype.PutDown = function () {
         this.ScaleDown();
-        
+
         // Do scaling for the hoverslot if exists
-        if (!!this.hoverSlot)
-        {
+        if (!!this.hoverSlot) {
             this.hoverSlot.card = undefined;
             this.hoverSlot.doScaling();
         }
@@ -389,6 +389,7 @@
         function onComplete() {
             // Set Mount variable to true
             this.pickedUp = false;
+            this.interactive = true;
         }
     }
 
@@ -397,14 +398,14 @@
     /// </summary>
     Card.prototype.OnHoverEffects = function () {
         // Only fire when card is not picked up
-        if (!this.pickedUp) { // TODO , can allso apply onHover here to minimalize this function to run. But it might fail?
+        if (!this.pickedUp && !this.inSlot) {
 
             // Create a mouse object to test intersection with
             var mouse =
                 {
-                    x: this.engine.stage.getMousePosition().x + (this.width / 2) - 40,
+                    x: this.engine.stage.getMousePosition().x + (this.width / 2) - 30,
                     y: this.engine.stage.getMousePosition().y,
-                    width: 80,
+                    width: 60,
                     height: this.height
                 }
 
@@ -417,7 +418,7 @@
                 // Do antispam
                 if (!!this.antiSpam) {
 
-
+                    this.engine.currentHovered = this;
                     // Scale up
                     this.scale = { x: 2.2, y: 2.2 };
 
@@ -511,10 +512,7 @@
         }
 
         // Check if card hovers a cardslot
-        if (this.pickedUp)
-        {
-            this.checkHover();
-        }
+        this.checkHover();
 
         // Check if player hovers a card
         this.OnHoverEffects();
@@ -548,55 +546,50 @@
     /// Mouse callbacks
     /// </summary>
     ////////////////////
-    Card.prototype.mouseover = function (data) {
+  /* Card.prototype.mouseover = function (data) {
         this.isOver = true;
     };
 
     Card.prototype.mouseout = function (data) {
-        this.isOver = false;
+        //this.isOver = false;
+        this.engine.currentHovered = false;
     }
+    */
 
     Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
 
-        // Pickup the card
-        this.Pickup();
-
-
         var mouse = mouseData.getLocalPosition(this.parent);
-
         this.position.click =
             {
                 x: mouse.x,
                 y: mouse.y,
-                offset:
-                    {
-                        x: (mouse.x - this.position.x),
-                        y: (mouse.y - this.position.y)
-                    }
             };
 
-        this.x = mouse.x;
-        this.y = mouse.y;
 
-        this.mouseDown = true;
         this.dragging = true;
 
+        // Pickup the card
+        this.Pickup();
 
         // Only show cardslots on unslotted cards
         if (!this.inSlot) {
-            this.engine.getGroup("PlayerCardSlot").visible = true;
+            this.x = mouse.x;
+            this.y = mouse.y;
+            this.engine.getGroup("CardSlot-Player").visible = true;
         }
     };
 
     // Mouse - Release
     Card.prototype.mouseup = Card.prototype.mouseupoutside = Card.prototype.touchend = Card.prototype.touchendoutside = function (mouseData) {
+        if (!this.inSlot) {
+            this.interactive = false;
+        }
 
         // Put the card down
         this.PutDown();
 
-        this.mouseDown = false;
-        this.dragging = false;
-        this.engine.getGroup("PlayerCardSlot").visible = false;
+
+        this.engine.getGroup("CardSlot-Player").visible = false;
 
 
         // If the card is not in a slot, we want to tween it back to original position.
@@ -609,6 +602,7 @@
             this.engine.gameService.Request_UseCard(this.cid, this.hoverSlot.slotId);
         }
 
+        this.dragging = false;
     };
 
     // Dragging Callback
@@ -616,7 +610,7 @@
 
         if (this.dragging) {
             var mouse = data.getLocalPosition(this.parent);
-            if (this.inSlot == null) {
+            if (!this.inSlot) {
 
                 this.x = mouse.x;
                 this.y = mouse.y;

@@ -34,8 +34,8 @@
         this.engine.addChild("Player", this);
         this.cardManager = new CardManager(this.engine, true);
         this.cardManager.AddCardSlots();
-        this.engine.getGroup("PlayerCardSlot").visible = false;
-        this.engine.getGroup("PlayerCardSlot").alpha = 0.7;
+        this.engine.getGroup("CardSlot-Player").visible = false;
+        this.engine.getGroup("CardSlot-Player").alpha = 0.7;
 
         this.SetPosition(
             {

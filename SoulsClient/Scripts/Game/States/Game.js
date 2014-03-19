@@ -33,8 +33,9 @@
             // Create Groups
             this.addGroup("Background");
             this.addGroup("EndTurn");
-            this.addGroup("OpponentCardSlot");
-            this.addGroup("PlayerCardSlot");
+            this.addGroup("CardSlot-Opponent");
+            this.addGroup("CardSlot-Player");
+
             this.addGroup("Opponent");
             this.addGroup("Player");
 
@@ -58,8 +59,6 @@
             // Tools etc
             this.toolbox = new ToolBox();
             this.CreateJS = CreateJS;
-
-   
 
             this.OnStart();
 

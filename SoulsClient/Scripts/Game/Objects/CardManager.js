@@ -103,7 +103,7 @@
             count++;
 
             var position = {
-                x: conf.x + (120 * (count)),
+                x: conf.x + (50 * (count)),
                 y: conf.y,
                 rotation: 0
             };

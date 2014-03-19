@@ -16,7 +16,7 @@
         this.engine.addChild("Opponent", this);
         this.cardManager = new CardManager(this.engine, false);
         this.cardManager.AddCardSlots();
-        this.engine.getGroup("OpponentCardSlot").visible = false;
+        this.engine.getGroup("CardSlot-Opponent").visible = false;
 
         this.SetPosition(
             {
