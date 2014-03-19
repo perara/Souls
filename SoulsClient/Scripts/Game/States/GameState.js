@@ -7,7 +7,8 @@
             PAUSED: 2,
             DEFEAT: 3,
             VICTORY: 4,
-            LOADING: 5
+            LOADING: 5,
+            NOT_SUPPORTED: 6
         };
 
 });

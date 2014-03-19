@@ -60,9 +60,6 @@
         {
             card = that.engine.opponent.cardManager.hand[json.Payload.cid];
             cardSlot = that.engine.opponent.cardManager.cardSlots[json.Payload.slotId];
-
-            card.FlipCard();
-
         }
         else if (json.Type == 207) // PLAYER
         {

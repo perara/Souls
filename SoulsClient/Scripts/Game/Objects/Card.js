@@ -317,7 +317,8 @@
         this.engine.player.lastHoldingCard = this.engine.player.holdingCard;
         this.engine.player.holdingCard = undefined;
 
-        this.pickedUp = false;
+        ///Todo 
+        // this.pickedUp = false;
     }
 
 
@@ -345,17 +346,21 @@
                 y: this.position.originY
             }
 
-        this.engine.CreateJS.Tween.get(c)
+        this.engine.CreateJS.Tween.get(c, { override: true })
             .to(target, 1000, this.engine.CreateJS.Ease.elasticOut)
             .call(onComplete);
 
         function onComplete() {
             // Set Mount variable to true
+            this.pickedUp = false;
         }
     }
 
     Card.prototype.OnHoverEffects = function () {
-        if (this.isOver) {
+        // Only fire when card is not picked up
+        if (!this.pickedUp) { // TODO , can allso apply onHover here to minimalize this function to run. But it might fail?
+
+            // Create a mouse object to test intersection with
             var mouse =
                 {
                     x: this.engine.stage.getMousePosition().x + (this.width / 2) - 40,
@@ -365,57 +370,48 @@
                 }
 
 
-            var isMouseHover = Toolbox.Rectangle.intersectsYAxis(this, mouse, { x: 0, y: 0 }, { x: 0, y: 0 });
-            if (isMouseHover && !this.mouseDown) {
+            // Check if the mouse intersects the card 
+            var mouseIntersects = Toolbox.Rectangle.intersectsYAxis(this, mouse, { x: 0, y: 0 }, { x: 0, y: 0 });
+
+            // If the mouse intersects
+            if (mouseIntersects) {
+                // Do antispam
                 if (!!this.antiSpam) {
 
+
+                    // Scale up
                     this.scale = { x: 2.2, y: 2.2 };
 
-                    this.engine.toolbox.TweenToPos(this,
-                    {
-                        x: this.position.originX,
-                        y: this.position.originY - (this.width / 2)
-                    }, 200); // Cant be more than 200ms
+                    // Run tween
+                    this.engine.CreateJS.Tween.get(this, { override: true })
+                        .to({ y: this.position.originY - 100 }, 200, this.engine.CreateJS.Ease.elasticOut)
 
+                    // Reorganize the card order to top
                     this.engine.addChild("Cards", this);
 
+                    // Change state of antispam
                     this.antiSpam = false;
                 }
 
             }
             else {
+                // Do antispam
                 if (!this.antiSpam) {
 
-                    this.scale = { x: 0.8, y: 0.8 };
-                    this.engine.toolbox.TweenToPos(this,
-                   {
-                       x: this.position.originX,
-                       y: this.position.originY
-                   }, 200);  // Cant be more than 200ms
+                    // Scale down
+                    this.ScaleDown();
 
-                    // Fix mouse pos
-                    this.position.click =
-                       {
-                           offset:
-                               {
-                                   x: (mouse.x - this.position.originX),
-                                   y: (mouse.y - this.position.originY)
-                               }
-                       }
+                    // Run tween
+                    this.engine.CreateJS.Tween.get(this, { override: true })
+                        .to({ y: this.position.originY }, 500, this.engine.CreateJS.Ease.elasticOut)
 
 
+                    // Change antispam state
                     this.antiSpam = true;
                 }
-
-            }
-
-
-
-        }
-
-
-
-    }
+            } // -- Intersects
+        } // -- Picked Up
+    } // -- Function
 
 
     Card.prototype.Process = function () {
@@ -430,7 +426,7 @@
         }
 
 
-        // this.OnHoverEffects();
+        this.OnHoverEffects();
 
 
     }
@@ -524,13 +520,14 @@
 
 
                 // console.log(" x offset is " + this.position.click.offset.x);
-                this.x = mouse.x - this.position.click.offset.x;
-                this.y = mouse.y - this.position.click.offset.y;
+                this.x = mouse.x //- this.position.click.offset.x;
+                this.y = mouse.y //- this.position.click.offset.y;
             }
         }
     };
 
     Card.prototype.PutInSlot = function (cardSlot) {
+
         cardSlot.card = this;
         this.inSlot = true;
         this.interactive = false;
@@ -543,15 +540,37 @@
           }
 
 
-        this.engine.CreateJS.Tween.get(this)
+        this.engine.CreateJS.Tween.get(this, { override: true })
             .to(target, 500, this.engine.CreateJS.Ease.ElasticInOut)
             .call(onComplete);
 
         function onComplete() {
+            var originalWidth = this.width;
+
             // Check if the card is owned by the player
             if (this.owner == this.engine.player) {
                 this.interactive = true;
                 asset.GetSound(asset.Sound.CARD_MOUNT).play();
+            }
+            else {
+
+                // Flip effect
+                var tweenShrink = this.engine.CreateJS.Tween.get(this, { override: true })
+                .to({ width: 0 }, 200, this.engine.CreateJS.Ease.ElasticInOut)
+                .call(function () { // CHain tweenback
+
+                    this.FlipCard();
+
+                    this.engine.CreateJS.Tween.get(this, { override: true })
+                    .to({ width: originalWidth }, 200, this.engine.CreateJS.Ease.ElasticInOut)
+                });
+
+
+
+
+
+
+
             }
         }
     }

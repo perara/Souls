@@ -132,6 +132,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         stats.domElement.style.top = '0px';
         document.body.appendChild(stats.domElement);
 
+
         // Fire onResize after init stuff
         OnResize();
 
@@ -143,6 +144,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         }, 1000 / Conf.FPS);
 
     }
+
 
     function OnResize() {
         var width = $(window).width();
@@ -159,7 +161,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
         if (Conf.currentState == Gamestate.LOADING)
         {
-            console.log(":D");
+            
         }
         else if (Conf.currentState == Gamestate.MENU) {
 
@@ -170,6 +172,10 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
         else if (Conf.currentState == Gamestate.PAUSED) {
 
+        }
+        else if(Conf.currentState == Gamestate.NOT_SUPPORTED)
+        {
+            console.log("Not supported!");
         }
     }
 
