@@ -68,6 +68,9 @@ require.config({
         'tweenjs': {
             deps: ['easeljs'],
             exports: 'Tween'
+        },
+        'game': {
+            deps: ['asset']
         }
 
 
@@ -103,31 +106,36 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         this.renderer = new Pixi.autoDetectRenderer(Conf.width, Conf.height, null, false, true);
         $("#game-window").html(this.renderer.view);
 
+        // Set current state to LOAD
+        Conf.currentState = Gamestate.LOADING;
 
-        this.gameEngine = new Game();
+        // Create the game engine
+        this.gameEngine;
+        
+        // Preload all assets
+        Asset.PreLoad(function (percent) {
+
+            console.log("[AssetLoader]: Status " + percent * 100);
+        },
+        function () {
+
+            gameEngine = new Game();
+            Conf.currentState = Gamestate.GAME;
+        });
 
         // Show stats
-
-
         var stats = new Stats();
         stats.setMode(1); // 0: fps, 1: ms
-
         // Align top-left
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.left = '0px';
         stats.domElement.style.top = '0px';
-
         document.body.appendChild(stats.domElement);
 
-
-        // Set start to game
-        Conf.currentState = Gamestate.GAME;
-
-
-        // Fire onReady after init stuff
+        // Fire onResize after init stuff
         OnResize();
 
-
+        // GameLoop
         setInterval(function () {
             stats.begin();
             GameLoop();
@@ -148,8 +156,12 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
     function GameLoop() {
 
-        if (Conf.currentState == Gamestate.MENU) {
 
+        if (Conf.currentState == Gamestate.LOADING)
+        {
+            console.log(":D");
+        }
+        else if (Conf.currentState == Gamestate.MENU) {
 
         }
         else if (Conf.currentState == Gamestate.GAME) {
