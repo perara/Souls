@@ -1,6 +1,7 @@
 ﻿define("endturnbutton", ["jquery", "asset", "pixi", "conf"], function ($, Asset, Pixi, Conf) {
 
-    EndTurnButton = function () {
+    EndTurnButton = function (engine) {
+        this.engine = engine;
         console.log("> EndTurnButton Loaded")
 
         // Cache images for undelayed swap
@@ -27,68 +28,34 @@
         this.interactive = true;
         this.active = true;
     }
-    
+
     // Spins the button and activates\deactivated it depending on input
-    EndTurnButton.prototype.Spin = function (activate) {
-       
-        var count = 0;
-        var spins = 7;
-        var that = this;
+    EndTurnButton.prototype.Spin = function () {
+    
+        var originalHeight = this.height;
 
-        that.active = activate;
-
-        var position = {
-            
-                scaleY: this.scale.y,
-            };
-
-        var target = {
-            
-            scaleY: this.scale.y * (-1),
-        };
-        
         Asset.GetSound(Asset.Sound.END_TURN).play();
 
-      /*  var tween = new TWEEN.Tween(position).to(target, 100).onUpdate(onUpdate).onComplete(onComplete).onStart(onStart);
-        var tweenBack = new TWEEN.Tween(position).to({ scaleY: this.scale.y }, 100).onUpdate(onUpdate).onComplete(onComplete);
 
-        tween.easing(TWEEN.Easing.Linear.None);
-        tweenBack.easing(TWEEN.Easing.Linear.None);
-
-        tween.chain(tweenBack);
-        tweenBack.chain(tween);
- 
-        function onUpdate () {
+        var that = this;
+        var positive = this.scale.y;
+        var position = { scaleY: this.scale.y }
+        that.interactive = false;
+        this.engine.CreateJS.Tween.get(position, { onChange: onChange })
+            .to({ scaleY: this.scale.y * (-1) }, 100)
+            .to({ scaleY: positive }, 200)
+            .to({ scaleY: this.scale.y * (-1) }, 100)
+            .to({ scaleY: positive }, 200)
+            .to({ scaleY: this.scale.y * (-1) }, 100)
+            .to({ scaleY: positive }, 200)
+            .call(function () {
+                that.setTexture(that.disabledTexture);
+            })
+      
+        function onChange(e) {
             that.scale.y = position.scaleY;
         }
 
-        function onStart() {
-            that.interactive = false;
-            
-        }
-
-        function onComplete () {
-            if (count++ == spins) {
-                Finished();
-            }
-        }
-
-        // Run when all tweens are completed
-        function Finished() {
-            tween.stop();
-
-            if (that.active) {
-                that.setTexture(that.enabledTexture);
-                that.interactive = true;
-            }
-            else {
-                that.setTexture(that.disabledTexture);
-            }
-        }
-        tween.start();*/
-
-        // Activation or deactivation of the button?
-        
     }
 
     // When endturn sign is pushed and interactive
@@ -97,14 +64,10 @@
         // TODO Send endturn request to server
         // Run this if endturn response is OK
 
-        this.Spin(false);
-
-        // Test
-        var that = this;
-        setTimeout(function () { that.Spin(true) }, 3000);
+        this.Spin();
 
     }
 
-    return new EndTurnButton();
+    return EndTurnButton;
 
 });

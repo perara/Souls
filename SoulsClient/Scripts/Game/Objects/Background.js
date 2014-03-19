@@ -18,7 +18,7 @@
         this.engine.addChild("Background", bg);
 
         // Add endturn button
-        var endTurnButton = EndTurnButton;
+        var endTurnButton = new EndTurnButton(this.engine);
         endTurnButton.Init();
         this.engine.addChild("EndTurn", endTurnButton)
         

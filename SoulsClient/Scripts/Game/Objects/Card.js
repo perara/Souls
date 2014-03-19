@@ -477,6 +477,9 @@
                     }
             };
 
+        this.x = mouse.x;
+        this.y = mouse.y;
+
         this.mouseDown = true;
         this.dragging = true;
 
@@ -513,15 +516,13 @@
     // Dragging Callback
     Card.prototype.mousemove = Card.prototype.touchmove = function (data) {
 
-
         if (this.dragging) {
             var mouse = data.getLocalPosition(this.parent);
             if (this.inSlot == null) {
 
+                this.x = mouse.x;
+                this.y = mouse.y;
 
-                // console.log(" x offset is " + this.position.click.offset.x);
-                this.x = mouse.x //- this.position.click.offset.x;
-                this.y = mouse.y //- this.position.click.offset.y;
             }
         }
     };
@@ -532,13 +533,11 @@
         this.inSlot = true;
         this.interactive = false;
 
-
         var target =
           {
               x: cardSlot.x,
               y: cardSlot.y
           }
-
 
         this.engine.CreateJS.Tween.get(this, { override: true })
             .to(target, 500, this.engine.CreateJS.Ease.ElasticInOut)
@@ -546,6 +545,8 @@
 
         function onComplete() {
             var originalWidth = this.width;
+
+            asset.GetSound(asset.Sound.CARD_MOUNT).play(); // CHANGE ENEMY SOUND
 
             // Check if the card is owned by the player
             if (this.owner == this.engine.player) {
@@ -556,13 +557,13 @@
 
                 // Flip effect
                 var tweenShrink = this.engine.CreateJS.Tween.get(this, { override: true })
-                .to({ width: 0 }, 200, this.engine.CreateJS.Ease.ElasticInOut)
+                .to({ width: 0 }, 100, this.engine.CreateJS.Ease.ElasticInOut)
                 .call(function () { // CHain tweenback
 
                     this.FlipCard();
 
                     this.engine.CreateJS.Tween.get(this, { override: true })
-                    .to({ width: originalWidth }, 200, this.engine.CreateJS.Ease.ElasticInOut)
+                    .to({ width: originalWidth }, 100, this.engine.CreateJS.Ease.ElasticInOut)
                 });
 
 
