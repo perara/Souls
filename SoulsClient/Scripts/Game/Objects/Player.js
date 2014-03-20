@@ -8,13 +8,6 @@
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held
 
-        var mouse =
-        {
-            x: -1,
-            y: -1
-        };
-
-
     }
     // Constructor
     Player.prototype = Object.create(playerBase.prototype);
@@ -26,18 +19,13 @@
 
         this.cardManager.Process();
 
-        this.UpdateMouse();
+
 
         this.arrow.AttackCheck(this.holdingCard);
+
     }
 
 
-    Player.prototype.UpdateMouse = function () {
-        this.mouse = {
-            x: this.engine.stage.getMousePosition().x,
-            y: this.engine.stage.getMousePosition().y
-        }
-    }
 
     Player.prototype.Init = function () {
         this.arrow = new Arrow(this.engine);

@@ -416,8 +416,8 @@
             // Create a mouse object to test intersection with
             var mouse =
                 {
-                    x: this.engine.player.mouse.x + (this.width / 2) - 30,
-                    y: this.engine.player.mouse.y,
+                    x: this.engine.conf.mouse.x + (this.width / 2) - 30,
+                    y: this.engine.conf.mouse.y,
                     width: 60,
                     height: this.height
                 }

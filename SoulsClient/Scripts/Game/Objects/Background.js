@@ -8,8 +8,7 @@
     // Constructor
     Background.prototype.constructor = Background;
 
-    Background.prototype.Init = function()
-    {
+    Background.prototype.Init = function () {
         // Setup the Background image
         var bg = new Pixi.Sprite(Asset.GetTexture(Asset.Textures.GAME_BG));
         bg.width = this.engine.conf.width;
@@ -21,7 +20,13 @@
         var endTurnButton = new EndTurnButton(this.engine);
         endTurnButton.Init();
         this.engine.addChild("EndTurn", endTurnButton)
-        
+
+        var that = this;
+        bg.mousemove = bg.touchmove = function (mouseData) {
+            var mNow = mouseData.getLocalPosition(this.parent)
+            that.engine.conf.mouse.x = mNow.x;
+            that.engine.conf.mouse.y = mNow.y;
+        }
     }
 
     return Background;

@@ -18,15 +18,15 @@
     Arrow.prototype.constructor = Arrow;
 
     Arrow.prototype.AttackCheck = function (card) {
-
         // The card must actually exist
         if (!!card) {
+
             // If the card is picked up, but is in a slot (Arrow dragging)
             if (card.inSlot && card.pickedUp) {
 
                 this.Show();
                 this.Draw(
-                    this.engine.player.mouse, //TO
+                    this.engine.conf.mouse, //TO
                     card.position //ORIGIN
                     );
 
@@ -39,26 +39,26 @@
                         var oppCard = opponentBoard[index];
 
                    
-                        // Check if the mouse is invisde the card
+                        // Check if the mouse is inside the card
                         var isInside = this.engine.toolbox.Rectangle.containsRaw(
-                        oppCard.x - (oppCard.width / 2),
-                        oppCard.y - (oppCard.height / 2),
+                        oppCard.x - (oppCard.width / 2), //Top
+                        oppCard.y - (oppCard.height / 2), //LEFT
                         oppCard.width,
                         oppCard.height,
-                        this.engine.player.mouse.x,
-                        this.engine.player.mouse.y);
+                        this.engine.conf.mouse.x,
+                        this.engine.conf.mouse.y);
 
-                        // If mouse is inside the card
+                        // Was it inside?
                         if (isInside) {
+                            // Set card to attack IF mouse is released
                             card.attackCard = oppCard;
                             oppCard.ScaleUp();
+                            console.log(":D");
                         }
                         else {
-
-                            if (!!this.attackCard) {
                                 oppCard.ScaleDown();
                                 card.attackCard = undefined;
-                            }
+                            //} //End  -does card attackcard exists
                         }
                     }
                 }
@@ -68,6 +68,9 @@
 
 
     Arrow.prototype.Draw = function (mouse, origin) {
+        if (mouse.x <= 0 && mouse.y <= 0)
+            return;
+
         this.originPos = origin;
         this.mousePos = mouse;
         this.active = true;

@@ -84,10 +84,11 @@ var Engine = {};
 define('conf', ['/Player/hash?callback=define'], function (define) {
 
     function Conf() {
+        this.mouse = { x: -10000, y: -10000 };
         this.width = 1920;
         this.height = 1080;
         this.Frame = 0;
-        this.FPS = 30;
+        this.FPS = 60;
         this.hash = define.hash;
     }
 
