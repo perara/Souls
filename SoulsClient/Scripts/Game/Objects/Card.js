@@ -20,8 +20,9 @@
         // Card Position
         this.position.x = this.position.originX = 0;
         this.position.y = this.position.originY = 0;
-        this.order = Card.counter++; // Which number it is ordered in (NOT ID) //TODO? 
-        console.log(this.order);
+        this.order = undefined; // Must be set on card creation (When adding to group)
+
+
         /// <summary>
         /// Cusom Variables
         /// </summary>
@@ -325,20 +326,23 @@
         this.scale.y = 1;
     }
 
-    Card.prototype.OrderLast = function (displaygroup) {
-        // Reorder this card in the DisplayContainer (Make it on top)
-        displaygroup.removeChild(this)
-        displaygroup.addChild(this)
+    Card.prototype.OrderLast = function () {
+        var parent = this.parent;
+        parent.removeChild(this);
+        parent.addChild(this);
     }
 
-    Card.prototype.OrderFirst = function (displaygroup) {
-        displaygroup.removeChild(this)
-        displaygroup.addChildAt(this, 0);
+    Card.prototype.OrderFirst = function () {
+        var parent = this.parent;
+        parent.removeChild(this);
+        parent.addChildAt(this, 0);
     }
 
-    Card.prototype.OrderOriginalPosition = function (displaygroup) {
-        displaygroup.removeChild(this)
-        displaygroup.addChildAt(this, this.order);
+    Card.prototype.OrderOriginalPosition = function () {
+        var parent = this.parent;
+        parent.removeChild(this);
+        parent.addChildAt(this, this.order);
+
     }
 
     /// <summary>
@@ -346,6 +350,8 @@
     /// </summary>
     Card.prototype.Pickup = function () {
         this.ScaleUp();
+
+        this.OrderLast();
 
         this.pickedUp = true;
         this.engine.player.holdingCard = this;
@@ -363,7 +369,7 @@
 
         // Do scaling for the hoverslot if exists
         if (!!this.hoverSlot) {
-            this.hoverSlot.card = undefined;
+           // this.hoverSlot.card = undefined;
             this.hoverSlot.doScaling();
         }
 
@@ -376,6 +382,9 @@
     /// </summary>
     /// <param name="c">The card</param>
     Card.prototype.AnimateBack = function (c) {
+
+        this.OrderOriginalPosition();
+
         var target =
             {
                 x: this.position.originX,
@@ -389,7 +398,8 @@
         function onComplete() {
             // Set Mount variable to true
             this.pickedUp = false;
-            this.interactive = true;
+ 
+
         }
     }
 
@@ -398,7 +408,7 @@
     /// </summary>
     Card.prototype.OnHoverEffects = function () {
         // Only fire when card is not picked up
-        if (!this.pickedUp && !this.inSlot) {
+        if (!this.pickedUp && !this.inSlot && !this.engine.player.holdingCard) {
 
             // Create a mouse object to test intersection with
             var mouse =
@@ -418,7 +428,6 @@
                 // Do antispam
                 if (!!this.antiSpam) {
 
-                    this.engine.currentHovered = this;
                     // Scale up
                     this.scale = { x: 2.2, y: 2.2 };
 
@@ -427,7 +436,7 @@
                         .to({ y: this.position.originY - 100 }, 200, this.engine.CreateJS.Ease.elasticOut)
 
                     // Reorganize the card order to top
-                    this.engine.addChild("Cards", this);
+                    this.OrderLast();
 
                     // Change state of antispam
                     this.antiSpam = false;
@@ -437,6 +446,8 @@
             else {
                 // Do antispam
                 if (!this.antiSpam) {
+                    
+                    this.OrderOriginalPosition();
 
                     // Scale down
                     this.ScaleDown();
@@ -459,6 +470,7 @@
     /// <param name="cardSlot">a card slot</param>
     Card.prototype.PutInSlot = function (cardSlot) {
         cardSlot.card = this;
+        cardSlot.visible = false;
         this.inSlot = true;
         this.interactive = false;
 
@@ -498,8 +510,6 @@
         } // On complete end
     } // PutInSlot end
 
-
-
     /// <summary>
     /// Processes the Card
     /// </summary>
@@ -516,6 +526,12 @@
 
         // Check if player hovers a card
         this.OnHoverEffects();
+
+        // Ensures that the card is interactive 
+        if(!this.inSlot && !this.pickedUp)
+        {
+            this.interactive = true;
+        }
     }
 
     /// <summary>
@@ -541,20 +557,19 @@
         this.engine.gameSocket.send(json);
     }
 
-
     /// <summary>
     /// Mouse callbacks
     /// </summary>
     ////////////////////
-  /* Card.prototype.mouseover = function (data) {
-        this.isOver = true;
-    };
-
-    Card.prototype.mouseout = function (data) {
-        //this.isOver = false;
-        this.engine.currentHovered = false;
-    }
-    */
+    /* Card.prototype.mouseover = function (data) {
+          this.isOver = true;
+      };
+  
+      Card.prototype.mouseout = function (data) {
+          //this.isOver = false;
+     
+      }
+      */
 
     Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
 
@@ -562,7 +577,7 @@
         this.position.click =
             {
                 x: mouse.x,
-                y: mouse.y,
+                y: mouse.y
             };
 
 

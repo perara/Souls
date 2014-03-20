@@ -17,15 +17,9 @@
     Player.prototype.Process = function () {
         this.arrow.Process();
 
-        // Process Hand Cards
-        for (var cardIndex in this.cardManager.hand) {
-            this.cardManager.hand[cardIndex].Process();
-        }
 
-        // Process Board Cards
-        for (var cardIndex in this.cardManager.board) {
-            this.cardManager.board[cardIndex].Process();
-        }
+        this.cardManager.Process();
+
           
     }
 

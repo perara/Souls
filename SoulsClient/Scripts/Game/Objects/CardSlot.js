@@ -38,6 +38,20 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
         }
     }
 
+    CardSlot.prototype.Process = function()
+    {
+        if(!!this.card)
+        {
+ 
+            this.visible = false;
+        }
+        else
+        {
+            this.visible = true;
+        }
+    }
+     
+
     return CardSlot;
 
 });

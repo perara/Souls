@@ -242,7 +242,7 @@ namespace SoulsServer
             int slot = player.gameContext.data.Payload.slotId; //  This is the slot which is the cards destination
             int card = player.gameContext.data.Payload.cid; // This is the card which the player has on hand
 
-            
+
 
             GamePlayer requestPlayer = player.gPlayer;
 
@@ -273,6 +273,13 @@ namespace SoulsServer
 
                 //requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, retObj));
                 this.Request_OpponentReleaseCard(player);
+
+                requestPlayer.playerContext.SendTo(
+                    new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, new JObject(
+                        new JProperty("slot", slot),
+                        new JProperty("message", "Slot is already occupied!")
+                )));
+
                 Console.WriteLine(">[GAME] Slot occupied!");
                 return;
             }
@@ -285,7 +292,7 @@ namespace SoulsServer
                 return;
             }
 
-            
+
             else
             {
                 // Move a card to the board

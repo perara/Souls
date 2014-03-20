@@ -23,6 +23,7 @@
         this.RegisterResponseAction(["210", "212"], Response_GameOpponentRelease);
         this.RegisterResponseAction(["207", "211"], Response_UseCard);
         this.RegisterResponseAction(["202"], Repsonse_NotYourTurn);
+        this.RegisterResponseAction(["213"], Response_SlotOccupied);
     }
     // Constructor
     GameService.prototype.constructor = GameService;
@@ -46,6 +47,12 @@
     function Response_QueueOK() // 100
     {
 
+    }
+
+    function Response_SlotOccupied(json) // 213 GAME_SLOTOCCUPIED
+    {
+
+        that.engine.ScreenMessage([json.Payload.message], false);
     }
 
     function Response_UseCard(json) // "207" GAME_USECARD_PLAYER_OK // "211" GAME_USECARD_OPPONENT_OK // TOODO FAILED OSV
@@ -72,8 +79,6 @@
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
-
-        console.log(data);
 
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.SetText(data.Payload.player.info);
@@ -106,7 +111,6 @@
     function Response_GameOpponentMove(json) {
 
         var card = that.engine.opponent.cardManager.hand[json.Payload.cid];
-
 
         var target =
           {

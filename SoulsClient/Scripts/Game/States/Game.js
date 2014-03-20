@@ -35,9 +35,10 @@
             this.addGroup("EndTurn");
             this.addGroup("CardSlot-Opponent");
             this.addGroup("CardSlot-Player");
-
             this.addGroup("Opponent");
             this.addGroup("Player");
+            this.addGroup("Card-Opponent");
+            this.addGroup("Card-Player");
 
             // Network
             this.gameSocket = new Socket("ws://tux.persoft.no:8140/game"); ///hybel.keel.no:8140

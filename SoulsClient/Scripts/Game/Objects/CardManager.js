@@ -81,6 +81,8 @@
 
             var card = this.CreateCard(jsonCards[cJson], position);
 
+            this.cardSlots[jsonCards[cJson].slotId].card = card;
+            
             card.inSlot = true;
 
             // CARD
@@ -100,17 +102,17 @@
         var count = 0;
         // Iterate over cards
         for (var cJson in jsonCards) {
-            count++;
+
 
             var position = {
-                x: conf.x + (50 * (count)),
+                x: conf.x + (80 * (count)),
                 y: conf.y,
                 rotation: 0
             };
 
             // Create a card
             var card = this.CreateCard(jsonCards[cJson], position);
-
+            card.order = count++;
 
             this.AddCardHand(card);
         }
@@ -145,6 +147,24 @@
         }
 
         return c;
+    }
+
+    CardManager.prototype.Process = function () {
+
+        // Process Card Slots
+        for (var index in this.cardSlots) {
+            this.cardSlots[index].Process();
+        }
+
+        // Process Hand Cards
+        for (var cardIndex in this.hand) {
+            this.hand[cardIndex].Process();
+        }
+
+        // Process Board Cards
+        for (var cardIndex in this.board) {
+            this.board[cardIndex].Process();
+        }
     }
 
     return CardManager;
