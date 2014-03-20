@@ -173,15 +173,27 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         else if (Conf.currentState == Gamestate.PAUSED) {
 
         }
-        else if(Conf.currentState == Gamestate.NOT_SUPPORTED)
-        {
+        else if (Conf.currentState == Gamestate.NOT_SUPPORTED) {
             console.log("Not supported!");
         }
     }
 
     function KeepAlive() {
-        $.ajax('/Player/hash?callback=define');
-        console.log("KEEPING ALIVE YES");
+        $.ajax(
+            {
+                type: 'GET',
+                dataType: 'jsonp',
+                url: '/Player/hash?callback=define'
+            })
+        .done(function (define) {
+            if (define.hash == null) {
+                console.log('%c [ASP-KEEPALIVE]: Hash is NULL (NotLoggedIn)! ', 'background: #222; color: #bada55');
+            }
+            else {
+                console.log('%c [ASP-KEEPALIVE]: Hash OK! ', 'background: #222; color: #bada55');
+            }
+        });
+
     }
 
     // Run the game
