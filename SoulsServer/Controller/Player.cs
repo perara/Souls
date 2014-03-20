@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Engine;
 using SoulsServer.Controller;
+using SoulsServer.Tools;
 
 namespace SoulsServer
 {
@@ -84,7 +85,7 @@ namespace SoulsServer
                 
                 if(!this.hash.Equals(dbPlayer.hash))
                 {
-                    Console.WriteLine("New hash found, updating!");
+                    Logging.Write(Logging.Type.GENERAL, "New hash found, updating!");
                     this.hash = dbPlayer.hash;
                 }
             }

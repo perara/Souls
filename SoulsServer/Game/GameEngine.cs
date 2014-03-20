@@ -93,7 +93,7 @@ namespace SoulsServer
                       }).AsParallel().ToList();
 
 
-                Console.WriteLine(">[GAME] Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
+                Logging.Write(Logging.Type.GAME, "Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
                 w.Stop();
 
                 return cards;
@@ -204,19 +204,19 @@ namespace SoulsServer
                 if (!player.inQueue)
                 {
                     GameQueue.GetInstance().AddPlayer(player);
-                    Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " queued!");
+                    Logging.Write(Logging.Type.GAMEQUEUE, player.name + " queued!");
                     player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
                 }
                 else
                 {
-                    Console.WriteLine("\t\t\t\t\t\t\t" + player.name + " tried to queue twice!");
+                    Logging.Write(Logging.Type.GAMEQUEUE, player.name + " tried to queue twice!");
                     player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
                 }
 
             }
             else
             {
-                Console.WriteLine("> [GAME] Player was already in game, giving gameUpdate (Create)");
+                Console.WriteLine("[GAME] Player was already in game, giving gameUpdate (Create)");
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate(true);
@@ -260,7 +260,7 @@ namespace SoulsServer
 
                 // Fire releaseCard (to recall the card to origin pos)
                 this.Request_OpponentReleaseCard(player);
-                Console.WriteLine(">[GAME] Not your turn!");
+                Logging.Write(Logging.Type.GAME, "Not " + player.name + "'s turn!");
                 return;
             }
 
@@ -280,7 +280,7 @@ namespace SoulsServer
                         new JProperty("message", "Slot is already occupied!")
                 )));
 
-                Console.WriteLine(">[GAME] Slot occupied!");
+                Logging.Write(Logging.Type.GAME, "Slot occupied!");
                 return;
             }
 
@@ -288,7 +288,7 @@ namespace SoulsServer
             else if (!requestPlayer.HasEnoughMana(card))
             {
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
-                Console.WriteLine(">[GAME] Not enough mana!");
+                Logging.Write(Logging.Type.GAME, "Not enough mana!");
                 return;
             }
 
@@ -317,7 +317,7 @@ namespace SoulsServer
                 requestPlayer.playerContext.SendTo(response);
                 response.Type = GameService.GameResponseType.GAME_USECARD_OPPONENT_OK;
                 requestPlayer.GetOpponent().playerContext.SendTo(response);
-                Console.WriteLine(">[GAME] Sent!");
+                Logging.Write(Logging.Type.GAME, player.name + "Used a card!");
             }
         }
 

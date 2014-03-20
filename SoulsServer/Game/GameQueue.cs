@@ -54,6 +54,7 @@ namespace SoulsServer
         {
             if (GameQueue.instance == null) GameQueue.instance = new GameQueue();
             return instance;
+            
         }
     }
 }
