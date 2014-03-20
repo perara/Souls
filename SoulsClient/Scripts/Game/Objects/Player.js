@@ -19,7 +19,7 @@
 
 
         this.cardManager.Process();
-
+         
           
     }
 
