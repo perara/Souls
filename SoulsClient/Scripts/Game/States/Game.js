@@ -41,8 +41,8 @@
             this.addGroup("Card-Player");
 
             // Network
-            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game"); ///hybel.keel.no:8140
-            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat"); ///hybel.keel.no:8140
+            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game"); ///hybel.keel.no:8140
+            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat"); ///hybel.keel.no:8140
 
             // Objects
             this.player = new Player(this);

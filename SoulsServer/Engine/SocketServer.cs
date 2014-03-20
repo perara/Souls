@@ -131,17 +131,18 @@ namespace SoulsServer.Engine
 
         protected override void OnOpen()
         {
-            Console.WriteLine("[GAME]: Player {0} connected!", Context.UserEndPoint);
+            //Debug.Log(Debug.Type.GAME, "Player {0} connected!" + Context.UserEndPoint);
+            Logging.Write(Logging.Type.GAME, "Player {0} connected from " + Context.UserEndPoint);
         }
 
         protected override void OnError(ErrorEventArgs e)
         {
-            Console.WriteLine("[GAME]: Error on Player: " + e.Message.ToString());
+            Logging.Write(Logging.Type.ERROR, "Error on Player: " + e.Message.ToString());
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Console.WriteLine("[GAME]: Player {0} disconnected!", e.Reason);
+            Logging.Write(Logging.Type.GAME, "Player {0} disconnected! " + e.Reason);
         }
 
         /// <summary>
@@ -164,7 +165,7 @@ namespace SoulsServer.Engine
                 General origUser;
                 if ((origUser = (OnlinePlayers.GetInstance().gameList.Where(x => x.Value.UpdateHash() == newPlayer.hash).FirstOrDefault().Key)) != null)
                 {
-                    Console.WriteLine("> [GAME]: User tried to log in twice");
+                    Logging.Write(Logging.Type.GAME, "User tried to log in twice");
 
                     // Closes the Original connection
                     //  origUser.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.NORMAL, "Same user connected twice, terminating first user");
@@ -186,15 +187,15 @@ namespace SoulsServer.Engine
                     if (success)
                     {
                         SendTo(new Response(ResponseType.LOGIN_OK, "Logged in as " + OnlinePlayers.GetInstance().gameList[this].name));
-                        Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
-                        Console.WriteLine("> Online players: " + OnlinePlayers.GetInstance().gameList.Count());
+                        Logging.Write(Logging.Type.GENERAL, "Client authenticated: " + Context.UserEndPoint);
+                        Logging.Write(Logging.Type.GENERAL, "Online players: " + OnlinePlayers.GetInstance().gameList.Count());
                     }
                     else
                     {
                         Player trash;
                         SendError("Problem fetching player info, client and server hash mismatch");
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
-                        Console.WriteLine("> Client login failed for: " + Context.UserEndPoint);
+                        Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
                     }
 
                 }
@@ -331,18 +332,18 @@ namespace SoulsServer.Engine
 
         protected override void OnOpen()
         {
-            Console.WriteLine("[CHAT]: Player {0} connected!", Context.UserEndPoint);
+            Logging.Write(Logging.Type.CHAT, "Player {0} connected! " + Context.UserEndPoint);
         }
         
         protected override void OnError(ErrorEventArgs e)
         {
 
-            Console.WriteLine("[CHAT]: Error on Player {0}" + e.Message.ToString());
+            Logging.Write(Logging.Type.ERROR, "Error on Player {0}" + e.Message.ToString());
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Console.WriteLine("[CHAT]: Player {0} disconnected!");
+            Logging.Write(Logging.Type.CHAT, "Player {0} disconnected!");
 
             // Announce to all channels that the player disconnected
             //OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
@@ -354,7 +355,7 @@ namespace SoulsServer.Engine
         {
             string hash = this.payload.hash;
 
-            Console.WriteLine("Should be +1: " + OnlinePlayers.GetInstance().gameList.Count());
+            Logging.Write(Logging.Type.CHAT, "" + OnlinePlayers.GetInstance().gameList.Count());
 
             KeyValuePair<General, Player> chClient = OnlinePlayers.GetInstance().chatList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Chat Record
             // Remove chat client if it already exists //TODO?
@@ -367,7 +368,7 @@ namespace SoulsServer.Engine
             KeyValuePair<General, Player> gClient = OnlinePlayers.GetInstance().gameList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Game Record
             if (gClient.Key != null)
             {
-                Console.WriteLine("> [CHAT]: Found open game connection Linking.....");
+                Logging.Write(Logging.Type.CHAT, "Found open game connection Linking.....");
           
                 Player existingPlayer = gClient.Value;
 
@@ -428,8 +429,8 @@ namespace SoulsServer.Engine
                 {
                     Response response = new Response(ResponseType.DISCONNECTED, "You are now logged out!");
                     SendTo(response);
-                    Console.WriteLine("> Client authenticated: " + Context.UserEndPoint);
-                    Console.WriteLine("> Online players: " + OnlinePlayers.GetInstance().gameList.Count());
+                    Logging.Write(Logging.Type.GENERAL, "Client authenticated: " + Context.UserEndPoint);
+                    Logging.Write(Logging.Type.GENERAL, "Online players: " + OnlinePlayers.GetInstance().gameList.Count());
 
                 }
             }
@@ -462,7 +463,7 @@ namespace SoulsServer.Engine
 
 
 
-            Console.WriteLine("> [GENERAL] Swapped out the General Object!");
+            Logging.Write(Logging.Type.GENERAL, "Swapped out the General Object!");
         }
 
         public void HeartBeat()
