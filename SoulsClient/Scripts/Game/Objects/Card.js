@@ -50,6 +50,7 @@
         this.owner = undefined;
         this.pickedUp = undefined;
         this.cardFlipped = false;
+        this.attackCard = undefined;
 
         // Setup the card layout / graphics
         this.SetupFrontCard(this);
@@ -369,8 +370,12 @@
 
         // Do scaling for the hoverslot if exists
         if (!!this.hoverSlot) {
-           // this.hoverSlot.card = undefined;
+            // this.hoverSlot.card = undefined;
             this.hoverSlot.doScaling();
+        }
+
+        if (this.inSlot) {
+            this.pickedUp = false;
         }
 
         this.engine.player.lastHoldingCard = this.engine.player.holdingCard;
@@ -398,8 +403,6 @@
         function onComplete() {
             // Set Mount variable to true
             this.pickedUp = false;
- 
-
         }
     }
 
@@ -413,8 +416,8 @@
             // Create a mouse object to test intersection with
             var mouse =
                 {
-                    x: this.engine.stage.getMousePosition().x + (this.width / 2) - 30,
-                    y: this.engine.stage.getMousePosition().y,
+                    x: this.engine.player.mouse.x + (this.width / 2) - 30,
+                    y: this.engine.player.mouse.y,
                     width: 60,
                     height: this.height
                 }
@@ -446,7 +449,7 @@
             else {
                 // Do antispam
                 if (!this.antiSpam) {
-                    
+
                     this.OrderOriginalPosition();
 
                     // Scale down
@@ -528,9 +531,16 @@
         this.OnHoverEffects();
 
         // Ensures that the card is interactive 
-        if(!this.inSlot && !this.pickedUp)
-        {
+        if (!this.inSlot && !this.pickedUp) {
             this.interactive = true;
+        }
+
+    }
+
+    Card.prototype.CheckAttack = function () {
+        // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
+        if (!!this.attackCard) {
+            console.log(this.cid + " attacks " + this.attackCard.cid)
         }
     }
 
@@ -564,7 +574,7 @@
     /* Card.prototype.mouseover = function (data) {
           this.isOver = true;
       };
-  
+    
       Card.prototype.mouseout = function (data) {
           //this.isOver = false;
      
@@ -580,9 +590,6 @@
                 y: mouse.y
             };
 
-
-        this.dragging = true;
-
         // Pickup the card
         this.Pickup();
 
@@ -592,6 +599,9 @@
             this.y = mouse.y;
             this.engine.getGroup("CardSlot-Player").visible = true;
         }
+
+
+        this.dragging = true;
     };
 
     // Mouse - Release
@@ -603,9 +613,12 @@
         // Put the card down
         this.PutDown();
 
+        this.engine.player.arrow.Reset();
+
 
         this.engine.getGroup("CardSlot-Player").visible = false;
 
+        this.CheckAttack();
 
         // If the card is not in a slot, we want to tween it back to original position.
         //console.log("");

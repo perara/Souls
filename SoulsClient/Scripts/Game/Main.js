@@ -45,7 +45,6 @@ require.config({
         "chatService": "Networking/ChatService",
         "networkBase": "Networking/NetworkBase",
         "cardmanager": "Objects/CardManager",
-        "inputmanager": "Objects/InputManager",
         "background": "Objects/Background",
         "chat": "Objects/Chat",
         "endturnbutton": "Objects/EndTurnButton"
@@ -111,7 +110,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
         // Create the game engine
         this.gameEngine;
-        
+
         // Preload all assets
         Asset.PreLoad(function (percent) {
 
@@ -159,9 +158,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
     function GameLoop() {
 
 
-        if (Conf.currentState == Gamestate.LOADING)
-        {
-            
+        if (Conf.currentState == Gamestate.LOADING) {
+
         }
         else if (Conf.currentState == Gamestate.MENU) {
 

@@ -1,97 +1,133 @@
 ﻿define("arrow", ["jquery", "pixi"], function ($, pixi) {
 
-    Arrow = function()
-    {
+    Arrow = function (engine) {
+        this.engine = engine;
         pixi.Graphics.call(this);
+
         this.filter = new pixi.ColorMatrixFilter();
-        this.Arrow = undefined;
-  
+        this.filters = [this.filter];
+
+        this.originPos = {};
+        this.mousePos = {};
+        this.active = false;
+
+        this.Count = 0;
     }
     // Constructor
-    Arrow.prototype = Object.create(pixi.Sprite.prototype);
+    Arrow.prototype = Object.create(pixi.Graphics.prototype);
     Arrow.prototype.constructor = Arrow;
 
+    Arrow.prototype.AttackCheck = function (card) {
 
-    // Setups the arrow and returns it.
-    Arrow.prototype.SetupArrow = function () {
-        var Arrow = new pixi.Graphics();
-        Arrow.origin = { x: 0, y: 0 };
-        Arrow.lastpos = { x: 0, y: 0 };
-        Arrow.lineStyle(20, 0x33FF00);
-        Arrow.filters = [this.filter];
+        // The card must actually exist
+        if (!!card) {
+            // If the card is picked up, but is in a slot (Arrow dragging)
+            if (card.inSlot && card.pickedUp) {
 
-        this.Arrow = Arrow;
-        return Arrow;
+                this.Show();
+                this.Draw(
+                    this.engine.player.mouse, //TO
+                    card.position //ORIGIN
+                    );
+
+                // Check if the arrow is actually active (Is moving)
+                if (this.active) {
+
+                    // Iterate over opponents cards
+                    var opponentBoard = this.engine.opponent.cardManager.board;
+                    for (var index in opponentBoard) {
+                        var oppCard = opponentBoard[index];
+
+                   
+                        // Check if the mouse is invisde the card
+                        var isInside = this.engine.toolbox.Rectangle.containsRaw(
+                        oppCard.x - (oppCard.width / 2),
+                        oppCard.y - (oppCard.height / 2),
+                        oppCard.width,
+                        oppCard.height,
+                        this.engine.player.mouse.x,
+                        this.engine.player.mouse.y);
+
+                        // If mouse is inside the card
+                        if (isInside) {
+                            card.attackCard = oppCard;
+                            oppCard.ScaleUp();
+                        }
+                        else {
+
+                            if (!!this.attackCard) {
+                                oppCard.ScaleDown();
+                                card.attackCard = undefined;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
+
     Arrow.prototype.Draw = function (mouse, origin) {
-        this.Arrow.origin = origin;
-        this.Arrow.lastpos = { x: mouse.x, y: mouse.y };
+        this.originPos = origin;
+        this.mousePos = mouse;
+        this.active = true;
 
-        this.Arrow.clear();
-        this.Arrow.lineStyle(20, 0xff0000, 1);
-        this.Arrow.beginFill(0xffFF00, 0.5);
-        this.Arrow.moveTo(origin.x, origin.y);
-        this.Arrow.lineTo(mouse.x, mouse.y);
-
+        this.clear();
+        this.lineStyle(20, 0xff0000, 1);
+        this.beginFill(0xffFF00, 0.5);
+        this.moveTo(origin.x, origin.y);
+        this.lineTo(mouse.x, mouse.y);
     }
 
     Arrow.prototype.Show = function () {
-        this.Arrow.visible = true;
-        this.Arrow.clear();
-
-        if (!!this.Tweens.hideArrowTween) // Ensure that this tween actually exists
-            this.Tweens.hideArrowTween.stop();
+        this.visible = true;
     }
 
     Arrow.prototype.Hide = function () {
-        //        this.Arrow.visible = false;
-
-        var position = { x: this.Arrow.lastpos.x, y: this.Arrow.lastpos.y };
-        var target = { x: this.Arrow.origin.x, y: this.Arrow.origin.y };
-        var tween = new TWEEN.Tween(position).to(target, 1000);
-
-        this.Tweens.hideArrowTween = tween;
-        tween.easing(TWEEN.Easing.Exponential.Out); // THIS DETERMINES THE TWEEN
-
-        var that = this;
-        tween.onUpdate(function () {
-            that.Arrow.clear();
-            that.Arrow.lineStyle(20, 0xff0000, 1);
-            that.Arrow.beginFill(0xffFF00, 0.5);
-            that.Arrow.moveTo(that.Arrow.origin.x, that.Arrow.origin.y);
-            that.Arrow.lineTo(position.x, position.y);
-        });
-        tween.onComplete(function () {
-            that.Arrow.visible = false;
-        });
-
-        tween.start();
-
+        this.visible = false;
     }
 
+    Arrow.prototype.Reset = function () {
+        this.active = false;
+        var position = { x: this.mousePos.x, y: this.mousePos.y };
+        var target = { x: this.originPos.x, y: this.originPos.y };
 
-    Arrow.prototype.Process = function () {
-        if (!!this.Arrow) {
 
-            var count = this.Count += 0.1
+        this.engine.CreateJS.Tween.get(position, { override: true, onChange: onUpdate })
+          .to(target, 300, this.engine.CreateJS.Ease.quadIn)
+          .call(onComplete);
 
-
-            var colorMatrix = [1, 0, 0, 0,
-                                0, 1, 0, 0,
-                                0, 0, 1, 0,
-                                0, 0, 0, 1];
-
-            colorMatrix[1] = Math.sin(count) * 3;
-            colorMatrix[2] = Math.cos(count);
-            colorMatrix[3] = Math.cos(count) * 1.5;
-            colorMatrix[4] = Math.sin(count / 3) * 2;
-            colorMatrix[5] = Math.sin(count / 2);
-            colorMatrix[6] = Math.sin(count / 4);
-            this.filter.matrix = colorMatrix;
-
+        var that = this;
+        function onUpdate() {
+            that.clear();
+            that.lineStyle(20, 0xff0000, 1);
+            that.beginFill(0xffFF00, 0.5);
+            that.moveTo(that.originPos.x, that.originPos.y);
+            that.lineTo(position.x, position.y);
 
         }
+
+        function onComplete() {
+            that.Hide();
+        }
+    }
+
+    Arrow.prototype.Process = function () {
+        var count = this.Count += 0.1
+
+
+        var colorMatrix = [1, 0, 0, 0,
+                            0, 1, 0, 0,
+                            0, 0, 1, 0,
+                            0, 0, 0, 1];
+
+        colorMatrix[1] = Math.sin(count) * 3;
+        colorMatrix[2] = Math.cos(count);
+        colorMatrix[3] = Math.cos(count) * 1.5;
+        colorMatrix[4] = Math.sin(count / 3) * 2;
+        colorMatrix[5] = Math.sin(count / 2);
+        colorMatrix[6] = Math.sin(count / 4);
+        this.filter.matrix = colorMatrix;
     }
 
     return Arrow;

@@ -4,6 +4,7 @@
 
         console.log("> Toolbox Loaded!");
     }
+    Toolbox.prototype.constructor = Toolbox;
 
     Toolbox.Rectangle = new Rectangle();
 

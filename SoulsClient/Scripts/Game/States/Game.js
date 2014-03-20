@@ -4,7 +4,6 @@
     "state",
     "player",
     "opponent",
-    "inputmanager",
     "conf",
     "gameService",
     "background",
@@ -14,13 +13,7 @@
     "pixi",
     "toolbox",
     'easeljs',
-    'tweenjs'], function ($, stopwatch, State, Player, Opponent, InputManager, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox,CreateJS,_) {
-
-        // MAKE A CHECK FOR CARDS ON SERVERSIDE (NOT CARD ON ALREADY USED SLOT) -PAUL
-        // CARD HOVERING / PLACED stuff - PER 
-        // CARDS MOVING WHILE IN SLOT ON OPPONENT CLIENT - PER
-
-
+    'tweenjs'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox,CreateJS,_) {
 
         var that;
         Engine = function () {
@@ -35,19 +28,18 @@
             this.addGroup("EndTurn");
             this.addGroup("CardSlot-Opponent");
             this.addGroup("CardSlot-Player");
+            this.addGroup("Card-Opponent");
             this.addGroup("Opponent");
             this.addGroup("Player");
-            this.addGroup("Card-Opponent");
             this.addGroup("Card-Player");
 
             // Network
-            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game"); ///hybel.keel.no:8140
-            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat"); ///hybel.keel.no:8140
+            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game"); ///hybel.keel.no:8140
+            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat"); ///hybel.keel.no:8140
 
             // Objects
             this.player = new Player(this);
             this.opponent = new Opponent(this);
-            this.inputManager = new InputManager(this);
             this.background = new Background(this);
 
             // Connect to the chat service
@@ -58,7 +50,7 @@
             this.gameService = new GameService(this)
 
             // Tools etc
-            this.toolbox = new ToolBox();
+            this.toolbox = ToolBox;
             this.CreateJS = CreateJS;
 
             this.OnStart();
@@ -97,7 +89,6 @@
             this.gameService.Process();
             this.chatService.Process();
 
-            this.inputManager.Process();
             this.player.Process();
 
             return this.stage;
