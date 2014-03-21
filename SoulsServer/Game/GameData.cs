@@ -38,7 +38,7 @@ namespace SoulsServer.Game
             // Construct a game update object 
             JObject obj = new JObject(
                  new JProperty("gameId", room.gameId),
-                 new JProperty("round", room.round),
+                 new JProperty("round", room.turn),
                  new JProperty("ident", ident),
                  new JProperty("player", new JObject(
                     new JProperty("info", JObject.FromObject(player.GetPlayerData())),

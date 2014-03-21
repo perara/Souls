@@ -20,6 +20,7 @@ namespace SoulsServer
 
         public Pair<GamePlayer> players;
         public int gameId { get; set; }
+        public int turn { get; set; }
         public int round { get; set; }
 
         Random rand = new Random((int)DateTime.Now.Millisecond);
@@ -35,7 +36,8 @@ namespace SoulsServer
         public GameRoom()
         {
             gameId = GameRoom.gameCounter++;
-
+            turn = 0;
+            round = 0;
         }
 
         public void AddGamePlayers(Pair<GamePlayer> players)
@@ -68,8 +70,6 @@ namespace SoulsServer
                 c.SetId();
                 getCard.Add(c);
             }
-
-
             return getCard;
         }
 
@@ -80,28 +80,26 @@ namespace SoulsServer
         }
 
         /// <summary>
-        /// Runs next round (Changes currentlyPlayer object to opposite player) 
-        /// Returns the new player
+        /// Prepares the next turn
         /// </summary>
-        public GamePlayer NextTurn()
+        public void NextTurn()
         {
-            currentPlaying = currentPlaying.GetOpponent();
-            return currentPlaying;
-        }
+            // Checks if it's player one or player 2's turn. Increments round on each of player 1's turn.
+            if (turn++ % 2 == 0)
+            {
+                round++;
+                currentPlaying = players.First;
+            }
+            else
+            {
+                currentPlaying = players.Second;
+            }
 
-        public void NextRound()
-        {
-            currentPlaying = (++round % 2 == 0) ? players.First : players.Second;
-
-            // Add a new card to players
-
-            Card p1Card = this.GetRandomCards()[0];
-            Card p2Card = this.GetRandomCards()[0];
-            players.First.handCards.Add(p1Card.cid, p1Card);
-            players.Second.handCards.Add(p2Card.cid, p2Card);
+            // Add a new card to player
+            currentPlaying.AddCard();
 
             // Set mana equal to the round (unless +10)
-            currentPlaying.mana = (this.round < 10) ? this.round : 10;
+            currentPlaying.mana = (this.turn < 10) ? this.turn : 10;
         }
 
         /// <summary>
@@ -114,7 +112,6 @@ namespace SoulsServer
 
             var p1Data = GameData.Get(this, true);
             var p2Data = GameData.Get(this, false);
-
 
             GameService.GameResponseType responseType = GameService.GameResponseType.GAME_UPDATE;
             if (create)
@@ -129,10 +126,6 @@ namespace SoulsServer
 
             return gUpdates;
         }
-
-
-
-
     }
 
 }

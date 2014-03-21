@@ -68,7 +68,6 @@ namespace SoulsServer.Engine
             else if (this.gameRoom.players.Second.Equals(this))
             {
                 return this.gameRoom.players.First;
-
             }
             return null; //TODO? 
         }
@@ -88,15 +87,14 @@ namespace SoulsServer.Engine
             isDead = true;
         }
 
-
         public bool IsPlayerTurn()
         {
+            return (this.Equals(this.gameRoom.currentPlaying)) ? true : false;
+        }
 
-            if (!this.Equals(this.gameRoom.currentPlaying))
-            {
-                return false;
-            }
-            return true;
+        public void AddCard(int amount = 1)
+        {
+            gameRoom.GetRandomCards(amount);
         }
     }
 }

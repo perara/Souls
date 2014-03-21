@@ -35,24 +35,37 @@ namespace SoulsServer.Engine
 
             // Game
             GAME_UPDATE = 201,
-            GAME_NOT_YOUR_TURN = 202,
-            GAME_NEXT_ROUND_FAIL = 203,
             GAME_AUTH_FAIL = 204,
-            GAME_OPPONENT_NOEXIST = 205,
             GAME_CREATE = 206,
 
-            GAME_USECARD_PLAYER_OK = 207,
-            GAME_USECARD_OPPONENT_OK = 211,
+            // Player
+            GAME_USECARD_OK = 207,
             GAME_USECARD_OOM = 208,
+            GAME_USECARD_OCCUPIED = 213,
+            GAME_USECARD_SPELL = 224,
+            GAME_RELEASE = 212,
+            GAME_NEWCARD = 222,
+            GAME_NEXT_TURN = 226,
+            GAME_NOT_YOUR_TURN = 202,
+            GAME_NEXT_ROUND_FAIL = 203,
+            GAME_CARD_ATTACK = 218,
+            GAME_CARD_DIE = 219,
+            GAME_HERO_ATTACK = 220,
+            GAME_HERO_DIE = 221, // Game lost
 
+            // Opponent
+            GAME_OPPONENT_NOEXIST = 205,
+            GAME_OPPONENT_USECARD_OK = 211,
+            GAME_OPPONENT_USECARD_SPELL = 225,
+            GAME_OPPONENT_NEWCARD = 223,
             GAME_OPPONENT_MOVE = 209,
             GAME_OPPONENT_RELEASE = 210,
-            GAME_PLAYER_RELEASE = 212,
-            GAME_USECARD_OCCUPIED = 213,
-
+            GAME_OPPONENT_CARD_ATTACK = 214,
+            GAME_OPPONENT_CARD_DIE = 215,
+            GAME_OPPONENT_HERO_ATTACK = 216,
+            GAME_OPPONENT_HERO_DIE = 217, // Game Won
 
             GAME_RECOVER = 220 // When the client disconnected and needs a recover update.
-
         }
 
 
@@ -93,17 +106,14 @@ namespace SoulsServer.Engine
                 case GameType.QUEUE:
                     engine.Request_QueuePlayer(OnlinePlayers.GetInstance().gameList[this]);
                     break;
-
                 case GameType.ATTACK:
-                    engine.Request_CardAttack(data.Payload);
+                    engine.Request_CardAttack(OnlinePlayers.GetInstance().gameList[this]);
                     break;
-
                 case GameType.USECARD:
                     engine.Request_UseCard(OnlinePlayers.GetInstance().gameList[this]);
                     break;
-
                 case GameType.NEXTROUND:
-                    engine.Request_NextRound(data.Payload);
+                    engine.Request_NextTurn(OnlinePlayers.GetInstance().gameList[this]);
                     break;
                 case GameType.MOVE_CARD:
                     engine.Request_MoveCard(OnlinePlayers.GetInstance().gameList[this]);
@@ -357,7 +367,7 @@ namespace SoulsServer.Engine
         {
             string hash = this.payload.hash;
 
-            Logging.Write(Logging.Type.CHAT, "" + OnlinePlayers.GetInstance().gameList.Count());
+            //Logging.Write(Logging.Type.CHAT, "" + OnlinePlayers.GetInstance().gameList.Count());
 
             KeyValuePair<General, Player> chClient = OnlinePlayers.GetInstance().chatList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Chat Record
             // Remove chat client if it already exists //TODO?
@@ -433,7 +443,6 @@ namespace SoulsServer.Engine
                     SendTo(response);
                     Logging.Write(Logging.Type.GENERAL, "Client authenticated: " + Context.UserEndPoint);
                     Logging.Write(Logging.Type.GENERAL, "Online players: " + OnlinePlayers.GetInstance().gameList.Count());
-
                 }
             }
             catch (Exception exception) // Bad JSON! For shame.
