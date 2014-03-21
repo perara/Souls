@@ -43,11 +43,13 @@
         that.interactive = false;
         this.engine.CreateJS.Tween.get(position, { onChange: onChange })
             .to({ scaleY: this.scale.y * (-1) }, 100)
-            .to({ scaleY: positive }, 200)
+            .to({ scaleY: positive }, 100)
             .to({ scaleY: this.scale.y * (-1) }, 100)
-            .to({ scaleY: positive }, 200)
+            .to({ scaleY: positive }, 100)
             .to({ scaleY: this.scale.y * (-1) }, 100)
-            .to({ scaleY: positive }, 200)
+            .to({ scaleY: positive }, 100)
+            .to({ scaleY: this.scale.y * (-1) }, 100)
+            .to({ scaleY: positive }, 100)
             .call(function () {
                 that.setTexture(that.disabledTexture);
             })

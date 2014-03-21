@@ -156,10 +156,10 @@
     {
         console.log(json);
         var card = that.engine.player.cardManager.hand[json.Payload.card];
-        
+
         that.engine.ScreenMessage(["Not your turn!"], false);
-    
-        
+
+
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -173,11 +173,14 @@
         this.socket.send(this.message.GAME.QUEUE); // TODO, this should not be called here.
     }
 
-    GameService.prototype.Request_UseCard = function (cid, slotId) {
-        var json = this.message.GAME.USECARD;
-        json.Payload.cid = cid;
-        json.Payload.slotId = slotId;
-        this.socket.send(json);
+    GameService.prototype.Request_UseCard = function (card) {
+        // If the card is hovering a slot AND that its NOT in a slot
+        if (!!card.hoverSlot && !card.inSlot) {
+            var json = this.message.GAME.USECARD;
+            json.Payload.cid = card.cid;
+            json.Payload.slotId = card.hoverSlot.slotId;
+            this.socket.send(json);
+        }
     }
 
 

@@ -76,15 +76,14 @@
             name: (!!jsonData.ability) ? jsonData.ability.name : "NO"
         }
 
-        if(!!updateIt)
-        {
+        if (!!updateIt) {
             this.texts.health.setText(this.health);
             this.texts.cost.setText(this.cost);
             this.texts.ability.setText(this.ability.name);
             this.texts.name.setText(this.name);
             this.texts.attack.setText(this.attack);
         }
-   
+
     }
 
     Card.prototype.SetupBackCard = function () {
@@ -589,10 +588,13 @@
     /// Requests a card release.
     /// </summary>
     Card.prototype.RequestRelease = function () {
-        var json = Message.GAME.RELEASE_CARD;
-        json.Payload.cid = this.cid;
-        json.Payload.gameId = this.engine.gameId;
-        this.engine.gameSocket.send(json);
+        // If the card is not in a slot AND it is not hovering a slot
+        if (!this.inSlot && !this.hoverSlot) {
+            var json = Message.GAME.RELEASE_CARD;
+            json.Payload.cid = this.cid;
+            json.Payload.gameId = this.engine.gameId;
+            this.engine.gameSocket.send(json);
+        }
     }
 
     /// <summary>
@@ -634,44 +636,45 @@
 
     // Mouse - Release
     Card.prototype.mouseup = Card.prototype.mouseupoutside = Card.prototype.touchend = Card.prototype.touchendoutside = function (mouseData) {
-        if (!this.inSlot) {
-            this.interactive = false;
-        }
+        this.engine.getGroup("CardSlot-Player").visible = false;
 
         // Put the card down
         this.PutDown();
 
+        // Set off interactive while its running Tweens back (Animate Back will fire)
+        if (!this.inSlot) {
+            this.interactive = false;
+        }
+
+        // Reset the arrow
         this.engine.player.arrow.Reset();
 
-
-        this.engine.getGroup("CardSlot-Player").visible = false;
-
+        // Check and execute the card attack    
         this.CheckAttack();
 
-        // If the card is not in a slot, we want to tween it back to original position.
-        //console.log("");
-        if (!this.inSlot && !this.hoverSlot) {
-            this.RequestRelease();
-        }
-        else if (!!this.hoverSlot && !this.inSlot)   // Check if card is over a slot and try to use it on that slot
-        {
-            this.engine.gameService.Request_UseCard(this.cid, this.hoverSlot.slotId);
-        }
+        // Check and Request a release of the card
+        this.RequestRelease();
 
+        // Check and Request a "UseCard"
+        this.engine.gameService.Request_UseCard(this);
+
+        // Disable Dragging
         this.dragging = false;
     };
 
     // Dragging Callback
     Card.prototype.mousemove = Card.prototype.touchmove = function (data) {
 
+        // While the dragging variable is set @see Card.prototype.mousedown and Card.prototype.mouseup
         if (this.dragging) {
             var mouse = data.getLocalPosition(this.parent);
-            if (!this.inSlot) {
 
+            // If the card is not in slot
+            if (!this.inSlot) {
                 this.x = mouse.x;
                 this.y = mouse.y;
-
             }
+
         }
     };
 

@@ -52,6 +52,7 @@
             // Tools etc
             this.toolbox = ToolBox;
             this.CreateJS = CreateJS;
+            CreateJS.Ticker.setFPS(Conf.FPS);
 
             this.OnStart();
 
