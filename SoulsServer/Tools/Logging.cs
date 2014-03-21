@@ -38,12 +38,10 @@ namespace SoulsServer.Tools
                     break;
                 case Type.CHAT:
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    write = "[CHAT]\t\t";
+                    write = "[CHAT]\t\t";                    
                     break;
                 case Type.GAMEQUEUE:
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    write = "[GAMEQUEUE]\t";
-                    break;
+                    Console.ForegroundColor = ConsoleColor.Magenta;                    write = "[GAMEQUEUE]\t";                    break;
                 case Type.ERROR:
                     Console.BackgroundColor = ConsoleColor.DarkRed;
                     Console.ForegroundColor = ConsoleColor.White;
@@ -51,15 +49,14 @@ namespace SoulsServer.Tools
                     break;
                 default:
                     Console.ForegroundColor = ConsoleColor.White;
-                    write = "[UNDEFINED]\t\t";
+                    write = "[UNDEFINED]\t";
                     break;
             }
 
             write += message;
-            Console.WriteLine(write);
+            Console.WriteLine(write);      
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.BackgroundColor = ConsoleColor.Black;
-
-        }
+          }
     }
 }

@@ -57,7 +57,6 @@
         function onChange(e) {
             that.scale.y = position.scaleY;
         }
-
     }
 
     // When endturn sign is pushed and interactive
@@ -68,6 +67,11 @@
 
         this.Spin();
 
+    }
+
+    EndTurnButton.prototype.RequestNextTurn = function () {
+        var json = Message.GAME.NEXT_TURN;
+        this.engine.gameSocket.send(json);
     }
 
     return EndTurnButton;

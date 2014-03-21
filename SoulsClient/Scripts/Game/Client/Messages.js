@@ -19,7 +19,7 @@
                 QUEUE: 100,
                 ATTACK: 200,
                 USECARD: 201,
-                NEXTROUND: 202,
+                NEXT_TURN: 202,
                 MOVE_CARD: 203,
                 RELEASE_CARD: 204,
             },

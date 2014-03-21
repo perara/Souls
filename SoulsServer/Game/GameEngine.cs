@@ -135,7 +135,7 @@ namespace SoulsServer
              new JProperty("cid", player.gameContext.data.Payload.cid));
 
             Response response = new Response(
-                GameService.GameResponseType.GAME_PLAYER_RELEASE,
+                GameService.GameResponseType.GAME_RELEASE,
                 retData
                 );
 
@@ -318,17 +318,17 @@ namespace SoulsServer
 
 
                 // Send Reply
-                Response response = new Response(GameService.GameResponseType.GAME_USECARD_PLAYER_OK,
+                Response response = new Response(GameService.GameResponseType.GAME_USECARD_OK, 
                     new JObject(new JProperty("card", JObject.FromObject(c))));
 
                 requestPlayer.playerContext.SendTo(response);
-                response.Type = GameService.GameResponseType.GAME_USECARD_OPPONENT_OK;
+                response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
                 requestPlayer.GetOpponent().playerContext.SendTo(response);
                 Logging.Write(Logging.Type.GAME, player.name + "Used a card!");
             }
         }
 
-        public void Request_NextRound(Player player)
+        public void Request_NextTurn(Player player)
         {
             GamePlayer requestPlayer = player.gPlayer;
 
@@ -336,16 +336,21 @@ namespace SoulsServer
             if (!requestPlayer.IsPlayerTurn()) return;
 
             // Run next round
-            requestPlayer.gameRoom.NextRound();
+            requestPlayer.gameRoom.NextTurn();
 
-            // Send back game state (update)
 
-            Pair<Response> response = requestPlayer.gameRoom.GenerateGameUpdate();
-            requestPlayer.GetOpponent().playerContext.SendTo(response.First);
-            requestPlayer.playerContext.SendTo(response.Second);
+            // Send response
+            requestPlayer.playerContext.SendTo(new Response(
+                GameService.GameResponseType.GAME_NEXT_TURN, 
+                new JObject(new JProperty("yourTurn", false)
+                    )));
 
+            requestPlayer.GetOpponent().playerContext.SendTo(new Response(
+                GameService.GameResponseType.GAME_NEXT_TURN, 
+                new JObject(new JProperty("yourTurn", true)
+                    )));
+            
         }
-
 
         public void Request_CardAttack(Player player)
         {
@@ -354,8 +359,6 @@ namespace SoulsServer
 
             bool cardAttackPlayer = player.gameContext.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
             bool playerAttackCard = player.gameContext.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
-
-
 
             GamePlayer requestPlayer = player.gPlayer;
 
