@@ -196,6 +196,8 @@ namespace SoulsServer.Engine
                         SendError("Problem fetching player info, client and server hash mismatch");
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
+
+                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.INCORRECT_DATA, "Not logged in!");
                     }
 
                 }

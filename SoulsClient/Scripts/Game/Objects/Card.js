@@ -23,18 +23,9 @@
         this.order = undefined; // Must be set on card creation (When adding to group)
 
 
-        /// <summary>
-        /// Cusom Variables
-        /// </summary>
-        /// Data which is received from server
-        this.cid = (!!jsonData.cid) ? jsonData.cid : "NA";
-        this.name = (!!jsonData.name) ? jsonData.name : "NA";
-        this.health = (!!jsonData.health || jsonData.health == 0) ? jsonData.health : "NA";
-        this.attack = (!!jsonData.attack || jsonData.attack == 0) ? jsonData.attack : "NA";
-        this.cost = (!!jsonData.cost || jsonData.cost == 0) ? jsonData.cost : "NA"; //TODO, 0 might  turn this false?
-        this.ability = {
-            name: (!!jsonData.ability) ? jsonData.ability.name : "NO"
-        }
+        // Setup the text data
+        this.SetupTextData(jsonData);
+
 
         // Create a stopwatch for network pulse (Movement specifically)
         this.networkStopWatch = new Stopwatch();
@@ -43,6 +34,13 @@
         // Card definitions
         this.backCard = undefined;
         this.frontCard = undefined;
+        this.texts = {
+            health: '',
+            cost: '',
+            ability: '',
+            attack: '',
+            name: ''
+        }; //List with text objects
 
         // Interaction definitions
         this.hoverSlot = undefined;
@@ -63,6 +61,31 @@
     // Constructor
     Card.prototype = Object.create(pixi.Sprite.prototype);
     Card.prototype.constructor = Card;
+
+    Card.prototype.SetupTextData = function (jsonData, updateIt) {
+        /// <summary>
+        /// Cusom Variables
+        /// </summary>
+        /// Data which is received from server
+        this.cid = (!!jsonData.cid) ? jsonData.cid : "NA";
+        this.name = (!!jsonData.name) ? jsonData.name : "NA";
+        this.health = (!!jsonData.health || jsonData.health == 0) ? jsonData.health : "NA";
+        this.attack = (!!jsonData.attack || jsonData.attack == 0) ? jsonData.attack : "NA";
+        this.cost = (!!jsonData.cost || jsonData.cost == 0) ? jsonData.cost : "NA"; //TODO, 0 might  turn this false?
+        this.ability = {
+            name: (!!jsonData.ability) ? jsonData.ability.name : "NO"
+        }
+
+        if(!!updateIt)
+        {
+            this.texts.health.setText(this.health);
+            this.texts.cost.setText(this.cost);
+            this.texts.ability.setText(this.ability.name);
+            this.texts.name.setText(this.name);
+            this.texts.attack.setText(this.attack);
+        }
+   
+    }
 
     Card.prototype.SetupBackCard = function () {
         // Make card backside
@@ -167,6 +190,7 @@
         cHealthText.anchor = { x: 0, y: 0 };
         cHealthText.position.x = (this.width / 2) - (cHealthText.width / 2);
         cHealthText.position.y = (this.height / 2) - (cHealthText.height / 2);
+        this.texts.health = cHealthText;
 
         // CardFactory Mana Label
         var cManaText = new pixi.Text(this.cost, //TODO (COST? != mana)
@@ -179,7 +203,7 @@
         cManaText.anchor = { x: 0, y: 0 };
         cManaText.position.x = -(this.width / 2) - (cManaText.width / 2);
         cManaText.position.y = -(this.height / 2) - (cManaText.height / 2);;
-
+        this.texts.cost = cManaText;
 
         // CardFactory Attack Label
         var cAttackText = new pixi.Text(this.attack,
@@ -192,6 +216,7 @@
         cAttackText.anchor = { x: 0, y: 0 };
         cAttackText.position.x = -(this.width / 2) - (cAttackText.width / 2);
         cAttackText.position.y = (this.height / 2) - (cAttackText.height / 2) - 2;
+        this.texts.attack = cAttackText;
 
         // CardFactory Ability Label
         var cAbilityPanelText = new pixi.Text(this.ability.name,
@@ -204,6 +229,7 @@
         cAbilityPanelText.anchor = { x: 0.5, y: 0.5 };
         cAbilityPanelText.position.x = 0;
         cAbilityPanelText.position.y = this.height / 4;
+        this.texts.ability = cAbilityPanelText;
 
         // CardFactory Name Background
         var cNamePanel = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_NAME_PANEL));
@@ -215,7 +241,7 @@
 
 
         // CardFactory Name Label
-        var cNamePanelText = new pixi.Text(this.name,
+        cNamePanelText = new pixi.Text(this.name,
             {
                 font: "18px Arial bold",
                 fill: "black",
@@ -227,6 +253,7 @@
         cNamePanelText.anchor = { x: 0.5, y: 1 };
         cNamePanelText.x = 0;
         cNamePanelText.y = 0;
+        this.texts.name = cNamePanelText;
 
         // Add wrapper to the card
         this.frontCard.addChild(cBorder);
@@ -263,6 +290,7 @@
         this.frontCard.addChild(cNamePanel);
         // Add the Name text to the CardFactory
         this.frontCard.addChild(cNamePanelText);
+
     }
 
 

@@ -23,8 +23,8 @@ namespace SoulsServer.Engine
         public bool isPlayerOne { get; set; }
 
 
-        public Dictionary<int,Card> handCards { get; set; }
-        public Dictionary<int,Card> boardCards { get; set; }
+        public Dictionary<int, Card> handCards { get; set; }
+        public Dictionary<int, Card> boardCards { get; set; }
 
         public bool isDead = false;
         public int attack { get; set; }
@@ -40,8 +40,8 @@ namespace SoulsServer.Engine
         public GamePlayer(General playerContext)
         {
             this.playerContext = playerContext;
-            handCards = new Dictionary<int,Card>(10);
-            boardCards = new Dictionary<int,Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
+            handCards = new Dictionary<int, Card>(10);
+            boardCards = new Dictionary<int, Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
         }
 
         public Dictionary<string, string> GetPlayerData()
@@ -54,14 +54,9 @@ namespace SoulsServer.Engine
             return data;
         }
 
-        public bool HasEnoughMana(int cId)
+        public bool HasEnoughMana(Card c)
         {
-            Card cOut;
-            this.handCards.TryGetValue(cId, out cOut);
-
-            // TODO FIX
-            //return this.mana >= cOut.cost;
-            return true;
+            return this.mana >= c.cost;
         }
 
         public GamePlayer GetOpponent()

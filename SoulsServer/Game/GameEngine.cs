@@ -156,18 +156,24 @@ namespace SoulsServer
             GameRoom newRoom = new GameRoom();
 
             GamePlayer p1 = new GamePlayer(players.First.gameContext)
-            {
+            {  // TODO missing any?
                 hash = players.First.hash,
                 name = players.First.name,
+                mana = players.First.mana,
+                attack = players.First.attack,
+                health = players.First.health,
                 rank = players.First.rank,
                 isPlayerOne = true,
                 gameRoom = newRoom,
             };
 
             GamePlayer p2 = new GamePlayer(players.Second.gameContext)
-            {
+            { // TODO missing any?
                 hash = players.Second.hash,
                 name = players.Second.name,
+                mana = players.Second.mana,
+                attack = players.Second.attack,
+                health = players.Second.health,
                 rank = players.Second.rank,
                 isPlayerOne = false,
                 gameRoom = newRoom,
@@ -243,14 +249,22 @@ namespace SoulsServer
             int card = player.gameContext.data.Payload.cid; // This is the card which the player has on hand
 
 
-
             GamePlayer requestPlayer = player.gPlayer;
 
-
-            // If opposite players turn
-            if (!requestPlayer.IsPlayerTurn())
+            Card c;
+            // Check if the card exists or not
+            if(!requestPlayer.handCards.TryGetValue(card, out c))
             {
-                // Screen warning
+                // Card does not exist
+                // TODO
+                Logging.Write(Logging.Type.GAME, "Card does not exist!");
+                return;
+
+            }
+            // If opposite players turn
+            else if (!requestPlayer.IsPlayerTurn())
+            {
+                // Send a error message, that its not players turn
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
                 new Dictionary<string, object> 
                         { 
@@ -264,16 +278,13 @@ namespace SoulsServer
                 return;
             }
 
-            // If cardslot is not empty
+            // Check if the card slot is empty
             else if (requestPlayer.boardCards.ContainsKey(slot))
             {
-                JObject retObj = new JObject(
-                    new JProperty("cid", card)
-                    );
-
-                //requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, retObj));
+                // Send Release Card request (AnimateBack)
                 this.Request_OpponentReleaseCard(player);
 
+                // Send error message
                 requestPlayer.playerContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, new JObject(
                         new JProperty("slot", slot),
@@ -285,7 +296,7 @@ namespace SoulsServer
             }
 
             // Not enough mana to use card
-            else if (!requestPlayer.HasEnoughMana(card))
+            else if (!requestPlayer.HasEnoughMana(c))
             {
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
                 Logging.Write(Logging.Type.GAME, "Not enough mana!");
@@ -295,24 +306,20 @@ namespace SoulsServer
 
             else
             {
-                // Move a card to the board
-                Card c;
-                requestPlayer.handCards.TryGetValue(card, out c);
+                // Everything is OK, move the card to the board
                 requestPlayer.handCards.Remove(card);
                 requestPlayer.boardCards.Add(slot, c);
 
-                // Set the slotId to the card
+                // Set the slotId on the card.
                 c.slotId = slot;
 
                 //Next turn
                 requestPlayer.gameRoom.NextTurn();
 
+
                 // Send Reply
-                Response response = new Response(GameService.GameResponseType.GAME_USECARD_PLAYER_OK, new Dictionary<string, int> 
-                        { 
-                            {"cid",card},
-                            {"slotId",slot} 
-                        });
+                Response response = new Response(GameService.GameResponseType.GAME_USECARD_PLAYER_OK,
+                    new JObject(new JProperty("card", JObject.FromObject(c))));
 
                 requestPlayer.playerContext.SendTo(response);
                 response.Type = GameService.GameResponseType.GAME_USECARD_OPPONENT_OK;

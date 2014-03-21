@@ -16,8 +16,13 @@ namespace SoulsServer
         /// </summary>
         public int id { get; set; }
         public int rank { get; set; }
-        public string name { get; set; }
         public string hash { get; set; }
+
+        public string name { get; set; }
+        public int attack { get; set; }
+        public int mana { get; set; }
+        public int health { get; set; }
+        public int armor { get; set; }
 
 
         /// <summary>
@@ -61,15 +66,30 @@ namespace SoulsServer
 
             using (var db = new Model.soulsEntities())
             {
-                
-                // TODO this.
-                var dbPlayer = db.db_Player_Hash.FirstOrDefault(x => x.hash == hash).db_Player;
-                this.id = dbPlayer.id;
-                this.name = dbPlayer.name;
-                this.rank = dbPlayer.rank;
 
-                if (dbPlayer != null) return true;
-                else return false;
+                var dbPlayer_hash = db.db_Player_Hash.FirstOrDefault(x => x.hash == hash);
+
+                if (dbPlayer_hash != null)
+                {
+                    var dbPlayer = dbPlayer_hash.db_Player;
+                    var dbPlayerType = dbPlayer.db_Player_Type;
+                    this.id = dbPlayer.id;
+                    this.name = dbPlayer.name;
+                    this.rank = dbPlayer.rank;
+                    this.health = dbPlayer.db_Player_Type.health;
+                    this.mana = 10;//TODO should be contained in player type?
+                    this.armor = dbPlayer.db_Player_Type.armor;
+                    this.attack = dbPlayer.db_Player_Type.attack;
+
+                    return true;
+                }
+                else
+                {
+                    Logging.Write(Logging.Type.GAME, "db_PHash was null! (NOT LOGGED IN?)");
+
+                    return false;
+                }
+
             }
         }
 
@@ -82,8 +102,8 @@ namespace SoulsServer
             using (var db = new Model.soulsEntities())
             {
                 var dbPlayer = db.db_Player_Hash.FirstOrDefault(x => x.fk_player_id == id);
-                
-                if(!this.hash.Equals(dbPlayer.hash))
+
+                if (!this.hash.Equals(dbPlayer.hash))
                 {
                     Logging.Write(Logging.Type.GENERAL, "New hash found, updating!");
                     this.hash = dbPlayer.hash;

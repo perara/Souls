@@ -38,7 +38,7 @@
                     for (var index in opponentBoard) {
                         var oppCard = opponentBoard[index];
 
-                   
+
                         // Check if the mouse is inside the card
                         var isInside = this.engine.toolbox.Rectangle.containsRaw(
                         oppCard.x - (oppCard.width / 2), //Top
@@ -53,12 +53,10 @@
                             // Set card to attack IF mouse is released
                             card.attackCard = oppCard;
                             oppCard.ScaleUp();
-                            console.log(":D");
                         }
                         else {
-                                oppCard.ScaleDown();
-                                card.attackCard = undefined;
-                            //} //End  -does card attackcard exists
+                            oppCard.ScaleDown();
+                            card.attackCard = undefined;
                         }
                     }
                 }

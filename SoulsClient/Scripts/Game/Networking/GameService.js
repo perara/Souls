@@ -58,20 +58,30 @@
     function Response_UseCard(json) // "207" GAME_USECARD_PLAYER_OK // "211" GAME_USECARD_OPPONENT_OK // TOODO FAILED OSV
     {
 
-        console.log(json);
-
+        var cid = json.Payload.card.cid;
+        var slotId = json.Payload.card.slotId;
         var card;
         var cardSlot;
 
         if (json.Type == 211) // OPPONENT
         {
-            card = that.engine.opponent.cardManager.hand[json.Payload.cid];
-            cardSlot = that.engine.opponent.cardManager.cardSlots[json.Payload.slotId];
+            var opponent = that.engine.opponent.cardManager;
+
+
+            card = opponent.hand[cid]; // Fetch from hand
+            delete opponent.hand[cid]; // Delete from hand
+            opponent.board[cid] = card; // Add to board
+            card.SetupTextData(json.Payload.card, true);
+            cardSlot = opponent.cardSlots[slotId];
         }
         else if (json.Type == 207) // PLAYER
         {
-            card = that.engine.player.cardManager.hand[json.Payload.cid];
-            cardSlot = that.engine.player.cardManager.cardSlots[json.Payload.slotId];
+            var player = that.engine.player.cardManager;
+
+            card = player.hand[cid]; // Fetch from hand
+            delete player.hand[cid]; // Delete from hand
+            player.board[cid] = card; // Add to board
+            cardSlot = player.cardSlots[slotId];
         }
 
         card.PutInSlot(cardSlot);
