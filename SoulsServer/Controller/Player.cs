@@ -77,7 +77,7 @@ namespace SoulsServer
                     this.name = dbPlayer.name;
                     this.rank = dbPlayer.rank;
                     this.health = dbPlayer.db_Player_Type.health;
-                    this.mana = 10;//TODO should be contained in player type?
+                    this.mana = 1;//TODO should be contained in player type?
                     this.armor = dbPlayer.db_Player_Type.armor;
                     this.attack = dbPlayer.db_Player_Type.attack;
 

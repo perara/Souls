@@ -207,14 +207,16 @@ namespace SoulsServer.Engine
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
 
-                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.INCORRECT_DATA, "Not logged in!");
+
+                        
+                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.AWAY, "Not logged in!");
                     }
 
                 }
             }
             else
             {
-                this.Context.WebSocket.Close(CloseStatusCode.UNDEFINED ,"Hash was null");
+                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.AWAY ,"Hash was null");
             }
         }
 
@@ -549,6 +551,8 @@ namespace SoulsServer.Engine
 
             wssv.AddWebSocketService<GameService>("/game", () => new GameService(gameEngine));
             wssv.AddWebSocketService<ChatService>("/chat", () => new ChatService(chatEngine));
+
+            wssv.Log.Level = LogLevel.TRACE; 
 
 
             wssv.Start();

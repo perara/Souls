@@ -40,19 +40,22 @@ var sClient = (function() {
     function onClose(callback)
     {
         socket.onclose = function(event) {
-            //console.log("Closed WebSocket");
+            console.log("Closed WebSocket");
         };
     }
 
     function send(data)
     {
+
         if (socket.readyState === 1)
         {
+            console.log(socket);
             //console.log("Sent following: " + data);
             socket.send(data);
         } else {
             //console.log("Could not send, ReadyState=" + socket.readyState);
-            setTimeout(function() {
+            setTimeout(function () {
+                console.log(socket);
                 send(data)
             }, 50);
         }
@@ -64,7 +67,7 @@ var sClient = (function() {
         receive: receive,
         onOpen: onOpen,
         onError: onError,
-        onClose: onClose,
+        onClose: onClose
     };
 })();
 

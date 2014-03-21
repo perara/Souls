@@ -223,6 +223,7 @@
         this.socket.connect();
 
         // Recieves all Data from server
+        console.log(this.socket);
         this.socket.onMessage(GameService.prototype.TrafficHandler);
     }
 
