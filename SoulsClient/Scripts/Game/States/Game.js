@@ -34,9 +34,13 @@
             this.addGroup("Card-Player");
             this.addGroup("Attacker");
 
-            // Network
-            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game"); ///hybel.keel.no:8140
-            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat"); ///hybel.keel.no:8140
+            // Network for råtn host
+           // // // // // // // // // // xDDDD // // // this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
+           // // // // // // // // // // xDDDD // // // this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
+
+            // Network for best host
+            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
+            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
 
             // Objects
             this.player = new Player(this);
@@ -68,6 +72,7 @@
             this.background.Init();
             this.opponent.Init();
             this.player.Init();
+
 
             //conlosle.log(this.Groups);
             this.gameService.Connect();

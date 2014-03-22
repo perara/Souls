@@ -84,7 +84,9 @@ http://buzz.jaysalvat.com/documentation/buzz/
             {
                 CARD_PICKUP: Asset.Path.Sound + "fjopp.mp3",
                 CARD_MOUNT: Asset.Path.Sound + "card_mount.mp3",
-                END_TURN: Asset.Path.Sound + "scroll.mp3"
+                END_TURN: Asset.Path.Sound + "scroll.mp3",
+                ATTACK_1: Asset.Path.Sound + "attack_1.mp3",
+                DEFEND_1: Asset.Path.Sound + "defend_1.mp3",
 
             }
 

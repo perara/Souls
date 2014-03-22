@@ -17,9 +17,9 @@
         this.engine.addChild("Background", bg);
 
         // Add endturn button
-        var endTurnButton = new EndTurnButton(this.engine);
-        endTurnButton.Init();
-        this.engine.addChild("EndTurn", endTurnButton)
+        this.endTurnButton = new EndTurnButton(this.engine);
+        this.endTurnButton.Init();
+        this.engine.addChild("EndTurn", this.endTurnButton)
 
         var that = this;
         bg.mousemove = bg.touchmove = function (mouseData) {

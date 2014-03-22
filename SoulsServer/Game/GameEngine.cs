@@ -225,15 +225,13 @@ namespace SoulsServer
                 Console.WriteLine("[GAME] Player was already in game, giving gameUpdate (Create)");
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
-                Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate(true);
+                Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate();
                 if (player.gPlayer.isPlayerOne)
                 {
-                    response.First.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.First);
                 }
                 else
                 {
-                    response.Second.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.Second);
                 }
 
@@ -266,11 +264,13 @@ namespace SoulsServer
             {
                 // Send a error message, that its not players turn
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
-                new Dictionary<string, object> 
-                        { 
-                            {"card",card},
-                            {"error","Not your turn!"} 
-                        }));
+               new JObject(
+                   new JProperty("card", card),
+                   new JProperty("error", "Not your turn!")
+                   )));
+
+
+
 
                 // Fire releaseCard (to recall the card to origin pos)
                 this.Request_OpponentReleaseCard(player);
@@ -314,7 +314,7 @@ namespace SoulsServer
                 c.slotId = slot;
 
                 //Next turn
-                requestPlayer.gameRoom.NextTurn();
+                //requestPlayer.gameRoom.NextTurn();
 
 
                 // Send Reply
@@ -330,6 +330,8 @@ namespace SoulsServer
 
         public void Request_NextTurn(Player player)
         {
+            Logging.Write(Logging.Type.GAME, player.name + " initiated next turn");
+
             GamePlayer requestPlayer = player.gPlayer;
 
             // Validate player turn
@@ -377,7 +379,13 @@ namespace SoulsServer
             // Players turn?
             if (!requestPlayer.IsPlayerTurn())
             {
-                // TODO send error NOT TURN
+                // Send a error message, that its not players turn
+                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+               new JObject(
+                   new JProperty("error", "Not your turn!")
+                   )));
+
+                return;
             }
 
             //////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,7 @@
         this.RegisterResponseAction(["202"], Repsonse_NotYourTurn);
         this.RegisterResponseAction(["213"], Response_SlotOccupied);
         this.RegisterResponseAction(["218"], Response_Attack);
+        this.RegisterResponseAction(["226"], Response_NextTurn);
 
     }
     // Constructor
@@ -120,6 +121,7 @@
     {
 
         that.engine.gameId = data.Payload.gameId;
+        that.engine.player.playerNr = data.Payload.ident;
         that.engine.player.SetText(data.Payload.player.info);
         that.engine.opponent.SetText(data.Payload.opponent.info);
 
@@ -141,10 +143,13 @@
 
 
         // Create Chat room (If you are player 1)
-        if (data.Payload.ident == 1 && data.Type != 220) {
+        if (data.Payload.ident == 1 && data.Payload.create)
+        {
             that.engine.chatService.RequestNewGameRoom();
         }
-
+            console.log(data.Payload)
+            that.engine.background.endTurnButton.SetPlayerTurn(data.Payload.yourTurn);
+            console.log("Your turn ?" + data.Payload.yourTurn);
     }
 
     function Response_GameOpponentMove(json) {
@@ -184,12 +189,24 @@
     function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
     {
         console.log(json);
-        var card = that.engine.player.cardManager.hand[json.Payload.card];
 
         that.engine.ScreenMessage(["Not your turn!"], false);
 
 
     }
+    function Response_NextTurn(json) // 226 NEXT TURN
+    {
+        console.log(json);
+        console.log("Recieved endturn");
+        if (json.Payload.yourTurn)
+        {
+            that.engine.background.endTurnButton.Spin();
+        }
+
+        
+    }
+
+
 
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
@@ -292,15 +309,6 @@
         console.log("[GAME]Received: " + prsJson.Type);
         GameService.prototype.networkBuffer.push(prsJson);
     }
-
-
-
-
-
-
-
-
-
 
     return GameService;
 

@@ -510,6 +510,9 @@
               y: cardSlot.y
           }
 
+        this.position.originX = cardSlot.x;
+        this.position.originY = cardSlot.y;
+
         this.engine.CreateJS.Tween.get(this, { override: true })
             .to(target, 500, this.engine.CreateJS.Ease.ElasticInOut)
             .call(onComplete);
@@ -589,6 +592,8 @@
         var speed = 100;
         var that = this;
         this.interactive = false;
+
+        asset.GetSound(asset.Sound.DEFEND_1).play();
         this.engine.CreateJS.Tween.get(this, { override: false })
         .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
         .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
@@ -637,6 +642,7 @@
         this.interactive = false;
 
         // Change the card to the attacker group
+        asset.GetSound(asset.Sound.ATTACK_1).play();
         this.engine.SwapFromToGroup(this, (this.owner == this.engine.player) ? "Card-Player" : "Card-Opponent", "Attacker");
         this.engine.CreateJS.Tween.get(values, {
             override: false,

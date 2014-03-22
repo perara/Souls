@@ -167,6 +167,7 @@
 
     PlayerBase.prototype.Init = function () {
         console.log("> [PlayerBase]: Implement Init()");
+        this.playerNr = undefined;
     }
 
     /*var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };*/
