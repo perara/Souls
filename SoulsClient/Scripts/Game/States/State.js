@@ -22,6 +22,12 @@
         return this.Groups[name];
     }
 
+    State.prototype.SwapFromToGroup = function(obj, fromGroup, toGroup)
+    {
+        this.getGroup(fromGroup).removeChild(obj);
+        this.getGroup(toGroup).addChild(obj);
+    }
+
     /**
     * Adds a PIXI.Sprite to a DisplayCOntainer
     *

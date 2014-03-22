@@ -253,7 +253,7 @@ namespace SoulsServer
 
             Card c;
             // Check if the card exists or not
-            if(!requestPlayer.handCards.TryGetValue(card, out c))
+            if (!requestPlayer.handCards.TryGetValue(card, out c))
             {
                 // Card does not exist
                 // TODO
@@ -318,7 +318,7 @@ namespace SoulsServer
 
 
                 // Send Reply
-                Response response = new Response(GameService.GameResponseType.GAME_USECARD_OK, 
+                Response response = new Response(GameService.GameResponseType.GAME_USECARD_OK,
                     new JObject(new JProperty("card", JObject.FromObject(c))));
 
                 requestPlayer.playerContext.SendTo(response);
@@ -341,65 +341,108 @@ namespace SoulsServer
 
             // Send response
             requestPlayer.playerContext.SendTo(new Response(
-                GameService.GameResponseType.GAME_NEXT_TURN, 
+                GameService.GameResponseType.GAME_NEXT_TURN,
                 new JObject(new JProperty("yourTurn", false)
                     )));
 
             requestPlayer.GetOpponent().playerContext.SendTo(new Response(
-                GameService.GameResponseType.GAME_NEXT_TURN, 
+                GameService.GameResponseType.GAME_NEXT_TURN,
                 new JObject(new JProperty("yourTurn", true)
                     )));
-            
+
         }
 
-        public void Request_CardAttack(Player player)
+        public void Request_Attack(Player player)
         {
-            int attacker = player.gameContext.data.attacker;
-            int defender = player.gameContext.data.defender;
+            // Get data
+            int source = player.gameContext.payload.source;
+            int target = player.gameContext.payload.target;
+            int type = player.gameContext.payload.type;
 
-            bool cardAttackPlayer = player.gameContext.data.cardAttackPlayer; //NB MIGHT BE NULL IF NOT USED
-            bool playerAttackCard = player.gameContext.data.playerAttackCard; //NB MIGHT BE NULL IF NOT USED
-
+            // Fetch GamePlayers
             GamePlayer requestPlayer = player.gPlayer;
+            GamePlayer opponent = requestPlayer.GetOpponent();
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+            // Check criterias
+
+            // Check that none of the data is NULL or default values!
+            if (source != null && target != null && (type != null || type == -1))
+            {
+                // TODO missing data!
+            }
+
+            // Players turn?
             if (!requestPlayer.IsPlayerTurn())
             {
-                return;
+                // TODO send error NOT TURN
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
 
-            GamePlayer opponent = requestPlayer.GetOpponent();
-            if (opponent != null)
+            if (type == 0) // Card on Card
             {
-                // Attack Card and shaise, must authenticate the Move
-                Card atkCard = requestPlayer.handCards[attacker];
-                Card defCard = opponent.handCards[defender];
+                // Fetch cards from the CID's
+                Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
+                Card targetCard = opponent.boardCards.FirstOrDefault(x => x.Value.cid == target).Value;
 
+                sourceCard.Attack(targetCard);
 
-                if (cardAttackPlayer)
-                {
-                    atkCard.Attack(ref opponent); // Card on Player attack
-                }
-                else if (playerAttackCard)
-                {
-                    requestPlayer.Attack(defCard); // Player on Card attack
-                }
-                else
-                {
-                    atkCard.Attack(ref defCard); // Card on Card
-                }
+                // Requester's Card
+                JObject reqObj = new JObject(
+                            new JProperty("cid", sourceCard.cid),
+                            new JProperty("dmgTaken", targetCard.attack),
+                            new JProperty("dmgDone", sourceCard.attack),
+                            new JProperty("attacker", true),
+                            new JProperty("isDead", sourceCard.isDead));
 
-                // Send back game update
-                Pair<Response> response = requestPlayer.gameRoom.GenerateGameUpdate();
-                opponent.playerContext.SendTo(response.First);
-                requestPlayer.playerContext.SendTo(response.Second);
+                // Requesters Opponent's Card
+                JObject oppObj = new JObject(
+                            new JProperty("cid", targetCard.cid),
+                            new JProperty("dmgTaken", sourceCard.attack),
+                            new JProperty("dmgDone", targetCard.attack),
+                            new JProperty("attacker", false),
+                            new JProperty("isDead", targetCard.isDead));
+
+                // Send Response to Requester
+                requestPlayer.playerContext.SendTo(
+                    new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
+                        new JProperty("player", reqObj),
+                        new JProperty("opponent", oppObj),
+                        new JProperty("type", type)
+                        )));
+
+                // Send Response to Opponent
+                opponent.playerContext.SendTo(
+                    new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
+                        new JProperty("player", oppObj),
+                        new JProperty("opponent", reqObj),
+                        new JProperty("type", type)
+                        )));
 
             }
-            else
+            else if (type == 1) // Card on Hero
             {
-                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_OPPONENT_NOEXIST, "Opponent does not exist!"));
+                Card sourceCard = requestPlayer.boardCards[source];
+                sourceCard.Attack(opponent);
+
+
+
             }
+            else if (type == 2) // Hero on Card
+            {
+                Card targetCard = opponent.boardCards[target];
+
+
+            }
+
         }
 
     }
+
 }
+

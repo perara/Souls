@@ -45,7 +45,6 @@
                 var tmpData = that.msg.shift();
 
                 console.log("Sent: " + tmpData.Type);
-                console.log(that.con);
                 that.con.send(JSON.stringify(tmpData));
 
 

@@ -48,10 +48,10 @@ namespace SoulsServer.Engine
             GAME_NEXT_TURN = 226,
             GAME_NOT_YOUR_TURN = 202,
             GAME_NEXT_ROUND_FAIL = 203,
-            GAME_CARD_ATTACK = 218,
-            GAME_CARD_DIE = 219,
-            GAME_HERO_ATTACK = 220,
-            GAME_HERO_DIE = 221, // Game lost
+            GAME_ATTACK = 218,
+           // GAME_CARD_DIE = 219,
+           // GAME_HERO_ATTACK = 220,
+           // GAME_HERO_DIE = 221, // Game lost
 
             // Opponent
             GAME_OPPONENT_NOEXIST = 205,
@@ -60,10 +60,10 @@ namespace SoulsServer.Engine
             GAME_OPPONENT_NEWCARD = 223,
             GAME_OPPONENT_MOVE = 209,
             GAME_OPPONENT_RELEASE = 210,
-            GAME_OPPONENT_CARD_ATTACK = 214,
-            GAME_OPPONENT_CARD_DIE = 215,
-            GAME_OPPONENT_HERO_ATTACK = 216,
-            GAME_OPPONENT_HERO_DIE = 217, // Game Won
+            GAME_OPPONENT_ATTACK = 214,
+           // GAME_OPPONENT_CARD_DIE = 215,
+           // GAME_OPPONENT_HERO_ATTACK = 216,
+           // GAME_OPPONENT_HERO_DIE = 217, // Game Won
 
             GAME_RECOVER = 220 // When the client disconnected and needs a recover update.
         }
@@ -78,7 +78,7 @@ namespace SoulsServer.Engine
             QUEUE = 100,
 
             // Game
-            ATTACK = 200,
+            ATTACK = 200, // subtypes: 0 = Card on Card | 1 = Card on hero | 2 = Hero on Card
             USECARD = 201,
             NEXTROUND = 202,
             MOVE_CARD = 203,
@@ -107,7 +107,7 @@ namespace SoulsServer.Engine
                     engine.Request_QueuePlayer(OnlinePlayers.GetInstance().gameList[this]);
                     break;
                 case GameType.ATTACK:
-                    engine.Request_CardAttack(OnlinePlayers.GetInstance().gameList[this]);
+                    engine.Request_Attack(OnlinePlayers.GetInstance().gameList[this]);
                     break;
                 case GameType.USECARD:
                     engine.Request_UseCard(OnlinePlayers.GetInstance().gameList[this]);
@@ -121,7 +121,6 @@ namespace SoulsServer.Engine
                 case GameType.RELEASE_CARD:
                     engine.Request_OpponentReleaseCard(OnlinePlayers.GetInstance().gameList[this]);
                     break;
-
             }
             switch ((GENERAL)type)
             {
@@ -207,8 +206,6 @@ namespace SoulsServer.Engine
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
 
-
-                        
                         this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.AWAY, "Not logged in!");
                     }
 

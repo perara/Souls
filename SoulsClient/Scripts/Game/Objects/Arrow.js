@@ -53,6 +53,7 @@
                             // Set card to attack IF mouse is released
                             card.attackCard = oppCard;
                             oppCard.ScaleUp();
+                            return;
                         }
                         else {
                             oppCard.ScaleDown();

@@ -32,6 +32,7 @@
             this.addGroup("Opponent");
             this.addGroup("Player");
             this.addGroup("Card-Player");
+            this.addGroup("Attacker");
 
             // Network
             this.gameSocket = new Socket("ws://tux.persoft.no:8140/game"); ///hybel.keel.no:8140

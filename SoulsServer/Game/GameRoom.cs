@@ -85,7 +85,7 @@ namespace SoulsServer
         public void NextTurn()
         {
             // Checks if it's player one or player 2's turn. Increments round on each of player 1's turn.
-            if (turn++ % 2 == 0)
+            if (++turn % 2 == 0)
             {
                 round++;
                 currentPlaying = players.First;

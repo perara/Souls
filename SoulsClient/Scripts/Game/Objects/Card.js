@@ -562,14 +562,138 @@
             this.interactive = true;
         }
 
+
+
     }
+
 
     Card.prototype.CheckAttack = function () {
         // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
         if (!!this.attackCard) {
-            console.log(this.cid + " attacks " + this.attackCard.cid)
+
+            this.engine.gameService.Request_Attack(this, this.attackCard, 0);
+            this.attackCard.ScaleDown();
         }
     }
+
+
+    /// <summary>
+    /// Damage Taken animation
+    /// </summary>
+    /// <param name="damage">The amount of damage</param>
+    Card.prototype.DamageAnim = function (damage) {
+
+        var originalPos = { x: this.position.originX, y: this.position.originY };
+        var leftShake = { x: this.x - 25 };
+        var rightShake = { x: this.x + 25 };
+        var speed = 100;
+        var that = this;
+        this.interactive = false;
+        this.engine.CreateJS.Tween.get(this, { override: false })
+        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(originalPos, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
+        .to(originalPos, speed, this.engine.CreateJS.Ease.elasticOut)
+        .call(function () {
+            if (that.owner == that.engine.player) {
+                that.interactive = true
+            }
+        })
+    }
+
+    /// <summary>
+    /// Attack a card (Animation)
+    /// </summary>
+    /// <param name="target">The target card</param>
+    /// <param name="damage">Amount of damage done</param>
+    Card.prototype.AttackAnim = function (targetCard, attackerDmgDone, defenderDmgDone) {
+        var that = this;
+
+        var playerDistance =
+            {
+                x: targetCard.x - this.x,
+                y: targetCard.y - this.y
+            }
+
+
+        var origin = {
+            scaleX: this.scale.y,
+            scaleY: this.scale.x,
+            posX: this.x,
+            posY: this.y
+        };
+        var values = origin;
+
+        this.interactive = false;
+
+        // Change the card to the attacker group
+        this.engine.SwapFromToGroup(this, (this.owner == this.engine.player) ? "Card-Player" : "Card-Opponent", "Attacker");
+        this.engine.CreateJS.Tween.get(values, {
+            override: false,
+            onChange: function onChange(e) {
+                that.scale.y = values.scaleY;
+                that.scale.x = values.scaleX;
+                that.x = values.posX;
+                that.y = values.posY;
+            }
+        })
+            .to({ // Half way
+                scaleX: this.scale.y + 1,
+                scaleY: this.scale.x + 1,
+                posX: origin.posX + playerDistance.x,
+                posY: origin.posY + (playerDistance.y / 2)
+            }, 700)
+            .to({ // Land on opponent
+                scaleX: origin.scaleX,
+                scaleY: origin.scaleY,
+                posX: origin.posX + playerDistance.x,
+                posY: origin.posY + (playerDistance.y / 1.5)
+            }, 300)
+            .call(function () { targetCard.DamageAnim(/*TODO*/59) })
+            .wait(200)
+            .to({ // Half way
+                scaleX: origin.scaleX,
+                scaleY: origin.scaleY,
+                posX: origin.posX,
+                posY: origin.posY
+            }, 150)
+            .call(function () {
+                that.engine.SwapFromToGroup(that, "Attacker", (that.owner == that.engine.player) ? "Card-Player" : "Card-Opponent");
+                if (that.owner == that.engine.player) {
+                    that.interactive = true
+                }
+            })
+
+
+
+
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="attackerInfo"></param>
+    /// <param name="defenderInfo"></param>
+    /// <param name="defender"></param>
+    /// <param name="callback"></param>
+    Card.prototype.Attack = function (attackerInfo, defenderInfo, defender, callback) {
+        // Do attack animation onto the defender
+        this.AttackAnim(defender, attackerInfo.dmgDone, defenderInfo.dmgTaken);
+
+
+    }
+
 
     /// <summary>
     /// Request a move action to the server.

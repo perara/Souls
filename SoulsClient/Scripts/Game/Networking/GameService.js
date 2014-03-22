@@ -24,6 +24,8 @@
         this.RegisterResponseAction(["207", "211"], Response_UseCard);
         this.RegisterResponseAction(["202"], Repsonse_NotYourTurn);
         this.RegisterResponseAction(["213"], Response_SlotOccupied);
+        this.RegisterResponseAction(["218"], Response_Attack);
+
     }
     // Constructor
     GameService.prototype.constructor = GameService;
@@ -34,6 +36,33 @@
     ///////////////////////GAME-RESPONSES/////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
+
+    function Response_Attack(json) {
+
+        // Fetch CardInfo (dmgDOne etc)
+        var jsonPInfo = json.Payload.player;
+        var jsonOppInfo = json.Payload.opponent;
+
+        // Determine the attacker
+        var jsonAttacker = json.Payload.player.attacker;
+
+        // Get cards
+        var playerCard = that.engine.player.cardManager.board[jsonPInfo.cid];
+        var opponentCard = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
+
+        // The player is attacking
+        if (jsonAttacker) {
+            playerCard.Attack(jsonPInfo, jsonOppInfo, opponentCard, true);
+        }
+        else // The opponent is attacking
+        {
+            opponentCard.Attack(jsonOppInfo, jsonPInfo, playerCard, false);
+        }
+
+
+
+        console.log(json);
+    }
 
     function Response_NotLoggedIn(json) {
         console.log((arguments.callee.name) + ": NOT LOGGED IN resp : ");
@@ -183,6 +212,37 @@
         }
     }
 
+    /// <summary>
+    /// Sends a request to the server with CID of the sourceCard and the targetCard of an attack
+    /// </summary>
+    /// <param name="sourceCid">The source card (defender) (cid)</param>
+    /// <param name="targetCid">The target card (attacker) (cid)</param>    
+    GameService.prototype.Request_Attack = function (source, target, type) {
+
+
+        if (type == 0) // Card on Card
+        {
+            var json = this.message.GAME.ATTACK;
+            json.Payload.source = source.cid
+            json.Payload.target = target.cid;
+            json.Payload.type = type;
+            this.socket.send(json);
+        }
+        else if (type == 1) // Card on Hero
+        {
+
+        }
+
+        else if (type == 2) // Hero on Card
+        {
+
+        }
+
+
+    };
+
+
+
 
     ////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////
@@ -223,7 +283,6 @@
         this.socket.connect();
 
         // Recieves all Data from server
-        console.log(this.socket);
         this.socket.onMessage(GameService.prototype.TrafficHandler);
     }
 

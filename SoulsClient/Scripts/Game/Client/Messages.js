@@ -17,7 +17,7 @@
             },
             Game: {
                 QUEUE: 100,
-                ATTACK: 200,
+                ATTACK: 200, // CARD CARD attack
                 USECARD: 201,
                 NEXT_TURN: 202,
                 MOVE_CARD: 203,
@@ -31,7 +31,7 @@
                 INVITE: 1004,
                 KICK: 1005,
                 LEAVE: 1006,
-                NEWGAMEROOM : 1009
+                NEWGAMEROOM: 1009
             }
         }
 
@@ -64,12 +64,9 @@
             ATTACK: {
                 "Type": Messages.prototype.Type.Game.ATTACK,
                 "Payload": {
-                    "gameId": 0,
-                    "hash": Conf.hash,
-                    "attacker": 2,
-                    "defender": 1,
-                    "cardAttackPlayer": false,
-                    "playerAttackCard": false
+                    "source": undefined,
+                    "target": undefined,
+                    "type" : -1
                 }
             },
             USECARD: {

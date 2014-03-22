@@ -43,7 +43,7 @@ namespace SoulsServer
 
 
         // A card attacks another card (and lowering the hp by the amount of the defenders damage)
-        public void Attack(ref Card defender)
+        public void Attack(Card defender)
         {
             defender.health -= this.attack;
             this.health -= defender.attack;
@@ -52,7 +52,7 @@ namespace SoulsServer
             if (defender.health < 1) defender.cardDie();
         }
 
-        public void Attack(ref GamePlayer defender)
+        public void Attack(GamePlayer defender)
         {
             defender.health -= this.attack;
             this.health -= defender.attack;
