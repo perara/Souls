@@ -19,7 +19,8 @@
                 QUEUE: 100,
                 ATTACK: 200,
                 USECARD: 201,
-                NEXT_TURN: 202,
+                NEXT_TURN: 226,
+                NOT_YOUR_TURN: 202,
                 MOVE_CARD: 203,
                 RELEASE_CARD: 204,
             },
@@ -79,11 +80,9 @@
                     "slotId": undefined,
                 }
             },
-            NEXTCARD: {
-                "Type": Messages.prototype.Type.Game.NEXTROUND,
+            NEXT_TURN: {
+                "Type": Messages.prototype.Type.Game.NEXT_TURN,
                 "Payload": {
-                    "gameId": 0,
-                    "hash": Conf.hash
                 }
             },
             QUEUE: {

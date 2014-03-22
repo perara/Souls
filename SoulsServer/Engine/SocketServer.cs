@@ -80,7 +80,8 @@ namespace SoulsServer.Engine
             // Game
             ATTACK = 200,
             USECARD = 201,
-            NEXTROUND = 202,
+            //NEXT_TURN = 202,
+            NEXT_TURN = 226,
             MOVE_CARD = 203,
             RELEASE_CARD = 204
 
@@ -112,7 +113,7 @@ namespace SoulsServer.Engine
                 case GameType.USECARD:
                     engine.Request_UseCard(OnlinePlayers.GetInstance().gameList[this]);
                     break;
-                case GameType.NEXTROUND:
+                case GameType.NEXT_TURN:
                     engine.Request_NextTurn(OnlinePlayers.GetInstance().gameList[this]);
                     break;
                 case GameType.MOVE_CARD:
@@ -128,14 +129,13 @@ namespace SoulsServer.Engine
                 case GENERAL.LOGIN:
                     this.GameLogin();
                     break;
-
                 case GENERAL.LOGOUT:
                     this.Logout();
                     break;
-
                 case GENERAL.HEARTBEAT:
                     this.HeartBeat();
                     break;
+                
             }
         }
 
@@ -206,8 +206,6 @@ namespace SoulsServer.Engine
                         SendError("Problem fetching player info, client and server hash mismatch");
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
-
-
                         
                         this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.AWAY, "Not logged in!");
                     }
@@ -338,9 +336,8 @@ namespace SoulsServer.Engine
                     ChatLogin();
                     break;
                 case GENERAL.HEARTBEAT:
-                    this.HeartBeat();
+                    HeartBeat();
                     break;
-
             }
         }
 

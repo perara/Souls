@@ -225,15 +225,13 @@ namespace SoulsServer
                 Console.WriteLine("[GAME] Player was already in game, giving gameUpdate (Create)");
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
-                Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate(true);
+                Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate();
                 if (player.gPlayer.isPlayerOne)
                 {
-                    response.First.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.First);
                 }
                 else
                 {
-                    response.Second.Type = GameService.GameResponseType.GAME_RECOVER;
                     player.gPlayer.playerContext.SendTo(response.Second);
                 }
 
@@ -314,7 +312,7 @@ namespace SoulsServer
                 c.slotId = slot;
 
                 //Next turn
-                requestPlayer.gameRoom.NextTurn();
+                //requestPlayer.gameRoom.NextTurn();
 
 
                 // Send Reply
@@ -330,6 +328,8 @@ namespace SoulsServer
 
         public void Request_NextTurn(Player player)
         {
+            Logging.Write(Logging.Type.GAME, player.name + " initiated next turn");
+
             GamePlayer requestPlayer = player.gPlayer;
 
             // Validate player turn

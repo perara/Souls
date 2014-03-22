@@ -85,7 +85,7 @@ namespace SoulsServer
         public void NextTurn()
         {
             // Checks if it's player one or player 2's turn. Increments round on each of player 1's turn.
-            if (turn++ % 2 == 0)
+            if (++turn % 2 == 0)
             {
                 round++;
                 currentPlaying = players.First;
@@ -113,16 +113,25 @@ namespace SoulsServer
             var p1Data = GameData.Get(this, true);
             var p2Data = GameData.Get(this, false);
 
-            GameService.GameResponseType responseType = GameService.GameResponseType.GAME_UPDATE;
-            if (create)
+            if (!create)
             {
-                responseType = GameService.GameResponseType.GAME_CREATE;
+                p1Data.Add(new JProperty("create", false));
+                p2Data.Add(new JProperty("create", false));
+            }
+            else
+            {
+                p1Data.Add(new JProperty("create", true));
+                p2Data.Add(new JProperty("create", true));
             }
 
             Pair<Response> gUpdates = new Pair<Response>(
-                new Response(responseType, p1Data),
-                new Response(responseType, p2Data)
+                new Response(GameService.GameResponseType.GAME_CREATE, p1Data),
+                new Response(GameService.GameResponseType.GAME_CREATE, p2Data)
                 );
+
+            // Sends player turn update
+            p1Data.Add(new JProperty("yourTurn", players.First.IsPlayerTurn()));
+            p2Data.Add(new JProperty("yourTurn", players.Second.IsPlayerTurn()));
 
             return gUpdates;
         }
