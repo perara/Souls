@@ -2,7 +2,6 @@
 
     function State(hexColor) {
         this.stage = new Pixi.Stage(hexColor);
-      
     }
 
     State.prototype.Groups = new Array();

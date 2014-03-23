@@ -162,9 +162,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         if (Conf.currentState == Gamestate.LOADING) {
 
         }
-        else if (Conf.currentState == Gamestate.MENU) {
 
-        }
         else if (Conf.currentState == Gamestate.GAME) {
             this.renderer.render(this.gameEngine.Process());
         }
@@ -172,6 +170,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         else if (Conf.currentState == Gamestate.PAUSED) {
 
         }
+
         else if (Conf.currentState == Gamestate.NOT_SUPPORTED) {
             console.log("Not supported!");
         }

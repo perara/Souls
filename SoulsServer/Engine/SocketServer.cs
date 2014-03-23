@@ -49,9 +49,9 @@ namespace SoulsServer.Engine
             GAME_NOT_YOUR_TURN = 202,
             GAME_NEXT_ROUND_FAIL = 203,
             GAME_ATTACK = 218,
-           // GAME_CARD_DIE = 219,
-           // GAME_HERO_ATTACK = 220,
-           // GAME_HERO_DIE = 221, // Game lost
+            // GAME_CARD_DIE = 219,
+            // GAME_HERO_ATTACK = 220,
+            // GAME_HERO_DIE = 221, // Game lost
 
             // Opponent
             GAME_OPPONENT_NOEXIST = 205,
@@ -61,9 +61,9 @@ namespace SoulsServer.Engine
             GAME_OPPONENT_MOVE = 209,
             GAME_OPPONENT_RELEASE = 210,
             GAME_OPPONENT_ATTACK = 214,
-           // GAME_OPPONENT_CARD_DIE = 215,
-           // GAME_OPPONENT_HERO_ATTACK = 216,
-           // GAME_OPPONENT_HERO_DIE = 217, // Game Won
+            // GAME_OPPONENT_CARD_DIE = 215,
+            // GAME_OPPONENT_HERO_ATTACK = 216,
+            // GAME_OPPONENT_HERO_DIE = 217, // Game Won
 
             GAME_RECOVER = 220 // When the client disconnected and needs a recover update.
         }
@@ -95,11 +95,15 @@ namespace SoulsServer.Engine
 
         protected override void OnMessage(MessageEventArgs e)
         {
+            //if (this.State != WebSocketState.OPEN)
+              //  return;
+
+            Console.WriteLine("Message ##");
+
 
             data = JsonConvert.DeserializeObject(e.Data);
             payload = this.data.Payload;
             type = this.data.Type;
-
 
             switch ((GameType)type)
             {
@@ -134,7 +138,7 @@ namespace SoulsServer.Engine
                 case GENERAL.HEARTBEAT:
                     this.HeartBeat();
                     break;
-                
+
             }
         }
 
@@ -206,14 +210,14 @@ namespace SoulsServer.Engine
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
 
-                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.AWAY, "Not logged in!");
+                        this.Context.WebSocket.CloseAsync(WebSocketSharp.CloseStatusCode.Away, "Not logged in!");
                     }
 
                 }
             }
             else
             {
-                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.AWAY ,"Hash was null");
+                this.Context.WebSocket.CloseAsync(WebSocketSharp.CloseStatusCode.Away, "Hash was null");
             }
         }
 
@@ -310,10 +314,10 @@ namespace SoulsServer.Engine
                     Player requestPlayer = OnlinePlayers.GetInstance().chatList[this];
                     // Go via the game player object to get opponent context.
                     Player opponentPlayer = OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent().playerContext];
-                    
+
                     engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
 
-                  
+
 
                     break;
                 case ChatType.INVITE:
@@ -344,7 +348,7 @@ namespace SoulsServer.Engine
         {
             Logging.Write(Logging.Type.CHAT, "Player {0} connected! " + Context.UserEndPoint);
         }
-        
+
         protected override void OnError(ErrorEventArgs e)
         {
 
@@ -369,7 +373,7 @@ namespace SoulsServer.Engine
 
             KeyValuePair<General, Player> chClient = OnlinePlayers.GetInstance().chatList.Where(x => x.Value.hash == hash).FirstOrDefault(); //Chat Record
             // Remove chat client if it already exists //TODO?
-            if(chClient.Key != null)
+            if (chClient.Key != null)
             {
                 Player p;
                 OnlinePlayers.GetInstance().chatList.TryRemove(chClient.Key, out p);
@@ -379,7 +383,7 @@ namespace SoulsServer.Engine
             if (gClient.Key != null)
             {
                 Logging.Write(Logging.Type.CHAT, "Found open game connection Linking.....");
-          
+
                 Player existingPlayer = gClient.Value;
 
                 // Update the playerObject contexts
@@ -408,7 +412,7 @@ namespace SoulsServer.Engine
 
             else // No existing game Player was found, create new player
             {
-                 // General function for creating player
+                // General function for creating player
             }
 
 
@@ -548,7 +552,7 @@ namespace SoulsServer.Engine
             wssv.AddWebSocketService<GameService>("/game", () => new GameService(gameEngine));
             wssv.AddWebSocketService<ChatService>("/chat", () => new ChatService(chatEngine));
 
-            wssv.Log.Level = LogLevel.TRACE; 
+            wssv.Log.Level = LogLevel.Trace;
 
 
             wssv.Start();

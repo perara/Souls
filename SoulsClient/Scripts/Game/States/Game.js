@@ -34,6 +34,9 @@
             this.addGroup("Card-Player");
             this.addGroup("Attacker");
 
+
+
+
             // Network for råtn host
            // // // // // // // // // // xDDDD // // // this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
            // // // // // // // // // // xDDDD // // // this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
@@ -60,7 +63,6 @@
             CreateJS.Ticker.setFPS(Conf.FPS);
 
             this.OnStart();
-
         }
 
         // Create a object of the State prototype, then set the constructor to Game function.

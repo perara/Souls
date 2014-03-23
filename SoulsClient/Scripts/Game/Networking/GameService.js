@@ -88,8 +88,10 @@
     function Response_UseCard(json) // "207" GAME_USECARD_PLAYER_OK // "211" GAME_USECARD_OPPONENT_OK // TOODO FAILED OSV
     {
 
-        var cid = json.Payload.card.cid;
-        var slotId = json.Payload.card.slotId;
+        var cardData = json.Payload.card;
+
+        var cid = cardData.cid;
+        var slotId = cardData.slotId;
         var card;
         var cardSlot;
 
@@ -101,7 +103,18 @@
             card = opponent.hand[cid]; // Fetch from hand
             delete opponent.hand[cid]; // Delete from hand
             opponent.board[cid] = card; // Add to board
-            card.SetupTextData(json.Payload.card, true);
+
+            card.SetText(
+             {
+                 health: cardData.health,
+                 attack: cardData.attack,
+                 name: cardData.name,
+                 cost: cardData.cost,
+                 ability: cardData.ability.name
+
+             });
+
+            // card.SetupTextData(json.Payload.card, true);
             cardSlot = opponent.cardSlots[slotId];
         }
         else if (json.Type == 207) // PLAYER
@@ -143,13 +156,12 @@
 
 
         // Create Chat room (If you are player 1)
-        if (data.Payload.ident == 1 && data.Payload.create)
-        {
+        if (data.Payload.ident == 1 && data.Payload.create) {
             that.engine.chatService.RequestNewGameRoom();
         }
-            console.log(data.Payload)
-            that.engine.background.endTurnButton.SetPlayerTurn(data.Payload.yourTurn);
-            console.log("Your turn ?" + data.Payload.yourTurn);
+        console.log(data.Payload)
+        that.engine.background.endTurnButton.SetPlayerTurn(data.Payload.yourTurn);
+        console.log("Your turn ?" + data.Payload.yourTurn);
     }
 
     function Response_GameOpponentMove(json) {
@@ -198,12 +210,11 @@
     {
         console.log(json);
         console.log("Recieved endturn");
-        if (json.Payload.yourTurn)
-        {
+        if (json.Payload.yourTurn) {
             that.engine.background.endTurnButton.Spin();
         }
 
-        
+
     }
 
 

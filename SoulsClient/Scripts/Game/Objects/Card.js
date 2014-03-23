@@ -22,11 +22,6 @@
         this.position.y = this.position.originY = 0;
         this.order = undefined; // Must be set on card creation (When adding to group)
 
-
-        // Setup the text data
-        this.SetupTextData(jsonData);
-
-
         // Create a stopwatch for network pulse (Movement specifically)
         this.networkStopWatch = new Stopwatch();
         this.networkStopWatch.start();
@@ -42,6 +37,29 @@
             name: ''
         }; //List with text objects
 
+        // Card Data
+        this.cid = (!!jsonData.cid) ? jsonData.cid : "NA";
+        this.health = "NA";
+        this.cost = "NA";
+        this.name = "NA";
+        this.attack = "NA";
+        this.ability = "NA";
+
+        // Setup the card layout / graphics
+        this.SetupFrontCard(this);
+        this.SetupBackCard(this);
+
+        // Setup the text data
+        this.SetText(
+            {
+                health: jsonData.health,
+                attack: jsonData.attack,
+                name: jsonData.name,
+                cost: jsonData.cost,
+                ability: (!!jsonData.ability) ? jsonData.ability.name : undefined
+
+            });
+
         // Interaction definitions
         this.hoverSlot = undefined;
         this.inSlot = undefined;
@@ -50,9 +68,6 @@
         this.cardFlipped = false;
         this.attackCard = undefined;
 
-        // Setup the card layout / graphics
-        this.SetupFrontCard(this);
-        this.SetupBackCard(this);
 
     };
     // Global order counter
@@ -62,28 +77,32 @@
     Card.prototype = Object.create(pixi.Sprite.prototype);
     Card.prototype.constructor = Card;
 
-    Card.prototype.SetupTextData = function (jsonData, updateIt) {
-        /// <summary>
-        /// Cusom Variables
-        /// </summary>
-        /// Data which is received from server
-        this.cid = (!!jsonData.cid) ? jsonData.cid : "NA";
-        this.name = (!!jsonData.name) ? jsonData.name : "NA";
-        this.health = (!!jsonData.health || jsonData.health == 0) ? jsonData.health : "NA";
-        this.attack = (!!jsonData.attack || jsonData.attack == 0) ? jsonData.attack : "NA";
-        this.cost = (!!jsonData.cost || jsonData.cost == 0) ? jsonData.cost : "NA"; //TODO, 0 might  turn this false?
-        this.ability = {
-            name: (!!jsonData.ability) ? jsonData.ability.name : "NO"
-        }
+    /// <summary>
+    /// Sets a text field on the card depending on what the input is. see param
+    /// </summary>
+    /// <param name="text">Example on format : {health: 10, cost: 5}</param>
+    Card.prototype.SetText = function (text) {
 
-        if (!!updateIt) {
-            this.texts.health.setText(this.health);
-            this.texts.cost.setText(this.cost);
-            this.texts.ability.setText(this.ability.name);
-            this.texts.name.setText(this.name);
-            this.texts.attack.setText(this.attack);
+        if (text.health) {
+            this.health = text.health;
+            this.texts.health.setText(text.health);
         }
-
+        if (text.cost || text.cost == 0) {
+            this.cost = text.cost;
+            this.texts.cost.setText(text.cost);
+        }
+        if (text.ability) {
+            this.ability = text.ability;
+            this.texts.ability.setText(text.ability);
+        }
+        if (text.name) {
+            this.name = text.name;
+            this.texts.name.setText(text.name);
+        }
+        if (text.attack) {
+            this.attack = text.attack;
+            this.texts.attack.setText(text.attack);
+        }
     }
 
     Card.prototype.SetupBackCard = function () {
@@ -192,7 +211,7 @@
         this.texts.health = cHealthText;
 
         // CardFactory Mana Label
-        var cManaText = new pixi.Text(this.cost, //TODO (COST? != mana)
+        var cManaText = new pixi.Text(this.cost,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -218,7 +237,7 @@
         this.texts.attack = cAttackText;
 
         // CardFactory Ability Label
-        var cAbilityPanelText = new pixi.Text(this.ability.name,
+        var cAbilityPanelText = new pixi.Text(this.ability,
              {
                  font: "12px Arial",
                  fill: "black",
@@ -569,13 +588,16 @@
 
     }
 
-
+    /// <summary>
+    /// This function checks weither a "this" card has a value set in his attackCard variable 
+    /// (This is called on mouseRelease). If its set trigger a rquest Attack to the server.
+    /// </summary>
     Card.prototype.CheckAttack = function () {
         // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
         if (!!this.attackCard) {
-
             this.engine.gameService.Request_Attack(this, this.attackCard, 0);
             this.attackCard.ScaleDown();
+            this.attackCard = undefined;
         }
     }
 
@@ -621,7 +643,7 @@
     /// </summary>
     /// <param name="target">The target card</param>
     /// <param name="damage">Amount of damage done</param>
-    Card.prototype.AttackAnim = function (targetCard, attackerDmgDone, defenderDmgDone) {
+    Card.prototype.AttackAnim = function (targetCard, attackerDmgDone, defenderDmgDone, callback) {
         var that = this;
 
         var playerDistance =
@@ -678,7 +700,8 @@
                 if (that.owner == that.engine.player) {
                     that.interactive = true
                 }
-            })
+                callback();
+            });
 
 
 
@@ -694,8 +717,27 @@
     /// <param name="defender"></param>
     /// <param name="callback"></param>
     Card.prototype.Attack = function (attackerInfo, defenderInfo, defender, callback) {
+        var attacker = this;
+
         // Do attack animation onto the defender
-        this.AttackAnim(defender, attackerInfo.dmgDone, defenderInfo.dmgTaken);
+        this.AttackAnim(defender, attackerInfo.dmgDone, defenderInfo.dmgTaken,
+            function () { // Animation done callback
+                // Defender
+                defender.SetText(
+                    {
+                        health: defender.health - defenderInfo.dmgTaken
+                    });
+
+                //Attacker
+                attacker.SetText(
+                {
+                    health: attacker.health - defenderInfo.dmgTaken
+                });
+
+
+            });
+
+
 
 
     }
