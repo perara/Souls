@@ -390,7 +390,16 @@
     Card.prototype.OrderOriginalPosition = function () {
         var parent = this.parent;
         parent.removeChild(this);
-        parent.addChildAt(this, this.order);
+
+        // If the this card's order is higher than actual size of the children array, set it to the last index available.
+        if (this.order >= parent.children.length) {
+            parent.addChild(this);
+            this.order = parent.children.length - 1
+        } else {
+
+            parent.addChildAt(this, this.order);
+        }
+
 
     }
 
