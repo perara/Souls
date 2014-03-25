@@ -80,7 +80,7 @@ namespace SoulsServer.Engine
             // Game
             ATTACK = 200, // subtypes: 0 = Card on Card | 1 = Card on hero | 2 = Hero on Card
             USECARD = 201,
-            //NEXT_TURN = 202,
+
             NEXT_TURN = 226,
             MOVE_CARD = 203,
             RELEASE_CARD = 204

@@ -78,7 +78,9 @@ http://buzz.jaysalvat.com/documentation/buzz/
             PLAYER_FRAME: Asset.Path.Textures + "Card/player_frame.png",
 
             OPPONENT_NONE: Asset.Path.Textures + "Card/player_none.png", //TODO
-            OPPONENT_FRAME: Asset.Path.Textures + "Card/player_frame.png"//TODO
+            OPPONENT_FRAME: Asset.Path.Textures + "Card/player_frame.png",//TODO
+
+            CARD_VAMPIRIC : Asset.Path.Textures + "Card/vampiric.png",
         }
 
         Asset.prototype.Sound =

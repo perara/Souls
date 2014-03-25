@@ -17,7 +17,6 @@
 /// <reference path="javascript1.js" />
 /// <reference path="game/objects/player.js" />
 /// <reference path="game/client/messages.js" />
-/// <reference path="game/toolbox/rectangle - copy.js" />
 /// <reference path="pixi.js" />
 /// <reference path="game/objects/arrow.js" />
 /// <reference path="game/objects/opponent.js" />

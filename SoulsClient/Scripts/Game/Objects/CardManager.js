@@ -11,9 +11,40 @@
         this.isPlayer = isPlayer;
 
 
+        this.startCardX = undefined;
+        this.startCardY = undefined;
+
     }
 
     CardManager.prototype.constructor = CardManager;
+
+
+
+    CardManager.prototype.SortHand = function () {
+
+        var count = 0;
+
+
+        var addOffset = 80;
+        for (index in this.hand) {
+
+
+            var c = this.hand[index];
+
+            c.position.originX = + this.startCardX + (80 * (count++));
+            c.y = c.position.originY = this.startCardY;
+
+            var posTween = this.engine.CreateJS.Tween.get(c)
+                .wait(50 * count)
+                .to({
+                    x: c.position.originX
+                }, 700, this.engine.CreateJS.Ease.elasticOut)
+
+
+        }
+
+    }
+
 
     /// <summary>
     /// Adds a card to the hand
@@ -84,7 +115,7 @@
             var cardSlot = this.cardSlots[jsonCards[cJson].slotId];
 
             cardSlot.card = card;
-            
+
             card.inSlot = cardSlot;
 
             // CARD
@@ -100,8 +131,12 @@
     /// <param name="jsonCards">JSON object retrieved from GameSerivce's reply from server</param>
     /// <param name="conf">a Confiuration array with position</param>
     CardManager.prototype.JSONToHandCards = function (jsonCards, conf) {
+        this.startCardX = conf.x;
+        this.startCardY = conf.y;
 
-        var count = 0;
+
+        var count = Object.keys(this.hand).length;
+
         // Iterate over cards
         for (var cJson in jsonCards) {
 

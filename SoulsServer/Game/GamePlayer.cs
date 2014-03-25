@@ -92,10 +92,20 @@ namespace SoulsServer.Engine
             return (this.Equals(this.gameRoom.currentPlaying)) ? true : false;
         }
 
-        public void AddCard(int amount = 1)
+        public List<Card> AddCard(int amount = 1)
         {
-            gameRoom.GetRandomCards(amount);
+            return gameRoom.GetRandomCards(amount);
         }
+
+        public void AddCardToHand(List<Card> cards)
+        {
+            foreach (var c in cards)
+            {
+                this.handCards.Add(c.cid, c);
+            }
+
+        }
+
 
         public void RemoveHandCard(Card c)
         {

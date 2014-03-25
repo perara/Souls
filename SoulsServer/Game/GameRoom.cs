@@ -49,14 +49,8 @@ namespace SoulsServer
 
             List<Card> p1Cards = GetRandomCards(3);
             List<Card> p2Cards = GetRandomCards(3);
-            foreach (var c in p1Cards)
-            {
-                this.players.First.handCards.Add(c.cid, c);
-            }
-            foreach (var c in p2Cards)
-            {
-                this.players.Second.handCards.Add(c.cid, c);
-            }
+            players.First.AddCardToHand(p1Cards);
+            players.Second.AddCardToHand(p2Cards);
         }
 
         // Gets a specific number of random cards from the card database

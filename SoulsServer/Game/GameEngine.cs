@@ -340,6 +340,8 @@ namespace SoulsServer
             // Run next round
             requestPlayer.gameRoom.NextTurn();
 
+            // Give a new card to the Opponent
+            this.Request_NewCard(requestPlayer.GetOpponent());
 
             // Send response
             requestPlayer.playerContext.SendTo(new Response(
@@ -397,6 +399,10 @@ namespace SoulsServer
                 // Fetch cards from the CID's
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
                 Card targetCard = opponent.boardCards.FirstOrDefault(x => x.Value.cid == target).Value;
+                
+                // Ignore if one of the card did not exist
+                if (sourceCard == null || targetCard == null) return;
+
 
                 sourceCard.Attack(targetCard);
 
@@ -468,6 +474,44 @@ namespace SoulsServer
 
             }
 
+        }
+
+        /// <summary>
+        ///  Sends a new card to the specified GamePlayer
+        /// </summary>
+        /// <param name="player">The game player</param>
+        public void Request_NewCard(GamePlayer player, int num = 1)
+        {
+            // Do not allow more than 10 Cards
+            if (player.handCards.Count() >= 10) return;
+
+
+            // Create the new card
+            List<Card> newCard = player.AddCard(num);
+
+            player.AddCardToHand(newCard);
+
+            // Create a response with the new card
+            Response ret = new Response(GameService.GameResponseType.GAME_NEWCARD, new JObject(
+                new JProperty("card", JArray.FromObject(newCard))
+                ));
+
+            // Send to the player
+            player.playerContext.SendTo(ret);
+
+
+            // Create a response with the CID to the opponent
+            Response retOpponent = new Response(GameService.GameResponseType.GAME_OPPONENT_NEWCARD, new JObject(
+              new JProperty("card", from h in newCard
+                                    select
+                                        new JObject(
+                                             new JObject(
+                                              new JProperty("cid", h.cid))
+                                 ))
+               ));
+
+            // Send to the player
+            player.GetOpponent().playerContext.SendTo(retOpponent);
         }
 
     }

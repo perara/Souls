@@ -334,7 +334,6 @@
     <Content Include="Scripts\Game\Toolbox\AssetLoader.js" />
     <Content Include="Scripts\Game\Client\Messages.js" />
     <Content Include="Scripts\Game\Client\Socket.js" />
-    <Content Include="Scripts\Game\Toolbox\Rectangle - Copy.js" />
     <Content Include="Scripts\Game\Toolbox\Rectangle.js" />
     <Content Include="Scripts\Game\Toolbox\Toolbox.js" />
     <Content Include="Scripts\JavaScript1.js" />
