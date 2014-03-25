@@ -26,6 +26,7 @@
         this.RegisterResponseAction(["213"], Response_SlotOccupied);
         this.RegisterResponseAction(["218"], Response_Attack);
         this.RegisterResponseAction(["226"], Response_NextTurn);
+        this.RegisterResponseAction(["222", "223"], Response_NewCard);
 
     }
     // Constructor
@@ -37,6 +38,33 @@
     ///////////////////////GAME-RESPONSES/////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
+
+
+    function Response_NewCard(json) {
+        var type = json.Type;
+        var cards = json.Payload.card;
+
+        if (type == 222) {
+
+
+            that.engine.player.cardManager.JSONToHandCards(cards,
+                {
+                    x: 200,
+                    y: 980
+                });
+        }
+        else if (type == 223) {
+
+
+            that.engine.opponent.cardManager.JSONToHandCards(cards,
+             {
+                 x: 200,
+                 y: 200
+             });
+
+        }
+
+    }
 
     function Response_Attack(json) {
 
@@ -105,7 +133,7 @@
             card = opponent.hand[cid]; // Fetch from hand
             delete opponent.hand[cid]; // Delete from hand
             opponent.board[cid] = card; // Add to board
-
+            opponent.SortHand();
             card.SetText(
              {
                  health: cardData.health,
@@ -125,6 +153,7 @@
 
             card = player.hand[cid]; // Fetch from hand
             delete player.hand[cid]; // Delete from hand
+            player.SortHand();
             player.board[cid] = card; // Add to board
             cardSlot = player.cardSlots[slotId];
         }
@@ -143,14 +172,12 @@
         // Give cards to hand
         that.engine.player.cardManager.JSONToHandCards(data.Payload.player.hand, {
             x: 200,
-            y: 1000,
-            playoropp: "Player"
+            y: 980
         });
 
         that.engine.opponent.cardManager.JSONToHandCards(data.Payload.opponent.hand, {
             x: 200,
-            y: 200,
-            playoropp: "Opponent"
+            y: 200
         });
 
         that.engine.player.cardManager.JSONToBoardCards(data.Payload.player.board);
