@@ -13,7 +13,9 @@
     "pixi",
     "toolbox",
     'easeljs',
-    'tweenjs'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox,CreateJS,_) {
+    'tweenjs',
+    'queue',
+    'proton'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox, CreateJS, _, Queue, proton) {
 
         var that;
         Engine = function () {
@@ -33,7 +35,12 @@
             this.addGroup("Player");
             this.addGroup("Card-Player");
             this.addGroup("Attacker");
+            this.addGroup("Queue");
 
+            // Set Default group Visibility to false (Is set to true on Response_GameCreate in GameService.js
+            this.getGroup("Player").visible = false;
+            this.getGroup("Opponent").visible = false;
+            this.getGroup("EndTurn").visible = false;
 
 
 
@@ -45,10 +52,16 @@
             this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
             this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
 
+            // Tools etc
+            this.toolbox = ToolBox;
+            this.CreateJS = CreateJS;
+            CreateJS.Ticker.setFPS(Conf.FPS);
+
             // Objects
             this.player = new Player(this);
             this.opponent = new Opponent(this);
             this.background = new Background(this);
+            //this.queue = new Queue(this);
 
             // Connect to the chat service
             this.chatService = new ChatService(this);
@@ -57,10 +70,7 @@
             // Connect to the game service
             this.gameService = new GameService(this)
 
-            // Tools etc
-            this.toolbox = ToolBox;
-            this.CreateJS = CreateJS;
-            CreateJS.Ticker.setFPS(Conf.FPS);
+ 
 
             this.OnStart();
         }
@@ -76,7 +86,6 @@
             this.player.Init();
 
 
-            //conlosle.log(this.Groups);
             this.gameService.Connect();
             this.gameService.Login();
             this.chatService.Connect();

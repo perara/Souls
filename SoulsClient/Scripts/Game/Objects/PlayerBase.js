@@ -19,6 +19,7 @@
         this.anchor = { x: 0.5, y: 0.5 };
         this.width = 385;
         this.height = 255;
+        this.isPlayer = undefined;
 
         var masking = new pixi.Graphics();
         masking.beginFill(0xFFFFFF);

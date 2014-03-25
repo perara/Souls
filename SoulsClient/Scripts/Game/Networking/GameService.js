@@ -51,6 +51,7 @@
         var playerCard = that.engine.player.cardManager.board[jsonPInfo.cid];
         var opponentCard = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
 
+
         // The player is attacking
         if (jsonAttacker) {
             playerCard.Attack(jsonPInfo, jsonOppInfo, opponentCard, true);
@@ -72,11 +73,12 @@
 
     function Response_LoggedIn() {
         that.engine.chatService.Login();
+        that.engine.queue.SetText("Connection established!")
     }
 
     function Response_QueueOK() // 100
     {
-
+        that.engine.queue.SetText("Queued... Waiting for Match")
     }
 
     function Response_SlotOccupied(json) // 213 GAME_SLOTOCCUPIED
@@ -159,9 +161,18 @@
         if (data.Payload.ident == 1 && data.Payload.create) {
             that.engine.chatService.RequestNewGameRoom();
         }
-        console.log(data.Payload)
+
+
         that.engine.background.endTurnButton.SetPlayerTurn(data.Payload.yourTurn);
-        console.log("Your turn ?" + data.Payload.yourTurn);
+
+        // Set Group Visibility to visible
+        that.engine.getGroup("Player").visible = true;
+        that.engine.getGroup("Opponent").visible = true;
+        that.engine.getGroup("EndTurn").visible = true;
+
+        // Fade out the Queue overlay
+        that.engine.queue.FadeOut();
+
     }
 
     function Response_GameOpponentMove(json) {

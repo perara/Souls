@@ -5,7 +5,7 @@
         var texture = asset.GetTexture(asset.Textures.PLAYER_NONE);
         playerBase.call(this, texture, engine)
 
-
+        this.isPlayer = false;
 
     }
     // Constructor

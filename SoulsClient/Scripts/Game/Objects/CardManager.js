@@ -22,6 +22,7 @@
     CardManager.prototype.AddCardHand = function (c) {
         this.hand[c.cid] = c;
 
+
         // If this is Opponent we want to start the card flipped
         if (!this.isPlayer) {
             this.hand[c.cid].FlipCard();
@@ -80,10 +81,11 @@
 
 
             var card = this.CreateCard(jsonCards[cJson], position);
+            var cardSlot = this.cardSlots[jsonCards[cJson].slotId];
 
-            this.cardSlots[jsonCards[cJson].slotId].card = card;
+            cardSlot.card = card;
             
-            card.inSlot = true;
+            card.inSlot = cardSlot;
 
             // CARD
             this.AddCardBoard(card);

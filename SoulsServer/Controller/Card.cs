@@ -48,8 +48,15 @@ namespace SoulsServer
             defender.health -= this.attack;
             this.health -= defender.attack;
 
-            if (this.health < 1) this.cardDie();
-            if (defender.health < 1) defender.cardDie();
+            if (this.health < 1)
+            {
+                this.cardDie();
+            }
+
+            if (defender.health < 1)
+            {
+                defender.cardDie();
+            }
         }
 
         public void Attack(GamePlayer defender)

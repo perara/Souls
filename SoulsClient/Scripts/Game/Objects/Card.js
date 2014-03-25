@@ -1,4 +1,4 @@
-﻿define("card", ['pixi', 'asset', 'stopwatch', 'messages', 'conf'], function (pixi, asset, StopWatch, Message, Conf) {
+﻿define("card", ['pixi', 'asset', 'stopwatch', 'messages', 'conf', 'cardanimation'], function (pixi, asset, StopWatch, Message, Conf, CardAnimation) {
 
     var that = this;
 
@@ -44,6 +44,7 @@
         this.name = "NA";
         this.attack = "NA";
         this.ability = "NA";
+        this.isDead = false;
 
         // Setup the card layout / graphics
         this.SetupFrontCard(this);
@@ -67,6 +68,7 @@
         this.pickedUp = undefined;
         this.cardFlipped = false;
         this.attackCard = undefined;
+
 
 
     };
@@ -520,7 +522,7 @@
     Card.prototype.PutInSlot = function (cardSlot) {
         cardSlot.card = this;
         cardSlot.visible = false;
-        this.inSlot = true;
+        this.inSlot = cardSlot;
         this.interactive = false;
 
         var target =
@@ -601,111 +603,8 @@
         }
     }
 
-
-    /// <summary>
-    /// Damage Taken animation
-    /// </summary>
-    /// <param name="damage">The amount of damage</param>
-    Card.prototype.DamageAnim = function (damage) {
-
-        var originalPos = { x: this.position.originX, y: this.position.originY };
-        var leftShake = { x: this.x - 25 };
-        var rightShake = { x: this.x + 25 };
-        var speed = 100;
-        var that = this;
-        this.interactive = false;
-
-        asset.GetSound(asset.Sound.DEFEND_1).play();
-        this.engine.CreateJS.Tween.get(this, { override: false })
-        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(originalPos, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(leftShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(rightShake, speed, this.engine.CreateJS.Ease.elasticOut)
-        .to(originalPos, speed, this.engine.CreateJS.Ease.elasticOut)
-        .call(function () {
-            if (that.owner == that.engine.player) {
-                that.interactive = true
-            }
-        })
-    }
-
-    /// <summary>
-    /// Attack a card (Animation)
-    /// </summary>
-    /// <param name="target">The target card</param>
-    /// <param name="damage">Amount of damage done</param>
-    Card.prototype.AttackAnim = function (targetCard, attackerDmgDone, defenderDmgDone, callback) {
-        var that = this;
-
-        var playerDistance =
-            {
-                x: targetCard.x - this.x,
-                y: targetCard.y - this.y
-            }
-
-
-        var origin = {
-            scaleX: this.scale.y,
-            scaleY: this.scale.x,
-            posX: this.x,
-            posY: this.y
-        };
-        var values = origin;
-
-        this.interactive = false;
-
-        // Change the card to the attacker group
-        asset.GetSound(asset.Sound.ATTACK_1).play();
-        this.engine.SwapFromToGroup(this, (this.owner == this.engine.player) ? "Card-Player" : "Card-Opponent", "Attacker");
-        this.engine.CreateJS.Tween.get(values, {
-            override: false,
-            onChange: function onChange(e) {
-                that.scale.y = values.scaleY;
-                that.scale.x = values.scaleX;
-                that.x = values.posX;
-                that.y = values.posY;
-            }
-        })
-            .to({ // Half way
-                scaleX: this.scale.y + 1,
-                scaleY: this.scale.x + 1,
-                posX: origin.posX + playerDistance.x,
-                posY: origin.posY + (playerDistance.y / 2)
-            }, 700)
-            .to({ // Land on opponent
-                scaleX: origin.scaleX,
-                scaleY: origin.scaleY,
-                posX: origin.posX + playerDistance.x,
-                posY: origin.posY + (playerDistance.y / 1.5)
-            }, 300)
-            .call(function () { targetCard.DamageAnim(/*TODO*/59) })
-            .wait(200)
-            .to({ // Half way
-                scaleX: origin.scaleX,
-                scaleY: origin.scaleY,
-                posX: origin.posX,
-                posY: origin.posY
-            }, 150)
-            .call(function () {
-                that.engine.SwapFromToGroup(that, "Attacker", (that.owner == that.engine.player) ? "Card-Player" : "Card-Opponent");
-                if (that.owner == that.engine.player) {
-                    that.interactive = true
-                }
-                callback();
-            });
-
-
-
-
+    Card.prototype.SetDead = function (bool) {
+        this.isDead = bool;
     }
 
 
@@ -715,32 +614,47 @@
     /// <param name="attackerInfo"></param>
     /// <param name="defenderInfo"></param>
     /// <param name="defender"></param>
-    /// <param name="callback"></param>
-    Card.prototype.Attack = function (attackerInfo, defenderInfo, defender, callback) {
+    Card.prototype.Attack = function (attackerInfo, defenderInfo, defender) {
         var attacker = this;
 
-        // Do attack animation onto the defender
-        this.AttackAnim(defender, attackerInfo.dmgDone, defenderInfo.dmgTaken,
-            function () { // Animation done callback
-                // Defender
-                defender.SetText(
+        console.log(defender);
+        // Set the correct health
+        attacker.health = attackerInfo.health;
+        defender.health = defenderInfo.health;
+
+        // Check and set death
+        if (attacker.health <= 0) {
+            attacker.SetDead(true); // Sets the card dead
+            attacker.inSlot.Reset(); // Reset the card slot
+        }
+
+        if (defender.health <= 0) {
+            defender.SetDead(true); // Sets the card dead
+            defender.inSlot.Reset(); // Resets the card slot
+
+        }
+
+
+        // Define callbacks which should be used in the card Animation
+        var attackCallbacks =
+            {
+                ChangeHealth: function () {
+                    defender.SetText(
+                   {
+                       health: defender.health
+                   });
+
+                    //Attacker
+                    attacker.SetText(
                     {
-                        health: defender.health - defenderInfo.dmgTaken
+                        health: attacker.health
                     });
+                }
+            }
 
-                //Attacker
-                attacker.SetText(
-                {
-                    health: attacker.health - defenderInfo.dmgTaken
-                });
-
-
-            });
-
-
-
-
+        CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
     }
+
 
 
     /// <summary>
@@ -749,7 +663,7 @@
     Card.prototype.RequestMove = function () {
         var json = Message.GAME.MOVE_CARD;
         json.Payload.x = this.x;
-        json.Payload.y = Conf.height - this.y + this.height / 1.5;
+        json.Payload.y = Conf.height - this.y + (this.height / 4);
         json.Payload.cid = this.cid;
         json.Payload.gameId = this.engine.gameId;
 

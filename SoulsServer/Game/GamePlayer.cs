@@ -96,5 +96,17 @@ namespace SoulsServer.Engine
         {
             gameRoom.GetRandomCards(amount);
         }
+
+        public void RemoveHandCard(Card c)
+        {
+            this.handCards.Remove(c.slotId);
+        }
+
+        public void RemoveBoardCard(Card c)
+        {
+            this.boardCards.Remove(c.slotId);
+        }
+
+
     }
 }

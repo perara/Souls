@@ -21,12 +21,30 @@ div#game-window{
 /*CHAT STUFF*/
 
 div.chat_messages{
-    min-height: 50%;
-   
-    min-width: 80%;
-    max-width: 80%;
+    min-height: 70%;
+    max-height: 70%;
+    border: 1px solid red;
+    min-width: 70%;
+    max-width: 70%;
+    overflow-y:scroll;
+    margin-bottom: 15px;
+}
+
+div.chat_input_div
+{
+    min-height: 20%;
+    max-height: 20%;
+    min-width: 100%;
+    max-width: 100%;
+}
+
+.chat_input
+{
+    min-height: 100%;
+    max-height: 100%;
+
 }
 
 div.chat_window{
-    
+ 
 }

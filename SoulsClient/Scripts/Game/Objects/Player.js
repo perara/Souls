@@ -5,6 +5,7 @@
         var texture = asset.GetTexture(asset.Textures.PLAYER_NONE);
         playerBase.call(this, texture, engine)
 
+        this.isPlayer = true;
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held
 

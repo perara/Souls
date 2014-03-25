@@ -11,7 +11,7 @@ require.config({
 
 
         "pixi": "/Scripts/pixi.dev", // PIXI.js
-
+        "proton" : "/Scripts/proton-1.0.0.min",
         "tweenjs": "/Scripts/tweenjs-0.5.1.min",
         "easeljs": "/Scripts/easeljs-0.7.1.min",
         "soundjs": "/Scripts/soundjs-0.5.2.min",
@@ -47,7 +47,10 @@ require.config({
         "cardmanager": "Objects/CardManager",
         "background": "Objects/Background",
         "chat": "Objects/Chat",
-        "endturnbutton": "Objects/EndTurnButton"
+        "endturnbutton": "Objects/EndTurnButton",
+        "queue": "Objects/Queue",
+        "cardanimation" : "Objects/CardAnimation"
+
     },
     shim: {
         'pixi': {
@@ -158,17 +161,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
     function GameLoop() {
 
-
-        if (Conf.currentState == Gamestate.LOADING) {
-
-        }
-
-        else if (Conf.currentState == Gamestate.GAME) {
+        if (Conf.currentState == Gamestate.GAME) {
             this.renderer.render(this.gameEngine.Process());
-        }
-
-        else if (Conf.currentState == Gamestate.PAUSED) {
-
         }
 
         else if (Conf.currentState == Gamestate.NOT_SUPPORTED) {

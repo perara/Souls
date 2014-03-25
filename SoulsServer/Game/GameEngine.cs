@@ -400,11 +400,30 @@ namespace SoulsServer
 
                 sourceCard.Attack(targetCard);
 
+                // Check if attackers card is dead
+                if(sourceCard.isDead)
+                {
+                    Console.WriteLine("Yes its dead:D");
+                    // Remove the card
+                    requestPlayer.RemoveBoardCard(sourceCard);
+                }
+
+                // Check if defenders card is dead
+                if (targetCard.isDead)
+                {
+                    Console.WriteLine("Yes its dead:D");
+                    // Remove the card
+                    opponent.RemoveBoardCard(targetCard);
+                }
+
+              
+
                 // Requester's Card
                 JObject reqObj = new JObject(
                             new JProperty("cid", sourceCard.cid),
                             new JProperty("dmgTaken", targetCard.attack),
                             new JProperty("dmgDone", sourceCard.attack),
+                            new JProperty("health", sourceCard.health),
                             new JProperty("attacker", true),
                             new JProperty("isDead", sourceCard.isDead));
 
@@ -413,6 +432,7 @@ namespace SoulsServer
                             new JProperty("cid", targetCard.cid),
                             new JProperty("dmgTaken", sourceCard.attack),
                             new JProperty("dmgDone", targetCard.attack),
+                            new JProperty("health", targetCard.health),
                             new JProperty("attacker", false),
                             new JProperty("isDead", targetCard.isDead));
 

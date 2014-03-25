@@ -26,6 +26,12 @@ define("cardslot", ["pixi", 'asset'], function (pixi, asset) {
     CardSlot.prototype = Object.create(pixi.Sprite.prototype);
     CardSlot.prototype.constructor = CardSlot;
 
+    CardSlot.prototype.Reset = function()
+    {
+        this.card = undefined;
+        this.interactive = true;
+    }
+
     CardSlot.prototype.doScaling = function (hovered) {
 
         if (hovered) {

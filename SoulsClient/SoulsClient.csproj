@@ -318,6 +318,7 @@
     <Content Include="Scripts\Game\Objects\Arrow.js" />
     <Content Include="Scripts\Game\Objects\Background.js" />
     <Content Include="Scripts\Game\Objects\Card.js" />
+    <Content Include="Scripts\Game\Objects\CardAnimation.js" />
     <Content Include="Scripts\Game\Objects\CardManager.js" />
     <Content Include="Scripts\Game\Objects\CardSlot.js" />
     <Content Include="Scripts\Game\Networking\ChatService.js" />
@@ -326,6 +327,7 @@
     <Content Include="Scripts\Game\Objects\Opponent.js" />
     <Content Include="Scripts\Game\Objects\Player.js" />
     <Content Include="Scripts\Game\Objects\PlayerBase.js" />
+    <Content Include="Scripts\Game\Objects\Queue.js" />
     <Content Include="Scripts\Game\States\Game.js" />
     <Content Include="Scripts\Game\States\GameState.js" />
     <Content Include="Scripts\Game\States\State.js" />
@@ -366,9 +368,11 @@
     <Content Include="Scripts\jquery-ui-1.10.4.js" />
     <Content Include="Scripts\jquery-ui-1.10.4.min.js" />
     <Content Include="Scripts\jquery.dialogextend.min.js" />
+    <Content Include="Scripts\jquery.ui.touch-punch.js" />
     <Content Include="Scripts\modernizr-2.7.2.js" />
     <Content Include="Scripts\pixi.dev.js" />
     <Content Include="Scripts\pixi.js" />
+    <Content Include="Scripts\proton-1.0.0.min.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
     <Content Include="Scripts\respond.js" />

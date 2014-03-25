@@ -56,6 +56,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
         {
             // Game apperance
             GAME_BG: (Asset.Path.Textures + "arena.jpg"),
+            GAME_QUEUE: Asset.Path.Textures + "queue.jpg",
 
             // Card Textures
             CARD_NONE: Asset.Path.Textures + "Card/CARD_NONE.png",
@@ -86,7 +87,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
                 CARD_MOUNT: Asset.Path.Sound + "card_mount.mp3",
                 END_TURN: Asset.Path.Sound + "scroll.mp3",
                 ATTACK_1: Asset.Path.Sound + "attack_1.mp3",
-                DEFEND_1: Asset.Path.Sound + "defend_1.mp3",
+                DEFEND_1: Asset.Path.Sound + "defend_1.mp3"
 
             }
 

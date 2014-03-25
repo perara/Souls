@@ -35,9 +35,13 @@
 /// <reference path="game/networking/chatservice.js" />
 /// <reference path="game/networking/networkbase.js" />
 /// <reference path="game/objects/endturnbutton.js" />
+/// <reference path="game/objects/queue.js" />
+/// <reference path="jquery.ui.touch-punch.js" />
+/// <reference path="game/objects/cardanimation.js" />
 /// <reference path="easeljs-0.7.1.js" />
 /// <reference path="jquery.dialogextend.js" />
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
 /// <reference path="tweenjs-0.5.1.js" />
+/// <reference path="proton-1.0.0.js" />
 

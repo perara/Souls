@@ -95,11 +95,6 @@ namespace SoulsServer.Engine
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            //if (this.State != WebSocketState.OPEN)
-              //  return;
-
-            Console.WriteLine("Message ##");
-
 
             data = JsonConvert.DeserializeObject(e.Data);
             payload = this.data.Payload;
@@ -127,6 +122,7 @@ namespace SoulsServer.Engine
                     engine.Request_OpponentReleaseCard(OnlinePlayers.GetInstance().gameList[this]);
                     break;
             }
+
             switch ((GENERAL)type)
             {
                 case GENERAL.LOGIN:
@@ -210,14 +206,14 @@ namespace SoulsServer.Engine
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
 
-                        this.Context.WebSocket.CloseAsync(WebSocketSharp.CloseStatusCode.Away, "Not logged in!");
+                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "Not logged in!");
                     }
 
                 }
             }
             else
             {
-                this.Context.WebSocket.CloseAsync(WebSocketSharp.CloseStatusCode.Away, "Hash was null");
+                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "Hash was null");
             }
         }
 

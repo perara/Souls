@@ -1,4 +1,5 @@
 ﻿@Styles.Render("~/Content/style.css")
+@Scripts.Render("~/Scripts/jquery.ui.touch-punch.js")
 @Scripts.Render("~/Scripts/WebSocketClient.js")
 @Scripts.Render("~/Scripts/app.js")
 <script>
@@ -52,8 +53,15 @@
                 [SERVER]: Guy was kicked <br />
                 [SERVER]: Guy was kicked <br />
                 [SERVER]: Guy was kicked <br />
+            </div>
+
+            <div class="chat_input_div">
+                <textarea class="chat_input">
+                    Bla
+                </textarea>
 
             </div>
+
         </div>
 
 
@@ -95,16 +103,18 @@
 
         $(".chat-window").tabs();
         $(".chat-window").dialog({
-            height: 400,
+            height: 325,
             width: 500,
+            "title": "Chat"
+
         })
             .dialogExtend({
-                "closable": true,
+                "closable": false,
                 "maximizable": true,
                 "minimizable": true,
                 "collapsable": true,
                 "dblclick": "collapse",
-                "titlebar": "none",
+                "titlebar": "transparent",
                 "minimizeLocation": "right",
                 "icons": {
                     "close": "ui-icon-circle-close",
@@ -123,10 +133,17 @@
                 "minimize": function (evt, dlg) { },
                 "restore": function (evt, dlg) { }
             });
+        $(".chat-window").parent().css("opacity", 0.2);
 
-
-
-
+        $(".chat-window").parent().mouseenter(function()
+        {
+            $(this).fadeTo("fast", 1);
+  
+        });
+        $(".chat-window").parent().mouseleave(function () {
+            $(this).fadeTo("fast", 0.2);
+        });
+    
 
 
     });
