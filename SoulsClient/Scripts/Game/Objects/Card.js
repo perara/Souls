@@ -70,7 +70,6 @@
         this.attackCard = undefined;
 
 
-
     };
     // Global order counter
     Card.counter = 0;

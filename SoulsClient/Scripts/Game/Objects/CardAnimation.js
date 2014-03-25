@@ -61,7 +61,7 @@
             Asset.GetSound(Asset.Sound.ATTACK_1).play();
 
             // Swap group to the Attacker Group (Which is top level group)
-            attacker.engine.SwapFromToGroup(attacker, (attacker.owner == attacker.engine.player) ? "Card-Player" : "Card-Opponent", "Attacker");
+            attacker.engine.SwapFromToGroup(attacker, (attacker.owner.isPlayer) ? "Card-Player" : "Card-Opponent", "Attacker");
 
             var attackTween = CreateJS.Tween.get(values, {
                 override: false,
@@ -93,11 +93,16 @@
                 callbacks.ChangeHealth();
 
                 // Run the DEATH animation
-                if (defenderData.isDead) DeathAnimation(defender);
+                if (defenderData.isDead) {
+                    DeathAnimation(defender);
+                }
+                else {
+                    DefenderShake(defender);
+                }
                 if (attackerData.isDead) {
+                    attacker.engine.SwapFromToGroup(attacker, "Attacker", (attacker.owner.isPlayer) ? "Card-Player" : "Card-Opponent");
+                    CreateJS.Tween.removeTweens(values);
                     DeathAnimation(attacker);
-                    CreateJS.Tween.removeTweens(attackTween);
-
                 }
 
 
@@ -116,10 +121,10 @@
             .call(function () {
 
                 // Set back to correct group
-                attacker.engine.SwapFromToGroup(attacker, "Attacker", (attacker.owner == attacker.engine.player) ? "Card-Player" : "Card-Opponent");
+                attacker.engine.SwapFromToGroup(attacker, "Attacker", (attacker.owner.isPlayer) ? "Card-Player" : "Card-Opponent");
 
                 // Activate the interactive again if its a player
-                if (attacker.owner == attacker.engine.player) {
+                if (attacker.owner.isPlayer) {
                     attacker.interactive = true
                 }
             });
@@ -130,23 +135,47 @@
 
         function DeathAnimation(card) {
 
+            var values = {
+                scaleY: card.scale.y,
+                scaleX: card.scale.x,
+                x: card.x,
+                y: card.y,
+                rotation: card.rotation
+            }
+
+            // Location of the card
             var xEndpoint = card.owner.engine.conf.width + 200;
             var yEndpoint = undefined;
-            if (card.owner.isPlayer) {
-                yEndpoint = card.owner.engine.conf.height;
-            }
-            else {
-                yEndpoint = 0;
-            }
 
+            // Spins in different direction depending on attacker\defender
+            yEndpoint = (card.owner.isPlayer) ? card.owner.engine.conf.height : 0;
 
-            var deathTween = CreateJS.Tween.get(card)
+            // Execute tween (Move, rotate, scale)
+            var deathTween = CreateJS.Tween.get(values, {
+                override: false,
+                onChange: function onChange(e) {
+                    card.scale.y = values.scaleY;
+                    card.scale.x = values.scaleX;
+                    card.x = values.x;
+                    card.y = values.y;
+                    card.rotation = values.rotation;
+                }
+            })
             .to(
             {
+                scaleX: 3,
+                scaleY: 3,
+                rotation: 10,
                 x: xEndpoint,
                 y: yEndpoint
-            }, 3000)
+            }, 1000)
+            .call(function () {
+                card.owner.cardManager.RemoveCard(card);
+            })
 
+            Asset.GetSound(Asset.Sound.DEFEND_1).play();
+
+            return;
         }
 
         // This tween creates the "shaking" animation of the defender
