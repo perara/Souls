@@ -13,8 +13,8 @@
         that = this;
 
         // Card Dimensions
-        this.width = 120;
-        this.height = 150;
+        //        this.height = 210;
+        //              this.width = 150;
         this.anchor = { x: 0.5, y: 0.5 };
 
         // Card Position
@@ -111,211 +111,96 @@
         // Make card backside
         this.backCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_BACK));
         this.backCard.anchor = { x: 0.5, y: 0.5 };
-        this.backCard.height = 190;
-        this.backCard.width = 110;
+        this.backCard.height = 210;
+        this.backCard.width = 150;
     }
 
     Card.prototype.SetupFrontCard = function () {
         // Make card frontside
-        this.frontCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_NONE));
+        this.frontCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_VAMPIRIC));
         this.frontCard.anchor = { x: 0.5, y: 0.5 };
+        this.frontCard.height = 210;
+        this.frontCard.width = 150;
+
         this.addChild(this.frontCard);
 
-        // Create the card bound back (Which will ultimately be a border)
-        var cBorder = new pixi.Graphics(this);
-        cBorder.beginFill(0x000000);
-        cBorder.lineStyle(2, 0x000000);
-        cBorder.drawRect(0, 0, this.width, this.height);
-        cBorder.endFill();
-        cBorder.x = -(this.width / 2);
-        cBorder.y = -(this.height / 2);
-
-        // CardFactory background
-        var cBackground = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_BG));
-        cBackground.anchor = { x: 0.5, y: 0.5 };
-        cBackground.x = 0;
-        cBackground.y = 0;
-        cBackground.width = this.width - 5;
-        cBackground.height = this.height - 5;
-
-        // AbilityPane
-        var cAbilityPanel = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_ABILITY_PANEL));
-        cAbilityPanel.anchor = { x: 0.5, y: 0.5 };
-        cAbilityPanel.x = 0;
-        cAbilityPanel.y = this.height / 4;
-        cAbilityPanel.width = this.width - 10;
-        cAbilityPanel.height = this.height / 2;
-
-
-        // CardFactory portrait image
-        var cPortrait = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT));
-        cPortrait.anchor = { x: 0.5, y: 0.5 };
-        cPortrait.width = (this.width / 2) + 6;
-        cPortrait.height = (this.height / 2) + 5;
-        cPortrait.x = -1;
-        cPortrait.y = -(this.height) / 3 - 3;
-
-        // CardFactory portrait border
-        var cPortraitBorder = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT_BORDER));
-        cPortraitBorder.anchor = { x: 0.5, y: 0.5 };
-        cPortraitBorder.width = this.width;
-        cPortraitBorder.height = this.height;
-        cPortraitBorder.x = 0;
-        cPortraitBorder.y = -this.height / 3;
-
-        // CardFactory portrait wrapper
-        var cPortraitWrapper = new pixi.Graphics();
-        cPortraitWrapper.beginFill(0xCECECECE);
-        cPortraitWrapper.drawEllipse(0, 0, (this.width / 4) + 4, (this.height / 4) + 9);
-        cPortraitWrapper.endFill();
-        cPortraitWrapper.x = -1
-        cPortraitWrapper.y = -(this.height / 3) + 2
-
-        // Add masking (Image and framebounds)
-        cPortrait.mask = cPortraitWrapper
-
-
-        // CardFactory Health Image
-        var cHealth = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_HEALTH));
-        cHealth.anchor = { x: 0, y: 0 };
-        cHealth.width = this.width / 4;
-        cHealth.height = this.height / 4;
-        cHealth.x = (this.width / 2) - (cHealth.width / 2);
-        cHealth.y = (this.height / 2) - (cHealth.height / 2) - 7;
-
-        // CardFactory Mana Image
-        var cMana = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_MANA));
-        cMana.anchor = { x: 0.5, y: 0.5 };
-        cMana.width = this.width / 3 - 5;
-        cMana.height = this.height / 3 - 15;
-        cMana.x = -(this.width / 2);
-        cMana.y = -(this.height / 2)
-
-        // CardFactory Attack Image
-        var cAttack = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_ATTACK));
-        cAttack.anchor = { x: 0, y: 0 };
-        cAttack.width = this.width / 3 - 10;
-        cAttack.height = this.height / 3 - 20;
-        cAttack.x = -(this.width / 2) - (cAttack.width / 2);
-        cAttack.y = (this.height / 2) - (cAttack.height / 2) - 3;
-
         // CardFactory Health Label
-        var cHealthText = new pixi.Text(this.health,
+        var txtHealth = new pixi.Text(this.health,
             {
-                font: "18px Arial",
+                font: "45px Arial",
                 fill: "white",
                 stroke: '#000000',
                 strokeThickness: 4
             });
-        cHealthText.anchor = { x: 0, y: 0 };
-        cHealthText.position.x = (this.width / 2) - (cHealthText.width / 2);
-        cHealthText.position.y = (this.height / 2) - (cHealthText.height / 2);
-        this.texts.health = cHealthText;
+        txtHealth.anchor = { x: 0, y: 0 };
+        txtHealth.position.x = (this.frontCard.width) - (txtHealth.width / 1.5);
+        txtHealth.position.y = (this.frontCard.height) - (txtHealth.height);
+        this.texts.health = txtHealth;
 
         // CardFactory Mana Label
-        var cManaText = new pixi.Text(this.cost,
+        var txtCost = new pixi.Text(this.cost,
             {
-                font: "18px Arial",
+                font: "45px Arial",
                 fill: "white",
                 stroke: '#000000',
                 strokeThickness: 4
             });
-        cManaText.anchor = { x: 0, y: 0 };
-        cManaText.position.x = -(this.width / 2) - (cManaText.width / 2);
-        cManaText.position.y = -(this.height / 2) - (cManaText.height / 2);;
-        this.texts.cost = cManaText;
+        txtCost.position.x = -(this.frontCard.width) + txtCost.width / 6;
+        txtCost.position.y = -(this.frontCard.height);
+        this.texts.cost = txtCost;
 
         // CardFactory Attack Label
-        var cAttackText = new pixi.Text(this.attack,
+        var txtAttack = new pixi.Text(this.attack,
             {
-                font: "18px Arial",
+                font: "45px Arial",
                 fill: "white",
                 stroke: '#000000',
                 strokeThickness: 4
             });
-        cAttackText.anchor = { x: 0, y: 0 };
-        cAttackText.position.x = -(this.width / 2) - (cAttackText.width / 2);
-        cAttackText.position.y = (this.height / 2) - (cAttackText.height / 2) - 2;
-        this.texts.attack = cAttackText;
+        txtAttack.anchor = { x: 0, y: 0 };
+        txtAttack.position.x = -(this.frontCard.width) + txtAttack.width / 6;
+        txtAttack.position.y = (this.frontCard.height) - (txtAttack.height);
+        this.texts.attack = txtAttack;
 
         // CardFactory Ability Label
-        var cAbilityPanelText = new pixi.Text(this.ability,
+        var txtAbility = new pixi.Text(this.ability,
              {
-                 font: "12px Arial",
+                 font: "45px Arial",
                  fill: "black",
                  wordWrap: true,
                  wordWrapWidth: this.width - 24
              });
-        cAbilityPanelText.anchor = { x: 0.5, y: 0.5 };
-        cAbilityPanelText.position.x = 0;
-        cAbilityPanelText.position.y = this.height / 4;
-        this.texts.ability = cAbilityPanelText;
+        txtAbility.anchor = { x: 0.5, y: 0.6 };
+        txtAbility.position.x = 0;
+        txtAbility.position.y = this.frontCard.height / 2;
+        this.texts.ability = txtAbility;
 
-        // CardFactory Name Background
-        var cNamePanel = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_NAME_PANEL));
-        cNamePanel.anchor = { x: 0.5, y: 1 };
-        cNamePanel.x = 0;
-        cNamePanel.y = 0;
-        cNamePanel.width = this.width;
-        cNamePanel.height = (this.height / 5);
-
-
-        // CardFactory Name Label
-        cNamePanelText = new pixi.Text(this.name,
+        // CardFry Name Label
+        var txtName = new pixi.Text(this.name,
             {
-                font: "18px Arial bold",
+                font: "40px Arial",
                 fill: "black",
                 wordWrap: true,
                 align: 'center',
 
                 wordWrapWidth: this.width
             });
-        cNamePanelText.anchor = { x: 0.5, y: 1 };
-        cNamePanelText.x = 0;
-        cNamePanelText.y = 0;
-        this.texts.name = cNamePanelText;
+        // txtName.anchor = { x: 1, y: 0.0 };
+        txtName.x = -(this.frontCard.width) + 60
+        txtName.y = -(this.frontCard.height) + 30
+        this.texts.name = txtName;
 
-        // Add wrapper to the card
-        this.frontCard.addChild(cBorder);
-        // Add background to the card
-        this.frontCard.addChild(cBackground);
-        // Add abilityPane to the card
-        this.frontCard.addChild(cAbilityPanel);
-
-
-        // Add the image to the portrait container
-        this.frontCard.addChild(cPortrait);
-        // Add the portrait border to the portrait container
-        this.frontCard.addChild(cPortraitBorder);
-        // Add Portraits wrapper to the Portrait container.
-        this.frontCard.addChild(cPortraitWrapper);
-
-        // Add the Health Image to the card
-        this.frontCard.addChild(cHealth);
-        // Add the Mana Image to the card
-        this.frontCard.addChild(cMana);
-        // Add the Attack Image to the card
-        this.frontCard.addChild(cAttack);
-
-        // Add the Health text to the CardFactory 
-        this.frontCard.addChild(cHealthText);
-        // Add the Mana text to the CardFactory 
-        this.frontCard.addChild(cManaText);
-        // Add the Attack text to the CardFactory 
-        this.frontCard.addChild(cAttackText);
-        // Add the Ability text to the CardFactory
-        this.frontCard.addChild(cAbilityPanelText);
-
-        // Add the Name pane to the CardFactory
-        this.frontCard.addChild(cNamePanel);
-        // Add the Name text to the CardFactory
-        this.frontCard.addChild(cNamePanelText);
+        this.frontCard.addChild(txtHealth);
+        this.frontCard.addChild(txtCost);
+        this.frontCard.addChild(txtAttack);
+        this.frontCard.addChild(txtAbility);
+        this.frontCard.addChild(txtName);
 
     }
 
 
     /// <summary>
-    /// Checks if the card is hovered over a cardslot (BROKEN) //TODO
+    /// Checks if the card is hovered over a cardslot
     /// </summary>
     Card.prototype.checkHover = function () {
         if (this.pickedUp && !this.inSlot) {
@@ -493,7 +378,7 @@
 
                     // Run tween
                     this.engine.CreateJS.Tween.get(this, { override: true })
-                        .to({ y: this.position.originY - 100 }, 200, this.engine.CreateJS.Ease.elasticOut)
+                        .to({ y: this.position.originY - 120 }, 200, this.engine.CreateJS.Ease.elasticOut)
 
                     // Reorganize the card order to top
                     this.OrderLast();
