@@ -300,6 +300,9 @@ namespace SoulsServer
             {
                 requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
                 Logging.Write(Logging.Type.GAME, "Not enough mana!");
+
+                // Fire releaseCard (to recall the card to origin pos)
+                this.Request_OpponentReleaseCard(player);
                 return;
             }
 
@@ -310,6 +313,10 @@ namespace SoulsServer
                 requestPlayer.handCards.Remove(card);
                 requestPlayer.boardCards.Add(slot, c);
 
+
+                // Subtract mana from player
+                requestPlayer.mana -= c.cost;
+
                 // Set the slotId on the card.
                 c.slotId = slot;
 
@@ -319,7 +326,10 @@ namespace SoulsServer
 
                 // Send Reply
                 Response response = new Response(GameService.GameResponseType.GAME_USECARD_OK,
-                    new JObject(new JProperty("card", JObject.FromObject(c))));
+                    new JObject(
+                        new JProperty("card", JObject.FromObject(c)),
+                        new JProperty("pInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
+                    ));
 
                 requestPlayer.playerContext.SendTo(response);
                 response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
@@ -346,12 +356,18 @@ namespace SoulsServer
             // Send response
             requestPlayer.playerContext.SendTo(new Response(
                 GameService.GameResponseType.GAME_NEXT_TURN,
-                new JObject(new JProperty("yourTurn", false)
+                new JObject(
+                    new JProperty("yourTurn", false),
+                    new JProperty("playerInfo", JObject.FromObject(requestPlayer.GetPlayerData())),
+                    new JProperty("opponentInfo", JObject.FromObject(requestPlayer.GetOpponent().GetPlayerData()))
                     )));
 
             requestPlayer.GetOpponent().playerContext.SendTo(new Response(
                 GameService.GameResponseType.GAME_NEXT_TURN,
-                new JObject(new JProperty("yourTurn", true)
+                new JObject(
+                    new JProperty("yourTurn", true),
+                    new JProperty("playerInfo", JObject.FromObject(requestPlayer.GetOpponent().GetPlayerData())),
+                    new JProperty("opponentInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
                     )));
 
         }
@@ -399,7 +415,7 @@ namespace SoulsServer
                 // Fetch cards from the CID's
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
                 Card targetCard = opponent.boardCards.FirstOrDefault(x => x.Value.cid == target).Value;
-                
+
                 // Ignore if one of the card did not exist
                 if (sourceCard == null || targetCard == null) return;
 
@@ -407,7 +423,7 @@ namespace SoulsServer
                 sourceCard.Attack(targetCard);
 
                 // Check if attackers card is dead
-                if(sourceCard.isDead)
+                if (sourceCard.isDead)
                 {
                     Console.WriteLine("Yes its dead:D");
                     // Remove the card
@@ -422,7 +438,7 @@ namespace SoulsServer
                     opponent.RemoveBoardCard(targetCard);
                 }
 
-              
+
 
                 // Requester's Card
                 JObject reqObj = new JObject(

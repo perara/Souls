@@ -45,12 +45,12 @@
 
 
             // Network for best host
-            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
-            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
+            // this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
+            // this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
 
             // Network for råtn host
-            // // // // // // // // // // xDDDD // // // this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
-            // // // // // // // // // // xDDDD // // // this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
+            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
 
             // Tools etc
             this.toolbox = ToolBox;
@@ -70,7 +70,7 @@
             // Connect to the game service
             this.gameService = new GameService(this)
 
- 
+
 
             this.OnStart();
         }
@@ -137,7 +137,7 @@
                 strokeThickness: 4
             });
 
-     
+
             flashText.anchor = { x: 0.5, y: 0.5 };
             flashText.position.x = that.conf.width / 2;
             flashText.position.y = that.conf.height / 2;
@@ -178,7 +178,7 @@
 
                         if (messageArray.length == 0) {
 
-                            group.removeChild(flashText); 
+                            group.removeChild(flashText);
                             clearInterval(intervalId);
                         }
                     }

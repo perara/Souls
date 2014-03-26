@@ -161,7 +161,11 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
     function GameLoop() {
 
-        if (Conf.currentState == Gamestate.GAME) {
+        if (Conf.currentState == Gamestate.LOADING)
+        {
+            this.renderer.render(this.stage);
+        }
+        else if (Conf.currentState == Gamestate.GAME) {
             this.renderer.render(this.gameEngine.Process());
         }
 

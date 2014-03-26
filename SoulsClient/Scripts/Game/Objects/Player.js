@@ -31,7 +31,10 @@
     Player.prototype.Init = function () {
         this.arrow = new Arrow(this.engine);
         this.engine.addChild("Player", this);
+
         this.engine.addChild("Player", this.arrow);
+        this.engine.getGroup("Player").addChild(this.arrow.arrowHead);
+
         this.cardManager = new CardManager(this.engine, true);
         this.cardManager.AddCardSlots();
         this.engine.getGroup("CardSlot-Player").visible = false;

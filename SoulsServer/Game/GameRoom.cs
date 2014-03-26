@@ -37,7 +37,7 @@ namespace SoulsServer
         {
             gameId = GameRoom.gameCounter++;
             turn = 0;
-            round = 0;
+            round = 1;
         }
 
         public void AddGamePlayers(Pair<GamePlayer> players)
@@ -60,7 +60,7 @@ namespace SoulsServer
 
             for (var i = 0; i < amount; i++)
             {
-                Card c = (Card)GameEngine.cards[rand.Next(GameEngine.cards.Count() - 1)].Clone();
+                Card c = (Card)GameEngine.cards[rand.Next(GameEngine.cards.Count())].Clone();
                 c.SetId();
                 getCard.Add(c);
             }
@@ -93,7 +93,7 @@ namespace SoulsServer
             currentPlaying.AddCard();
 
             // Set mana equal to the round (unless +10)
-            currentPlaying.mana = (this.turn < 10) ? this.turn : 10;
+            currentPlaying.mana = (this.round < 10) ? this.round : 10;
         }
 
         /// <summary>

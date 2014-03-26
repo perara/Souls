@@ -207,17 +207,17 @@
     CardManager.prototype.RemoveCard = function (card) {
         if (card.owner.isPlayer)
         {
-            console.log(card);
-            console.log(this.engine.getGroup("Card-Player"));
+            //console.log(card);
+            //console.log(this.engine.getGroup("Card-Player"));
             this.engine.getGroup("Card-Player").removeChild(card);
         }
         else
         {
-            console.log(card);
-            console.log(this.engine.getGroup("Card-Opponent"));
+            //console.log(card);
+            //console.log(this.engine.getGroup("Card-Opponent"));
             this.engine.getGroup("Card-Opponent").removeChild(card);
         }
-        console.log("Deleted card " + card);
+       // console.log("Deleted card " + card);
         delete this.board[card.cid]; // Delete from hand
     }
 

@@ -39,8 +39,9 @@
 /// <reference path="game/objects/cardanimation.js" />
 /// <reference path="easeljs-0.7.1.js" />
 /// <reference path="jquery.dialogextend.js" />
+/// <reference path="proton-1.0.0.js" />
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
 /// <reference path="tweenjs-0.5.1.js" />
-/// <reference path="proton-1.0.0.js" />
+/// <reference path="game/objects/cardtype.js" />
 

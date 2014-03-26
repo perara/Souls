@@ -120,8 +120,20 @@
         this.frontCard.anchor = { x: 0.5, y: 0.5 };
         this.frontCard.height = 210;
         this.frontCard.width = 150;
-
         this.addChild(this.frontCard);
+
+        // Card Image
+        var portrait = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT));
+        portrait.anchor = { x: 0.5, y: 0.5 };
+        portrait.width = 236;
+        portrait.height = 167;
+        portrait.x = 0;
+        portrait.y = -31;
+        this.frontCard.addChild(portrait);
+
+
+
+
 
         // CardFactory Health Label
         var txtHealth = new pixi.Text(this.health,
@@ -510,7 +522,8 @@
     Card.prototype.Attack = function (attackerInfo, defenderInfo, defender) {
         var attacker = this;
 
-        console.log(defender);
+        this.engine.player.arrow.Hide();
+
         // Set the correct health
         attacker.health = attackerInfo.health;
         defender.health = defenderInfo.health;

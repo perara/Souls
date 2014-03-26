@@ -59,7 +59,7 @@
             this.active = false;
         }
         this.interactive = this.active;
-        console.log(this.active);
+
     }
 
     // Spins the button and activates\deactivated it depending on input

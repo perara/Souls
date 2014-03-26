@@ -27,6 +27,7 @@
         this.RegisterResponseAction(["218"], Response_Attack);
         this.RegisterResponseAction(["226"], Response_NextTurn);
         this.RegisterResponseAction(["222", "223"], Response_NewCard);
+        this.RegisterResponseAction(["208"], Response_UseCard_OOM);
 
     }
     // Constructor
@@ -38,7 +39,10 @@
     ///////////////////////GAME-RESPONSES/////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
-
+    function Response_UseCard_OOM(json)
+    {
+        that.engine.ScreenMessage(["Not enough mana!"], false);
+    }
 
     function Response_NewCard(json) {
         var type = json.Type;
@@ -117,9 +121,9 @@
 
     function Response_UseCard(json) // "207" GAME_USECARD_PLAYER_OK // "211" GAME_USECARD_OPPONENT_OK // TOODO FAILED OSV
     {
-
+      
         var cardData = json.Payload.card;
-
+        var pInfo = json.Payload.pInfo;
         var cid = cardData.cid;
         var slotId = cardData.slotId;
         var card;
@@ -127,13 +131,18 @@
 
         if (json.Type == 211) // OPPONENT
         {
-            var opponent = that.engine.opponent.cardManager;
+            
+            var opponent = that.engine.opponent
 
+            // Set updated opponent text
+            opponent.SetText(pInfo);
 
-            card = opponent.hand[cid]; // Fetch from hand
-            delete opponent.hand[cid]; // Delete from hand
-            opponent.board[cid] = card; // Add to board
-            opponent.SortHand();
+            card = opponent.cardManager.hand[cid]; // Fetch from hand
+            delete opponent.cardManager.hand[cid]; // Delete from hand
+            opponent.cardManager.board[cid] = card; // Add to board
+            opponent.cardManager.SortHand();
+
+            // Update the card
             card.SetText(
              {
                  health: cardData.health,
@@ -145,17 +154,20 @@
              });
 
             // card.SetupTextData(json.Payload.card, true);
-            cardSlot = opponent.cardSlots[slotId];
+            cardSlot = opponent.cardManager.cardSlots[slotId];
         }
         else if (json.Type == 207) // PLAYER
         {
-            var player = that.engine.player.cardManager;
+            var player = that.engine.player;
 
-            card = player.hand[cid]; // Fetch from hand
-            delete player.hand[cid]; // Delete from hand
-            player.SortHand();
-            player.board[cid] = card; // Add to board
-            cardSlot = player.cardSlots[slotId];
+            // Set updated opponent text
+            player.SetText(pInfo);
+
+            card = player.cardManager.hand[cid]; // Fetch from hand
+            delete player.cardManager.hand[cid]; // Delete from hand
+            player.cardManager.SortHand();
+            player.cardManager.board[cid] = card; // Add to board
+            cardSlot = player.cardManager.cardSlots[slotId];
         }
 
         card.PutInSlot(cardSlot);
@@ -164,6 +176,7 @@
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
 
+        console.log(data);
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.playerNr = data.Payload.ident;
         that.engine.player.SetText(data.Payload.player.info);
@@ -238,20 +251,19 @@
 
     function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
     {
-        console.log(json);
-
         that.engine.ScreenMessage(["Not your turn!"], false);
 
 
     }
     function Response_NextTurn(json) // 226 NEXT TURN
     {
-        console.log(json);
-        console.log("Recieved endturn");
         if (json.Payload.yourTurn) {
             that.engine.background.endTurnButton.Spin();
         }
 
+        // Update player and opponent portrait
+        that.engine.opponent.SetText(json.Payload.opponentInfo);
+        that.engine.player.SetText(json.Payload.playerInfo);
 
     }
 

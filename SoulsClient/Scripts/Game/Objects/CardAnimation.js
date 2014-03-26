@@ -134,6 +134,7 @@
         }
 
         function DeathAnimation(card) {
+            card.owner.holdingCard = undefined;
 
             var values = {
                 scaleY: card.scale.y,

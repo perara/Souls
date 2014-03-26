@@ -58,9 +58,22 @@ http://buzz.jaysalvat.com/documentation/buzz/
             GAME_BG: (Asset.Path.Textures + "arena.jpg"),
             GAME_QUEUE: Asset.Path.Textures + "queue.jpg",
 
+            // End turn
+            END_TURN: Asset.Path.Textures + "endturn.png",
+            END_TURN_DISABLED: Asset.Path.Textures + "endturn_disabled.png",
+
+
             // Card Textures
             CARD_NONE: Asset.Path.Textures + "Card/CARD_NONE.png",
-            CARD_BG: Asset.Path.Textures + "Card/card_bg.jpg",
+            CARD_SLOT: Asset.Path.Textures + "Card/cardslot.png",
+            CARD_BACK: Asset.Path.Textures + "Card/cardback.png",
+            CARD_VAMPIRIC: Asset.Path.Textures + "Card/vampiric.png",
+
+            // Target arrow
+            ARROW_CORSHAIR : Asset.Path.Textures + "target.png",
+
+
+            // DEPRECATED, USED FOR PLAYER ATM :o
             CARD_PORTRAIT: Asset.Path.Textures + "Card/dr_robot.png",
             CARD_PORTRAIT_BORDER: Asset.Path.Textures + "Card/card_image_frame.png",
             CARD_HEALTH: Asset.Path.Textures + "Card/card_health.png",
@@ -68,11 +81,6 @@ http://buzz.jaysalvat.com/documentation/buzz/
             CARD_ATTACK: Asset.Path.Textures + "Card/card_attack.png",
             CARD_ABILITY_PANEL: Asset.Path.Textures + "Card/card_ability_pane.png",
             CARD_NAME_PANEL: Asset.Path.Textures + "Card/card_name_pane.png",
-            CARD_SLOT: Asset.Path.Textures + "Card/cardslot.png",
-            CARD_BACK: Asset.Path.Textures + "Card/cardback.png",
-
-            END_TURN: Asset.Path.Textures + "endturn.png",
-            END_TURN_DISABLED: Asset.Path.Textures + "endturn_disabled.png",
 
             PLAYER_NONE: Asset.Path.Textures + "Card/player_none.png",
             PLAYER_FRAME: Asset.Path.Textures + "Card/player_frame.png",
@@ -80,7 +88,6 @@ http://buzz.jaysalvat.com/documentation/buzz/
             OPPONENT_NONE: Asset.Path.Textures + "Card/player_none.png", //TODO
             OPPONENT_FRAME: Asset.Path.Textures + "Card/player_frame.png",//TODO
 
-            CARD_VAMPIRIC : Asset.Path.Textures + "Card/vampiric.png",
         }
 
         Asset.prototype.Sound =
