@@ -548,9 +548,8 @@
     }
 
 
-    Card.prototype.AttackOpponent = function(attackerInfo, defenderInfo)
+    Card.prototype.AttackOpponent = function(attackerInfo, defenderInfo, defender)
     {
-
         var attacker = this;
 
         // Define callbacks which should be used in the card Animation
@@ -571,7 +570,7 @@
             }
 
 
-        CardAnimation.Attack(attacker, this.engine.opponent, attackerInfo, defenderInfo, attackCallbacks);
+        CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
         //console.log(attackerInfo);
         //console.log(defenderInfo);
 

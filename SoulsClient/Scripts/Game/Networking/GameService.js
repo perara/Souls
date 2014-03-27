@@ -97,21 +97,25 @@
             }
         }
         else if (attackType == 1) { // Card on hero
-            var playerCard = that.engine.player.cardManager.board[jsonPInfo.cid];
-            var opponentCard = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
 
             // The player is attacking
             if (jsonAttacker) {
-                playerCard.AttackOpponent(jsonPInfo, jsonOppInfo, true);
+                var attacker = that.engine.player.cardManager.board[jsonPInfo.cid];
+                var defender = that.engine.opponent;
+
+                attacker.AttackOpponent(jsonPInfo, jsonOppInfo, defender);
             }
             else // The opponent is attacking
             {
-                opponentCard.AttackOpponent(jsonPInfo, jsonOppInfo, true);
+                var attacker = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
+                var defender = that.engine.player;
+
+                attacker.AttackOpponent(jsonPInfo, jsonOppInfo, defender);
             }
 
         }
 
-    }
+    } // -- Function end
 
     function Response_NotLoggedIn(json) {
         console.log((arguments.callee.name) + ": NOT LOGGED IN resp : ");
