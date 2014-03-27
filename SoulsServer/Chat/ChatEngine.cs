@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SoulsServer.Controller;
+using SoulsServer.Objects;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
 using System;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using SoulsServer.Network;
 
 namespace SoulsServer.Chat
 {

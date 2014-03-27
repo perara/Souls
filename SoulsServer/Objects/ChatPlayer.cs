@@ -5,14 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Chat;
 using SoulsServer.Engine;
+using SoulsServer.Network;
 
-namespace SoulsServer.Controller
+namespace SoulsServer.Objects
 {
     public class ChatPlayer
     {
         public Dictionary<int, ChatRoom> memberRooms { get; set; }
         public string name { get; set; }
-        public Engine.General chatContext { get; set; }
+        public General chatContext { get; set; }
 
         public ChatPlayer(string name)
         {

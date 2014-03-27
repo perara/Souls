@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoulsServer.Engine
+namespace SoulsServer.Network
 {
     /// <summary>
     /// Defines the response object to send back to the client

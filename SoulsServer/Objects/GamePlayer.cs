@@ -5,8 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SoulsServer.Network;
+using SoulsServer.Game;
 
-namespace SoulsServer.Engine
+namespace SoulsServer.Objects
 {
 
     public class GamePlayer

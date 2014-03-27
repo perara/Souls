@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
-using SoulsServer.Controller;
+using SoulsServer.Objects;
+using SoulsServer.Network;
 
 namespace SoulsServer.Chat
 {

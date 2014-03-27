@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SoulsServer.Tools;
 using SoulsServer.Engine;
-using SoulsServer.Controller;
+using SoulsServer.Objects;
 
-namespace SoulsServer
+namespace SoulsServer.Objects
 {
     public class Card : Souls.Model.Card, ICloneable
     {

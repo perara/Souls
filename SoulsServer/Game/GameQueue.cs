@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SoulsServer.Engine;
+using SoulsServer.Objects;
 using SoulsServer.Tools;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoulsServer
+namespace SoulsServer.Game
 {
     public class GameQueue
     {

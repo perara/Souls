@@ -13,40 +13,15 @@ using SoulsServer.Game;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
 using SoulsServer.Chat;
+using SoulsServer.Network;
 
-namespace SoulsServer
+namespace SoulsServer.Engine
 {
     class Runner
     {
         static void Main(string[] args)
         {
-
-            //WebSocketRawTest srv = new WebSocketRawTest();
-
-
-            new SocketServer();
-
-
-            // Initialize GameEngine
-            /*GameEngine gameEngine = new GameEngine();
-            ChatEngine chatEngine = new ChatEngine();
-            gameEngine.pollQueue();
-
-            GameDataHandler gameDataHandler = new GameDataHandler(gameEngine);
-            ChatDataHandler chatDataHandler = new ChatDataHandler(chatEngine);
-
-            SocketServer srv = new SocketServer(gameDataHandler, chatDataHandler);
-
-            gameEngine.addCallbacks((Action<Pair<GamePlayer>, SocketServer.Response>)srv.Send);
-            gameEngine.addCallbacks((Action<int, SocketServer.Response>)srv.Send);
-            gameEngine.addErrorCallback((Action<GamePlayer, string>)srv.SendError);
-
-            chatEngine.addCallbacks((Action<LinkedList<UserContext>, SocketServer.Response>)srv.Send);
-            
-
-            //ChatEngine chatEngine = new ChatEngine();
-            //chatEngine.addCallbacks((Action<LinkedList<UserContext>, ChatServer.Response>)chatSrv.Send);
-             */
+            Server s = new Server();
         }
     }
 }

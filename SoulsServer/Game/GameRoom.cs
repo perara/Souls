@@ -8,10 +8,11 @@ using System.Web.Script.Serialization;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
 using Newtonsoft.Json.Linq;
-using SoulsServer.Controller;
+using SoulsServer.Objects;
 using SoulsServer.Game;
+using SoulsServer.Network;
 
-namespace SoulsServer
+namespace SoulsServer.Game
 {
     public class GameRoom
     {

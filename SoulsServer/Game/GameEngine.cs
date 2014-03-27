@@ -9,11 +9,13 @@ using SoulsServer.Engine;
 using SoulsServer.Game;
 using SoulsServer.Tools;
 using Newtonsoft.Json;
-using SoulsServer.Controller;
+using SoulsServer.Objects;
 using Newtonsoft.Json.Linq;
 using SoulsModel;
+using NHibernate.Linq;
+using SoulsServer.Network;
 
-namespace SoulsServer
+namespace SoulsServer.Game
 {
 
     public class GameEngine
@@ -61,24 +63,26 @@ namespace SoulsServer
             w.Start();
             using (var session = NHibernateHelper.OpenSession())
             {
-                var dbCards = session.CreateCriteria<Souls.Model.Card>().List<Souls.Model.Card>();
 
+                // Fetch the Card (ModelObject)
+                var dbCards = session.Query<Souls.Model.Card>()
+                    .Fetch(x => x.ability)
+                    .Fetch(x => x.race)
+                    .ToList<Souls.Model.Card>();
+
+                // Create cards from the Database Model
                 List<Card> cards = new List<Card>();
-                foreach (Souls.Model.Card modelCard in dbCards)
+                dbCards.ForEach(x => cards.Add(new Card()
                 {
-                    Card realCard = new Card()
-                    {
-                        id = modelCard.id,
-                        ability = modelCard.ability,
-                        race = modelCard.race,
-                        name = modelCard.name,
-                        attack = modelCard.attack,
-                        health = modelCard.health,
-                        armor = modelCard.armor,
-                        cost = modelCard.cost
-                    };
-                    cards.Add(realCard);
-                }
+                    id = x.id,
+                    ability = x.ability,
+                    race = x.race,
+                    name = x.name,
+                    attack = x.attack,
+                    health = x.health,
+                    armor = x.armor,
+                    cost = x.cost
+                }));
 
                 Logging.Write(Logging.Type.GAME, "Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
                 w.Stop();
@@ -145,9 +149,9 @@ namespace SoulsServer
             {  // TODO missing any?
                 hash = players.First.hash,
                 name = players.First.name,
-                mana = players.First.mana,
-                attack = players.First.attack,
-                health = players.First.health,
+                mana = players.First.playerType.mana,
+                attack = players.First.playerType.attack,
+                health = players.First.playerType.health,
                 rank = players.First.rank,
                 isPlayerOne = true,
                 gameRoom = newRoom,
@@ -157,9 +161,9 @@ namespace SoulsServer
             { // TODO missing any?
                 hash = players.Second.hash,
                 name = players.Second.name,
-                mana = players.Second.mana,
-                attack = players.Second.attack,
-                health = players.Second.health,
+                mana = players.Second.playerType.mana,
+                attack = players.Second.playerType.attack,
+                health = players.Second.playerType.health,
                 rank = players.Second.rank,
                 isPlayerOne = false,
                 gameRoom = newRoom,

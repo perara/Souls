@@ -4,31 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SoulsServer.Engine;
-using SoulsServer.Controller;
+using SoulsServer.Objects;
 using SoulsServer.Tools;
 using SoulsModel;
 using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
+using NHibernate.Linq;
+using SoulsServer.Network;
 
-namespace SoulsServer
+namespace SoulsServer.Objects
 {
-    public class Player
+    public class Player : Souls.Model.Player
     {
-        /// <summary>
-        /// Player information from database
-        /// </summary>
-        public int id { get; set; }
-        public int rank { get; set; }
         public string hash { get; set; }
-
-        public string name { get; set; }
-        public int attack { get; set; }
-        public int mana { get; set; }
-        public int health { get; set; }
-        public int armor { get; set; }
-
-
         /// <summary>
         ///  Flag which determines if the player is already in queue
         /// </summary>
@@ -81,6 +70,22 @@ namespace SoulsServer
             using (var session = NHibernateHelper.OpenSession())
             {
 
+                PlayerLogin pLoginRecord2 = session.Query<PlayerLogin>()
+                    .Where(x => x.hash == this.hash)
+
+                    .Fetch(x => x.player)
+                    .ThenFetch(x => x.playerType)
+                    .ThenFetch(x => x.ability)
+
+                    .Fetch(x => x.player)
+                    .ThenFetch(x => x.playerType)
+                    .ThenFetch(x => x.race)
+          
+                    .SingleOrDefault();
+                    
+   
+                  
+
                 PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
                     .Add(Restrictions.Eq("hash", this.hash))
                     .UniqueResult<PlayerLogin>();
@@ -94,10 +99,9 @@ namespace SoulsServer
                     this.id = pObj.id;
                     this.name = pObj.name;
                     this.rank = pObj.rank;
-                    this.health = pType.health;
-                    this.mana = pType.mana;
-                    this.armor = pType.armor;
-                    this.attack = pType.attack;
+                    this.playerType = pType;
+
+
                     return true;
                 }
                 else

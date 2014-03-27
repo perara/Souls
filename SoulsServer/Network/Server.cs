@@ -11,9 +11,12 @@ using System.Collections.Concurrent;
 using Newtonsoft;
 using Newtonsoft.Json.Linq;
 using SoulsServer.Tools;
-using SoulsServer.Controller;
+using SoulsServer.Network;
+using SoulsServer.Objects;
+using SoulsServer.Game;
+
 // https://github.com/sta/websocket-sharp#websocket-server
-namespace SoulsServer.Engine
+namespace SoulsServer.Network
 {
     public class GameService : General
     {
@@ -532,10 +535,10 @@ namespace SoulsServer.Engine
 
 
 
-    public class SocketServer
+    public class Server
     {
 
-        public SocketServer()
+        public Server()
         {
             var wssv = new HttpServer(8140);
 
@@ -547,7 +550,7 @@ namespace SoulsServer.Engine
             wssv.AddWebSocketService<GameService>("/game", () => new GameService(gameEngine));
             wssv.AddWebSocketService<ChatService>("/chat", () => new ChatService(chatEngine));
 
-            wssv.Log.Level = LogLevel.Trace;
+            wssv.Log.Level = LogLevel.Fatal;
 
 
             wssv.Start();
