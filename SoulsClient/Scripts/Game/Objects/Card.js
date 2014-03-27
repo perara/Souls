@@ -45,6 +45,7 @@
         this.name = "NA";
         this.attack = "NA";
         this.ability = "NA";
+        this.race = undefined;
         this.isDead = false;
 
         // Setup the card layout / graphics
@@ -104,6 +105,10 @@
         if (text.attack) {
             this.attack = text.attack;
             this.texts.attack.setText(text.attack);
+        }
+        if(text.race)
+        {
+            this.race = text.race;
         }
     }
 
@@ -476,9 +481,21 @@
     Card.prototype.CheckAttack = function () {
         // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
         if (!!this.target) {
-            this.engine.gameService.Request_Attack(this, this.target, 0);
-            this.target.ScaleDown();
-            this.target = undefined;
+
+            if (this.target == this.engine.player) {
+                console.log(":D attack")
+            }
+            else if (this.target == this.engine.opponent) {
+                console.log(":D attack")
+            }
+            else // Must be a card
+            {
+                this.engine.gameService.Request_Attack(this, this.target, 0);
+                this.target.ScaleDown();
+                this.target = undefined;
+            }
+
+
         }
     }
 
@@ -587,7 +604,8 @@
             this.interactive = false;
         }
 
-
+        // Reset arrow.
+        this.owner.arrow.Reset();
 
         // Check and execute the card attack    
         this.CheckAttack();
