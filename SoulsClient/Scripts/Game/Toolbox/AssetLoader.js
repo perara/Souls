@@ -67,7 +67,10 @@ http://buzz.jaysalvat.com/documentation/buzz/
             CARD_NONE: Asset.Path.Textures + "Card/CARD_NONE.png",
             CARD_SLOT: Asset.Path.Textures + "Card/cardslot.png",
             CARD_BACK: Asset.Path.Textures + "Card/cardback.png",
+            CARD_DARKNESS: Asset.Path.Textures + "Card/darkness.png",
             CARD_VAMPIRIC: Asset.Path.Textures + "Card/vampiric.png",
+            CARD_LIGHTBRINGER: Asset.Path.Textures + "Card/lightbringer.png",
+            CARD_FEROCIOUS: Asset.Path.Textures + "Card/ferocious.png",
 
             // Target arrow
             ARROW_CORSHAIR : Asset.Path.Textures + "target.png",

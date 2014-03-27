@@ -1,4 +1,4 @@
-﻿define("card", ['pixi', 'asset', 'stopwatch', 'messages', 'conf', 'cardanimation'], function (pixi, asset, StopWatch, Message, Conf, CardAnimation) {
+﻿define("card", ['pixi', 'asset', 'stopwatch', 'messages', 'conf', 'cardanimation', 'cardtype'], function (pixi, asset, StopWatch, Message, Conf, CardAnimation, CardType) {
 
     var that = this;
 
@@ -45,8 +45,10 @@
         this.name = "NA";
         this.attack = "NA";
         this.ability = "NA";
-        this.race = undefined;
+        this.race = (!!jsonData.race) ? jsonData.race.id : 0;
         this.isDead = false;
+
+        //this.SetText({ race:  });
 
         // Setup the card layout / graphics
         this.SetupFrontCard(this);
@@ -59,7 +61,8 @@
                 attack: jsonData.attack,
                 name: jsonData.name,
                 cost: jsonData.cost,
-                ability: (!!jsonData.ability) ? jsonData.ability.name : undefined
+                ability: (!!jsonData.ability) ? jsonData.ability.name : undefined,
+                race: jsonData.race
 
             });
 
@@ -85,7 +88,7 @@
     /// </summary>
     /// <param name="text">Example on format : {health: 10, cost: 5}</param>
     Card.prototype.SetText = function (text) {
-
+        console.log(text);
         if (text.health) {
             this.health = text.health;
             this.texts.health.setText(text.health);
@@ -108,7 +111,8 @@
         }
         if(text.race)
         {
-            this.race = text.race;
+            this.race = text.race.id;
+            this.SetupFrontCard();
         }
     }
 
@@ -122,7 +126,7 @@
 
     Card.prototype.SetupFrontCard = function () {
         // Make card frontside
-        this.frontCard = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_VAMPIRIC));
+        this.frontCard = new pixi.Sprite(CardType.GetCardTexture(this.race));
         this.frontCard.anchor = { x: 0.5, y: 0.5 };
         this.frontCard.height = 210;
         this.frontCard.width = 150;
@@ -146,7 +150,7 @@
                 strokeThickness: 4
             });
         txtHealth.anchor = { x: 0, y: 0 };
-        txtHealth.position.x = (this.frontCard.width) - (txtHealth.width / 1.5);
+        txtHealth.position.x = (this.frontCard.width) - (txtHealth.width + 13);
         txtHealth.position.y = (this.frontCard.height) - (txtHealth.height);
         this.texts.health = txtHealth;
 
@@ -158,8 +162,8 @@
                 stroke: '#000000',
                 strokeThickness: 4
             });
-        txtCost.position.x = -(this.frontCard.width) + txtCost.width / 6;
-        txtCost.position.y = -(this.frontCard.height);
+        txtCost.position.x = -(this.frontCard.width) + 11;
+        txtCost.position.y = -(this.frontCard.height) + 4;
         this.texts.cost = txtCost;
 
         // CardFactory Attack Label
@@ -171,7 +175,7 @@
                 strokeThickness: 4
             });
         txtAttack.anchor = { x: 0, y: 0 };
-        txtAttack.position.x = -(this.frontCard.width) + txtAttack.width / 6;
+        txtAttack.position.x = -(this.frontCard.width) + 10;
         txtAttack.position.y = (this.frontCard.height) - (txtAttack.height);
         this.texts.attack = txtAttack;
 

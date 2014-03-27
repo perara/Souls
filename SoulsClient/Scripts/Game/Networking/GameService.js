@@ -164,7 +164,8 @@
                  attack: cardData.attack,
                  name: cardData.name,
                  cost: cardData.cost,
-                 ability: cardData.ability.name
+                 ability: cardData.ability.name,
+                 race: cardData.race
 
              });
 
