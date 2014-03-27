@@ -6,18 +6,19 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using SoulsClient.Model;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Security;
 using System.Web.Helpers;
+using SoulsModel;
+using Souls.Model;
+using NHibernate.Criterion;
+using NHibernate;
 
 namespace SoulsClient.Controllers
 {
     public class PlayerController : BaseController
     {
-        private soulsEntities db = new soulsEntities();
-
 
         // GET: /Player/
         public ActionResult Index()
@@ -51,80 +52,75 @@ namespace SoulsClient.Controllers
 
         // POST: /Player/Login/
         [HttpPost]
-        public ActionResult Login(Model.db_Player player)
+        public ActionResult Login(Souls.Model.Player player)
         {
 
 
-            using (var db = new soulsEntities())
+            using (var session = NHibernateHelper.OpenSession())
             {
-                var p = db.db_Player.FirstOrDefault(u => u.name == player.name);
 
-                bool isValid = false;
-                // See if the player exists
-                if (p == null)
+
+
+
+
+                Player playerRecord = session.CreateCriteria<Player>()
+                    .Add(Restrictions.Eq("name", player.name))
+                    .Add(Restrictions.Eq("password", Toolkit.sha256_hash(player.password)))
+                    .UniqueResult<Player>();
+                session.SaveOrUpdate(playerRecord);
+
+                // Check if the player record exists
+                if (playerRecord != null)
                 {
-                    isValid = false;
-                }
-                else
-                {
-                    // Check if the password corresponds with the database
-                    if (p.password == Toolkit.sha256_hash(player.password))
+                    using (ITransaction transaction = session.BeginTransaction())
                     {
-                        isValid = true;
+
+
+
+
+                        // Try to get Login Record (If exists)
+                        PlayerLogin loginRecord = session.CreateCriteria<PlayerLogin>()
+                            .Add(Restrictions.Eq("player", playerRecord))
+                            .UniqueResult<PlayerLogin>();
+
+                        // If it does not exist
+                        if (loginRecord == null)
+                        {
+                            loginRecord = new PlayerLogin();
+                            loginRecord.player = playerRecord;
+                        }
+
+
+                        string pIp = Request.ServerVariables["REMOTE_ADDR"];
+                        long timestamp = Toolkit.getTimestamp();
+                        string newHash = Toolkit.sha256_hash(timestamp + playerRecord.id + pIp); //TODO 
+
+                        loginRecord.hash = newHash;
+                        loginRecord.timestamp = timestamp;
+
+                        // Save or update :D
+                        session.SaveOrUpdate(loginRecord);
+
+                        // Commit it
+                        transaction.Commit();
+
+                        // Set session
+                        cSession.Current.hash = newHash;
+                        cSession.Current.playerId = playerRecord.id;
+
+                        // Set auth
+                        FormsAuthentication.SetAuthCookie(newHash, false);
+                        return RedirectToAction("Index", "Home");
+
+
                     }
                 }
-
-                // Check if there already exists a login record for the player (if so do update)
-                var loginExists = db.db_Player_Hash.FirstOrDefault(u => u.fk_player_id == p.id);
-
-                string playerIP = Request.ServerVariables["REMOTE_ADDR"];
-                long currTimestamp = Toolkit.getTimestamp();
-
-
-                // TODO this generates a SHA256 which is used to identify the user throughout the session
-                string sessionHash = Toolkit.sha256_hash(currTimestamp + p.id + playerIP);
-
-                // Was found?
-                if (loginExists == null)
-                {
-                    // Login record not found, add new one
-                    db_Player_Hash pHash = new db_Player_Hash();
-                    pHash.fk_player_id = p.id;
-                    pHash.hash = sessionHash;
-                   
-                    // Adds the new player hash
-                    db.db_Player_Hash.Add(pHash);
-                }
                 else
                 {
-                    // Login record found, update existing
-                    var existingLogin = db.db_Player_Hash.FirstOrDefault(x => x.fk_player_id == p.id);
-                    existingLogin.hash = sessionHash;
-
+                    ModelState.AddModelError("", "User does not exist!");
                 }
-                // Saves changes done to the DB.
-                db.SaveChanges();
 
-                if (isValid)
-                {
-                    if (sessionHash == null)
-                    {
-                        throw new System.Exception("Session hash creation failed, Debug PlayerController :! ");
-                    }
-
-                    cSession.Current.hash = sessionHash;
-                    cSession.Current.playerId = p.id;
-
-                    FormsAuthentication.SetAuthCookie(sessionHash, false);
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Login details are wrong.");
-                }
             }
-
-
 
             return View(player);
         }
@@ -132,16 +128,17 @@ namespace SoulsClient.Controllers
         // GET: /Player/Details/5
         public ActionResult Details(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            db_Player player = db.db_Player.Find(id);
-            if (player == null)
-            {
-                return HttpNotFound();
-            }
-            return View(player);
+            /* if (id == null)
+             {
+                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+             }
+             db_Player player = db.db_Player.Find(id);
+             if (player == null)
+             {
+                 return HttpNotFound();
+             }*/
+            return View();
+            // return View(player);
         }
 
         // GET: /Player/Create
@@ -155,31 +152,33 @@ namespace SoulsClient.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,name,password,rank,timestamp")] db_Player player)
+        public ActionResult Create([Bind(Include = "id,name,password,rank,timestamp")] Player player)
         {
             if (ModelState.IsValid)
             {
-                db.db_Player.Add(player);
-                db.SaveChanges();
+                // db.db_Player.Add(player);
+                // db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(player);
+            return View();
+            //return View(player);
         }
 
         // GET: /Player/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            db_Player player = db.db_Player.Find(id);
-            if (player == null)
-            {
-                return HttpNotFound();
-            }
-            return View(player);
+            /* if (id == null)
+             {
+                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+             }
+             db_Player player = db.db_Player.Find(id);
+             if (player == null)
+             {
+                 return HttpNotFound();
+             }*/
+            return View();
+            // return View(player);
         }
 
         // POST: /Player/Edit/5
@@ -187,12 +186,12 @@ namespace SoulsClient.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,name,password,rank,timestamp")] db_Player player)
+        public ActionResult Edit([Bind(Include = "id,name,password,rank,timestamp")] Player player)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(player).State = EntityState.Modified;
-                db.SaveChanges();
+                //db.Entry(player).State = EntityState.Modified;
+                //db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(player);
@@ -201,16 +200,17 @@ namespace SoulsClient.Controllers
         // GET: /Player/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            db_Player player = db.db_Player.Find(id);
-            if (player == null)
-            {
-                return HttpNotFound();
-            }
-            return View(player);
+            /*  if (id == null)
+              {
+                  return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+              }
+              db_Player player = db.db_Player.Find(id);
+              if (player == null)
+              {
+                  return HttpNotFound();
+              }*/
+            return View();
+            // return View(player);
         }
 
         // POST: /Player/Delete/5
@@ -218,19 +218,20 @@ namespace SoulsClient.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            db_Player player = db.db_Player.Find(id);
-            db.db_Player.Remove(player);
-            db.SaveChanges();
+            /*  db_Player player = db.db_Player.Find(id);
+              db.db_Player.Remove(player);
+              db.SaveChanges();*/
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+
+            /*  if (disposing)
+              {
+                  db.Dispose();
+              }
+              base.Dispose(disposing);*/
         }
 
     }

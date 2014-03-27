@@ -8,7 +8,6 @@ using System.Web.Script.Serialization;
 using SoulsServer.Engine;
 using SoulsServer.Tools;
 using Newtonsoft.Json.Linq;
-using SoulsServer.Model;
 using SoulsServer.Controller;
 using SoulsServer.Game;
 

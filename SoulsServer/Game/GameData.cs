@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Runtime.Serialization;
+using Newtonsoft.Json.Serialization;
+using System.IO;
 
 namespace SoulsServer.Game
 {
     public class GameData
     {
-       
+
         private GameData()
         {
         }
@@ -34,6 +36,11 @@ namespace SoulsServer.Game
                 player = room.players.Second;
                 opponent = room.players.First;
             }
+
+
+           JObject ooo =  JObject.FromObject(player.GetPlayerData());
+           JObject aoaa = JObject.FromObject(player.handCards);
+
 
             // Construct a game update object 
             JObject obj = new JObject(
@@ -60,5 +67,16 @@ namespace SoulsServer.Game
             return obj;
         }
 
+    }
+
+    public class NHibernateContractResolver : DefaultContractResolver
+    {
+        protected override JsonContract CreateContract(Type objectType)
+        {
+            if (typeof(NHibernate.Proxy.INHibernateProxy).IsAssignableFrom(objectType))
+                return base.CreateContract(objectType.BaseType);
+            else
+                return base.CreateContract(objectType);
+        }
     }
 }

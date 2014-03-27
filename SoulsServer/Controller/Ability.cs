@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SoulsServer.Controller
 {
-   public  class Ability : Model.db_Ability
+   public  class Ability : Souls.Model.Ability
     {
 
     }

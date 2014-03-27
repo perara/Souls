@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using SoulsServer.Chat;
 using System.Collections.Concurrent;
 using Newtonsoft;
-using SoulsServer.Model;
 using Newtonsoft.Json.Linq;
 using SoulsServer.Tools;
 using SoulsServer.Controller;

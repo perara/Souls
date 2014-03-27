@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using SoulsServer.Engine;
 using SoulsServer.Controller;
 using SoulsServer.Tools;
+using SoulsModel;
+using Souls.Model;
+using NHibernate.Criterion;
+using NHibernate;
 
 namespace SoulsServer
 {
@@ -53,64 +57,87 @@ namespace SoulsServer
 
         public bool ValidateHash()
         {
-            using (var db = new Model.soulsEntities())
+            using (var session = NHibernateHelper.OpenSession())
             {
-                var hashExists = (from b in db.db_Player_Hash where b.hash == hash select b).FirstOrDefault();
-                if (hashExists != null) return true;
-                else return false;
+                PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
+                    .Add(Restrictions.Eq("hash", this.hash))
+                    .UniqueResult<PlayerLogin>();
+
+                // If a record was found, the Hash is validated
+                if (pLoginRecord != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
+
         }
 
         public bool fetchPlayerInfo()
         {
-
-            using (var db = new Model.soulsEntities())
+            using (var session = NHibernateHelper.OpenSession())
             {
 
-                var dbPlayer_hash = db.db_Player_Hash.FirstOrDefault(x => x.hash == hash);
+                PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
+                    .Add(Restrictions.Eq("hash", this.hash))
+                    .UniqueResult<PlayerLogin>();
 
-                if (dbPlayer_hash != null)
+
+                if (pLoginRecord != null)
                 {
-                    var dbPlayer = dbPlayer_hash.db_Player;
-                    var dbPlayerType = dbPlayer.db_Player_Type;
-                    this.id = dbPlayer.id;
-                    this.name = dbPlayer.name;
-                    this.rank = dbPlayer.rank;
-                    this.health = dbPlayer.db_Player_Type.health;
-                    this.mana = 1;//TODO should be contained in player type?
-                    this.armor = dbPlayer.db_Player_Type.armor;
-                    this.attack = dbPlayer.db_Player_Type.attack;
+                    Souls.Model.Player pObj = pLoginRecord.player;
+                    Souls.Model.PlayerType pType = pObj.playerType;
 
+                    this.id = pObj.id;
+                    this.name = pObj.name;
+                    this.rank = pObj.rank;
+                    this.health = pType.health;
+                    this.mana = pType.mana;
+                    this.armor = pType.armor;
+                    this.attack = pType.attack;
                     return true;
                 }
                 else
                 {
                     Logging.Write(Logging.Type.GAME, "db_PHash was null! (NOT LOGGED IN?)");
-
                     return false;
                 }
 
+
             }
+
         }
 
+
         /// <summary>
-        /// This fetches the newest hash available for the player //TODO this may fail? Make a gameList with all the hashes ? NEED TEST
+        /// This fetches the newest hash available for the player 
         /// </summary>
         /// <returns></returns>
         public string UpdateHash()
         {
-            using (var db = new Model.soulsEntities())
+            using (var session = NHibernateHelper.OpenSession())
             {
-                var dbPlayer = db.db_Player_Hash.FirstOrDefault(x => x.fk_player_id == id);
-
-                if (!this.hash.Equals(dbPlayer.hash))
+                using (ITransaction transaction = session.BeginTransaction())
                 {
-                    Logging.Write(Logging.Type.GENERAL, "New hash found, updating!");
-                    this.hash = dbPlayer.hash;
+
+                    PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
+                    .Add(Restrictions.Eq(Projections.Property<PlayerLogin>(x => x.player.id), this.id))
+                    .UniqueResult<PlayerLogin>();
+
+                    if (pLoginRecord.hash != this.hash)
+                    {
+                        Logging.Write(Logging.Type.GENERAL, "New hash found, updating!");
+                        this.hash = pLoginRecord.hash;
+                    }
+                    return this.hash; // This will always be either the same or a new one (Same would be "updated" if no new was found)
+
+
                 }
             }
 
-            return this.hash; // This will always be either the same or a new one (Same would be "updated" if no new was found)
         }
     }
 }

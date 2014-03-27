@@ -4,7 +4,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using SoulsClient.Model;
 using System.Web.Routing;
 
 namespace SoulsClient.Controllers

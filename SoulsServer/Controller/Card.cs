@@ -5,13 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SoulsServer.Tools;
-using SoulsServer.Model;
 using SoulsServer.Engine;
 using SoulsServer.Controller;
 
 namespace SoulsServer
 {
-    public class Card : Model.db_Card, ICloneable
+    public class Card : Souls.Model.Card, ICloneable
     {
         private static int idCounter { get; set; }
         public bool isDead { get; set; }
@@ -20,14 +19,10 @@ namespace SoulsServer
         // Which slot the card resides in.
         public int slotId { get; set; }
 
-        public Ability ability { get; set; }
-        public CardType cardType { get; set; }
 
-
-
-        public Card()
+      /*  public Card(Souls.Model.Card modelCard) : base(modelCard)
         {
-        }
+        }*/
 
         public void SetId()
         {
@@ -88,7 +83,7 @@ namespace SoulsServer
 
         public override string ToString()
         {
-            return this.cid + ", " + this.name + ", " + this.attack + ", " + this.health + ", " + this.armor + ", " + this.fk_ability + ", " + this.fk_type;
+            return this.cid + ", " + this.name + ", " + this.attack + ", " + this.health + ", " + this.armor + ", " + this.ability.id + ", " + this.race.id;
         }
 
         public object Clone()

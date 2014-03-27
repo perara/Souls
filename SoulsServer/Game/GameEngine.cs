@@ -11,6 +11,7 @@ using SoulsServer.Tools;
 using Newtonsoft.Json;
 using SoulsServer.Controller;
 using Newtonsoft.Json.Linq;
+using SoulsModel;
 
 namespace SoulsServer
 {
@@ -55,50 +56,35 @@ namespace SoulsServer
 
         public List<Card> LoadCards()
         {
-            using (var db = new Model.soulsEntities())
-            {
-                Stopwatch w = new Stopwatch();
-                w.Start();
-                List<Card> cards = db.db_Card
-                       .Join(
-                       db.db_Ability,
-                       card => card.fk_ability,
-                       ability => ability.id,
-                       (card, ability) => new { card, ability }
-                       )
-                       .Join(
-                       db.db_Card_Type,
-                       y => y.card.fk_type,
-                       cType => cType.id,
-                       (y, cType) => new { y, cType }
-                      ).Select(x => new Card()
-                      {
-                          id = x.y.card.id,
-                          name = x.y.card.name,
-                          attack = x.y.card.attack,
-                          health = x.y.card.health,
-                          armor = x.y.card.armor,
-                          cost = x.y.card.cost,
-                          ability = new Ability()
-                          {
-                              id = x.y.ability.id,
-                              name = x.y.ability.name,
-                              parameter = x.y.ability.parameter
-                          },
-                          cardType = new CardType()
-                          {
-                              id = x.y.ability.id,
-                              name = x.y.ability.name,
-                          },
-                      }).AsParallel().ToList();
 
+            Stopwatch w = new Stopwatch();
+            w.Start();
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                var dbCards = session.CreateCriteria<Souls.Model.Card>().List<Souls.Model.Card>();
+
+                List<Card> cards = new List<Card>();
+                foreach (Souls.Model.Card modelCard in dbCards)
+                {
+                    Card realCard = new Card()
+                    {
+                        id = modelCard.id,
+                        ability = modelCard.ability,
+                        race = modelCard.race,
+                        name = modelCard.name,
+                        attack = modelCard.attack,
+                        health = modelCard.health,
+                        armor = modelCard.armor,
+                        cost = modelCard.cost
+                    };
+                    cards.Add(realCard);
+                }
 
                 Logging.Write(Logging.Type.GAME, "Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
                 w.Stop();
 
                 return cards;
             }
-
         }
 
         public void Request_MoveCard(Player player)
