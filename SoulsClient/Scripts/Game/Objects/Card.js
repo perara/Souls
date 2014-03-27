@@ -354,7 +354,7 @@
                     x: this.engine.conf.mouse.x + (this.width / 2) - 30,
                     y: this.engine.conf.mouse.y,
                     width: 60,
-                    height: this.height
+                    height: this.height - 50
                 }
 
 
@@ -362,7 +362,7 @@
             var mouseIntersects = Toolbox.Rectangle.intersectsYAxis(this, mouse, { x: 0, y: 0 }, { x: 0, y: 0 });
 
             // If the mouse intersects
-            if (mouseIntersects) {
+            if (mouseIntersects && !(mouse.y < (this.engine.conf.height - 200))) {
                 // Do antispam
                 if (!!this.antiSpam) {
 
@@ -382,6 +382,7 @@
 
             }
             else {
+               
                 // Do antispam
                 if (!this.antiSpam) {
 
@@ -392,7 +393,7 @@
 
                     // Run tween
                     this.engine.CreateJS.Tween.get(this, { override: true })
-                        .to({ y: this.position.originY }, 500, this.engine.CreateJS.Ease.elasticOut)
+                        .to({ y: this.position.originY }, 200, this.engine.CreateJS.Ease.elasticOut)
 
 
                     // Change antispam state
@@ -468,6 +469,14 @@
         // Check if player hovers a card
         this.OnHoverEffects();
 
+        // Ensures that the card is interactive 
+        /*   if (!this.inSlot && !this.pickedUp) {
+               this.interactive = true;
+           }
+           */
+
+
+
     }
 
     /// <summary>
@@ -479,24 +488,25 @@
         if (!!this.target) {
 
             if (this.target == this.engine.player) {
-                this.engine.gameService.Request_Attack(this, this.target, 2);
+                console.log(":D attack")
             }
             else if (this.target == this.engine.opponent) {
-                this.engine.gameService.Request_Attack(this, this.target, 1);
+                console.log(":D attack")
             }
             else // Must be a card
             {
                 this.engine.gameService.Request_Attack(this, this.target, 0);
-               
+                this.target.ScaleDown();
+                this.target = undefined;
             }
 
-
-            this.target.ScaleDown();
-            this.target = undefined;
 
         }
     }
 
+    Card.prototype.SetDead = function (bool) {
+        this.isDead = bool;
+    }
 
 
     /// <summary>
@@ -516,12 +526,12 @@
 
         // Check and set death
         if (attacker.health <= 0) {
-            attacker.isDead = true // Sets the card dead
+            attacker.SetDead(true); // Sets the card dead
             attacker.inSlot.Reset(); // Reset the card slot
         }
 
         if (defender.health <= 0) {
-            defender.isDead = true; // Sets the card dead
+            defender.SetDead(true); // Sets the card dead
             defender.inSlot.Reset(); // Resets the card slot
 
         }
@@ -547,34 +557,6 @@
         CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
     }
 
-
-    Card.prototype.AttackOpponent = function(attackerInfo, defenderInfo, defender)
-    {
-        var attacker = this;
-
-        // Define callbacks which should be used in the card Animation
-        var attackCallbacks =
-            {
-                ChangeHealth: function () {
-                   /* defender.SetText(
-                   {
-                       health: defender.health
-                   });
-
-                    //Attacker
-                    attacker.SetText(
-                    {
-                        health: attacker.health
-                    });*/
-                }
-            }
-
-
-        CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
-        //console.log(attackerInfo);
-        //console.log(defenderInfo);
-
-    }
 
 
 
