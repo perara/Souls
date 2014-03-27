@@ -126,10 +126,11 @@
 
             if (isInside) {
                 // Assign target on source card to the found opponent card
-                console.log(opponentBoard);
+               
                 card.target = opponentCard;
                 opponentCard.ScaleUp();
                 foundCard = true;
+                break;
             }
             else {
                 // Nothing was found
@@ -138,6 +139,8 @@
             }
         }
 
+        
+    
         return foundCard;
     }
 
