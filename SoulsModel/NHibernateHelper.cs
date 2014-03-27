@@ -16,52 +16,44 @@ namespace SoulsModel
 {
     public class NHibernateHelper
     {
-        private static ISessionFactory _sessionFactory;
+        private static NHibernateHelper instance = new NHibernateHelper();
 
+        private ISessionFactory _sessionFactory;
 
-        /*protected ISessionFactory CreateSessionFactory()
+        private NHibernateHelper()
         {
-            var connectionString = @"Server=persoft.no;Port=6001;Database=souls;Uid=root;Pwd=Perpass1;";
 
-            var autoMap = AutoMap.AssemblyOf<Entity>()
-                .Where(t => typeof(Entity).IsAssignableFrom(t));
+            _sessionFactory = CreateSessionFactory();
 
-            return Fluently.Configure()
-                .Database(
-                    MySQLConfiguration.Standard.ConnectionString(connectionString))
-                .Mappings(m => m.AutoMappings.Add(autoMap))
-                .ExposeConfiguration(TreatConfiguration)
-                .BuildSessionFactory();
         }
 
-        protected virtual void TreatConfiguration(NHibernate.Cfg.Configuration configuration)
+
+        private ISessionFactory CreateSessionFactory()
         {
-            var update = new SchemaUpdate(configuration);
-            update.Execute(false, true);
-        }*/
+            return Fluently.Configure()
+            .Database(MySQLConfiguration.Standard
+            .ConnectionString(@"Server=persoft.no;Port=6001;Database=souls;Uid=root;Pwd=Perpass1;"))
+            .Mappings(m => m.FluentMappings
 
+            // Add maps
+            .AddFromAssemblyOf<Ability>()
+            .AddFromAssemblyOf<Card>()
+            .AddFromAssemblyOf<Game>()
+            .AddFromAssemblyOf<GameLog>()
+            .AddFromAssemblyOf<GameLogType>()
+            .AddFromAssemblyOf<Player>()
+            .AddFromAssemblyOf<PlayerLogin>()
+            .AddFromAssemblyOf<PlayerType>()
+            .AddFromAssemblyOf<Race>()
+            )
 
-        private static void CreateSessionFactory()
-        {
-            _sessionFactory = Fluently.Configure()
-                     .Database(MySQLConfiguration.Standard
-                     .ConnectionString(@"Server=persoft.no;Port=6001;Database=souls;Uid=root;Pwd=Perpass1;") // Modify your ConnectionString
-                     //.ShowSql()
-                     )
-                     .Mappings(m => m.FluentMappings
-                         .AddFromAssemblyOf<Card>())
+            .BuildSessionFactory();
 
-                         .ExposeConfiguration(cfg => new SchemaExport(cfg)
-                         .Create(true, false))
-                         .BuildSessionFactory();
         }
 
         public static ISession OpenSession()
         {
-            if (_sessionFactory == null)
-                NHibernateHelper.CreateSessionFactory();
-
-            return _sessionFactory.OpenSession();
+            return instance._sessionFactory.OpenSession();
         }
     }
 }
