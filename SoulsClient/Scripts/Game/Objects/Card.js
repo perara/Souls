@@ -464,14 +464,6 @@
         // Check if player hovers a card
         this.OnHoverEffects();
 
-        // Ensures that the card is interactive 
-        /*   if (!this.inSlot && !this.pickedUp) {
-               this.interactive = true;
-           }
-           */
-
-
-
     }
 
     /// <summary>
@@ -483,25 +475,24 @@
         if (!!this.target) {
 
             if (this.target == this.engine.player) {
-                console.log(":D attack")
+                this.engine.gameService.Request_Attack(this, this.target, 2);
             }
             else if (this.target == this.engine.opponent) {
-                console.log(":D attack")
+                this.engine.gameService.Request_Attack(this, this.target, 1);
             }
             else // Must be a card
             {
                 this.engine.gameService.Request_Attack(this, this.target, 0);
-                this.target.ScaleDown();
-                this.target = undefined;
+               
             }
 
+
+            this.target.ScaleDown();
+            this.target = undefined;
 
         }
     }
 
-    Card.prototype.SetDead = function (bool) {
-        this.isDead = bool;
-    }
 
 
     /// <summary>
@@ -521,12 +512,12 @@
 
         // Check and set death
         if (attacker.health <= 0) {
-            attacker.SetDead(true); // Sets the card dead
+            attacker.isDead = true // Sets the card dead
             attacker.inSlot.Reset(); // Reset the card slot
         }
 
         if (defender.health <= 0) {
-            defender.SetDead(true); // Sets the card dead
+            defender.isDead = true; // Sets the card dead
             defender.inSlot.Reset(); // Resets the card slot
 
         }
@@ -552,6 +543,35 @@
         CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
     }
 
+
+    Card.prototype.AttackOpponent = function(attackerInfo, defenderInfo)
+    {
+
+        var attacker = this;
+
+        // Define callbacks which should be used in the card Animation
+        var attackCallbacks =
+            {
+                ChangeHealth: function () {
+                   /* defender.SetText(
+                   {
+                       health: defender.health
+                   });
+
+                    //Attacker
+                    attacker.SetText(
+                    {
+                        health: attacker.health
+                    });*/
+                }
+            }
+
+
+        CardAnimation.Attack(attacker, this.engine.opponent, attackerInfo, defenderInfo, attackCallbacks);
+        //console.log(attackerInfo);
+        //console.log(defenderInfo);
+
+    }
 
 
 
