@@ -80,11 +80,11 @@ namespace Souls.Server.Objects
                     .Fetch(x => x.player)
                     .ThenFetch(x => x.playerType)
                     .ThenFetch(x => x.race)
-          
+
                     .SingleOrDefault();
-                    
-   
-                  
+
+
+
 
                 PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
                     .Add(Restrictions.Eq("hash", this.hash))
@@ -127,14 +127,21 @@ namespace Souls.Server.Objects
                 using (ITransaction transaction = session.BeginTransaction())
                 {
 
-                    PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
-                    .Add(Restrictions.Eq(Projections.Property<PlayerLogin>(x => x.player.id), this.id))
-                    .UniqueResult<PlayerLogin>();
+                    PlayerLogin pLoginRecord = session.Query<PlayerLogin>()
+                        .Where(x => x.player.id == this.id)
+                        .SingleOrDefault();
 
-                    if (pLoginRecord.hash != this.hash)
+                    if (pLoginRecord != null)
                     {
-                        Logging.Write(Logging.Type.GENERAL, "New hash found, updating!");
-                        this.hash = pLoginRecord.hash;
+                        if (pLoginRecord.hash != this.hash)
+                        {
+                            Logging.Write(Logging.Type.GENERAL, "New hash found, updating!");
+                            this.hash = pLoginRecord.hash;
+                        }
+                    }
+                    else
+                    {
+                        Logging.Write(Logging.Type.ERROR, "It would have crashed :D");
                     }
                     return this.hash; // This will always be either the same or a new one (Same would be "updated" if no new was found)
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Souls.Server.Tools
 {
@@ -38,7 +39,7 @@ namespace Souls.Server.Tools
                     break;
                 case Type.CHAT:
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    write = "[CHAT]\t\t";                    
+                    write = "[CHAT]\t\t";
                     break;
                 case Type.GAMEQUEUE:
                     Console.ForegroundColor = ConsoleColor.Magenta;
@@ -55,10 +56,15 @@ namespace Souls.Server.Tools
                     break;
             }
 
+            StackFrame frame = new StackFrame(1, true);
+            var method = frame.GetMethod();
+            var fileName = frame.GetFileName().Split('\\').Last();
+            var lineNumber = frame.GetFileLineNumber();
+
             write += message;
-            Console.WriteLine(write);      
+            Console.WriteLine(fileName + ":" + lineNumber + "\t" + write);
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.BackgroundColor = ConsoleColor.Black;
-          }
+        }
     }
 }

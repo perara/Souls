@@ -13,6 +13,7 @@ using SoulsModel;
 using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
+using NHibernate.Linq;
 
 namespace SoulsClient.Controllers
 {
@@ -59,18 +60,16 @@ namespace SoulsClient.Controllers
             {
 
 
-
-
-
-                Player playerRecord = session.CreateCriteria<Player>()
-                    .Add(Restrictions.Eq("name", player.name))
-                    .Add(Restrictions.Eq("password", Toolkit.sha256_hash(player.password)))
-                    .UniqueResult<Player>();
-                session.SaveOrUpdate(playerRecord);
-
+                Player playerRecord = session.Query<Player>()
+                    .Where(x => x.name == player.name)
+                    .Where(x => x.password == Toolkit.sha256_hash(player.password))
+                    .SingleOrDefault();
+           
                 // Check if the player record exists
                 if (playerRecord != null)
                 {
+                    session.SaveOrUpdate(playerRecord);
+
                     using (ITransaction transaction = session.BeginTransaction())
                     {
 

@@ -415,7 +415,7 @@ namespace Souls.Server.Game
                 // Check if attackers card is dead
                 if (sourceCard.isDead)
                 {
-                    Console.WriteLine("Yes its dead:D");
+                    Logging.Write(Logging.Type.GAME, "Card: " + sourceCard.cid + " died.");
                     // Remove the card
                     requestPlayer.RemoveBoardCard(sourceCard);
                 }
@@ -423,7 +423,7 @@ namespace Souls.Server.Game
                 // Check if defenders card is dead
                 if (targetCard.isDead)
                 {
-                    Console.WriteLine("Yes its dead:D");
+                    Logging.Write(Logging.Type.GAME, "Card: " + targetCard.cid + " died.");
                     // Remove the card
                     opponent.RemoveBoardCard(targetCard);
                 }

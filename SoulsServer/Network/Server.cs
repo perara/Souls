@@ -142,18 +142,18 @@ namespace Souls.Server.Network
 
         protected override void OnOpen()
         {
-            //Debug.Log(Debug.Type.GAME, "Player {0} connected!" + Context.UserEndPoint);
-            Logging.Write(Logging.Type.GAME, "Player {0} connected from " + Context.UserEndPoint);
+            userEndpoint = Context.UserEndPoint.ToString();
+            Logging.Write(Logging.Type.GAME, "Client: " + Context.UserEndPoint + " connected.");
         }
 
         protected override void OnError(ErrorEventArgs e)
         {
-            Logging.Write(Logging.Type.ERROR, "Error on Player: " + e.Message.ToString());
+            Logging.Write(Logging.Type.ERROR, "Client: " + e.Message.ToString());
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Logging.Write(Logging.Type.GAME, "Player {0} disconnected! " + e.Reason);
+            Logging.Write(Logging.Type.GAME, "Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace Souls.Server.Network
                     if (success)
                     {
                         SendTo(new Response(ResponseType.LOGIN_OK, "Logged in as " + OnlinePlayers.GetInstance().gameList[this].name));
-                        Logging.Write(Logging.Type.GENERAL, "Client authenticated: " + Context.UserEndPoint);
+                        Logging.Write(Logging.Type.GENERAL, "Client: " + Context.UserEndPoint + " authenticated.");
                         Logging.Write(Logging.Type.GENERAL, "Online players: " + OnlinePlayers.GetInstance().gameList.Count());
                     }
                     else
@@ -208,14 +208,14 @@ namespace Souls.Server.Network
                         OnlinePlayers.GetInstance().gameList.TryRemove(this, out trash);
                         Logging.Write(Logging.Type.GENERAL, "Client login failed for: " + Context.UserEndPoint);
 
-                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "Not logged in!");
+                        this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "not logged in");
                     }
 
                 }
             }
             else
             {
-                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "Hash was null");
+                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "has no hash");
             }
         }
 
@@ -344,18 +344,20 @@ namespace Souls.Server.Network
 
         protected override void OnOpen()
         {
-            Logging.Write(Logging.Type.CHAT, "Player {0} connected! " + Context.UserEndPoint);
+            userEndpoint = Context.UserEndPoint.ToString();
+            Logging.Write(Logging.Type.CHAT, "Client: " + Context.UserEndPoint + " connected.");
         }
 
         protected override void OnError(ErrorEventArgs e)
         {
 
-            Logging.Write(Logging.Type.ERROR, "Error on Player {0}" + e.Message.ToString());
+            Logging.Write(Logging.Type.ERROR, "Client: " + e.Message.ToString());
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Logging.Write(Logging.Type.CHAT, "Player {0} disconnected!");
+
+            Logging.Write(Logging.Type.CHAT, "Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
 
             // Announce to all channels that the player disconnected
             //OnlinePlayers.GetInstance().chatList[this].chPlayer.AnnounceDisconnect();
@@ -425,6 +427,8 @@ namespace Souls.Server.Network
         public dynamic data { get; set; }
         public dynamic payload { get; set; }
         public int type { get; set; }
+
+        public string userEndpoint { get; set; }
 
         public void Logout()
         {
