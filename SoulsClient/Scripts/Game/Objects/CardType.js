@@ -1,16 +1,17 @@
 ﻿define("cardtype", ['asset', 'stopwatch'], function (Asset, Stopwatch) {
 
-    CardType = new function () {
+    CardType = function () {
 
     }
     CardType.prototype.constructor = CardType;
 
+
     CardType.Textures = {
         0: Asset.Textures.CARD_NONE,
         1: Asset.Textures.CARD_DARKNESS,
-        2: Asset.Textures.CARD_LIGHTBRINGER,
-        3: Asset.Textures.CARD_FEROCIOUS,
-        4: Asset.Textures.CARD_VAMPIRIC
+        2: Asset.Textures.CARD_VAMPIRIC,
+        3: Asset.Textures.CARD_LIGHTBRINGER,
+        4: Asset.Textures.CARD_FEROCIOUS,
     }
 
 
@@ -33,6 +34,6 @@
         }
 
 
-    return CardType;
+    return new CardType();
 });
 

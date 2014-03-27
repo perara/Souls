@@ -36,6 +36,7 @@ require.config({
 
         // Objects
         "card": "Objects/Card",
+        "cardtype": "Objects/CardType",
         "cardslot": "Objects/CardSlot",
         "player": "Objects/Player",
         "playerbase": "Objects/PlayerBase",
