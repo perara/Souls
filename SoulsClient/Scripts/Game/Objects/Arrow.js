@@ -110,11 +110,11 @@
 
         // Iterate over opponents cards
         var opponentBoard = this.engine.opponent.cardManager.board;
+        var foundCard = false;
 
         for (var index in opponentBoard) {
             var opponentCard = opponentBoard[index];
-
-
+           
             // Determine if the Mouse is inside the card bounds
             var isInside = this.engine.toolbox.Rectangle.containsRaw(
             opponentCard.x - (opponentCard.width / 2), // Top
@@ -126,18 +126,19 @@
 
             if (isInside) {
                 // Assign target on source card to the found opponent card
+                console.log(opponentBoard);
                 card.target = opponentCard;
                 opponentCard.ScaleUp();
-                return true;
+                foundCard = true;
             }
             else {
                 // Nothing was found
                 opponentCard.ScaleDown();
                 card.target = undefined;
-                return false;
             }
         }
 
+        return foundCard;
     }
 
 
