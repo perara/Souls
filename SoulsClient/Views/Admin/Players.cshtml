@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewBag.Title = "Players";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Players</h2>
+@foreach (var item in ViewBag.data)
+{
+    <p>@item</p><br />
+}
+

@@ -159,6 +159,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\JsonpResult.cs" />
@@ -352,6 +353,10 @@
     <Content Include="Views\Player\Login.cshtml" />
     <Content Include="Views\Game\Index.cshtml" />
     <Content Include="Scripts\jquery-1.11.0.min.map" />
+    <Content Include="Views\Admin\Index.cshtml" />
+    <Content Include="Views\Admin\Players.cshtml" />
+    <Content Include="Views\Admin\CardEditor.cshtml" />
+    <Content Include="Views\Admin\Games.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
