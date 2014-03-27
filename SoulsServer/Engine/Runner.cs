@@ -9,19 +9,19 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Threading;
 using Newtonsoft.Json;
-using SoulsServer.Game;
-using SoulsServer.Engine;
-using SoulsServer.Tools;
-using SoulsServer.Chat;
-using SoulsServer.Network;
+using Souls.Server.Game;
+using Souls.Server.Engine;
+using Souls.Server.Tools;
+using Souls.Server.Chat;
+using Souls.Server.Network;
 
-namespace SoulsServer.Engine
+namespace Souls.Server.Engine
 {
     class Runner
     {
         static void Main(string[] args)
         {
-            Server s = new Server();
+            Souls.Server.Network.Server s = new Souls.Server.Network.Server();
         }
     }
 }

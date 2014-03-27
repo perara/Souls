@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SoulsServer.Chat;
-using SoulsServer.Engine;
-using SoulsServer.Network;
+using Souls.Server.Chat;
+using Souls.Server.Engine;
+using Souls.Server.Network;
 
-namespace SoulsServer.Objects
+namespace Souls.Server.Objects
 {
     public class ChatPlayer
     {

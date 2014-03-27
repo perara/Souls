@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-namespace SoulsServer.Network
+namespace Souls.Server.Network
 {
     class ClientData
     {

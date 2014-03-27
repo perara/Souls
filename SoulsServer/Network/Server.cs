@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using Newtonsoft.Json;
-using SoulsServer.Chat;
+using Souls.Server.Chat;
 using System.Collections.Concurrent;
 using Newtonsoft;
 using Newtonsoft.Json.Linq;
-using SoulsServer.Tools;
-using SoulsServer.Network;
-using SoulsServer.Objects;
-using SoulsServer.Game;
+using Souls.Server.Tools;
+using Souls.Server.Network;
+using Souls.Server.Objects;
+using Souls.Server.Game;
 
 // https://github.com/sta/websocket-sharp#websocket-server
-namespace SoulsServer.Network
+namespace Souls.Server.Network
 {
     public class GameService : General
     {

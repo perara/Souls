@@ -1,16 +1,16 @@
 ﻿using Newtonsoft.Json;
-using SoulsServer.Objects;
-using SoulsServer.Engine;
-using SoulsServer.Tools;
+using Souls.Server.Objects;
+using Souls.Server.Engine;
+using Souls.Server.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using SoulsServer.Network;
+using Souls.Server.Network;
 
-namespace SoulsServer.Chat
+namespace Souls.Server.Chat
 {
     public class ChatEngine
     {

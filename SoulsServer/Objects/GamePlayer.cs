@@ -1,14 +1,14 @@
-﻿using SoulsServer.Tools;
+﻿using Souls.Server.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using SoulsServer.Network;
-using SoulsServer.Game;
+using Souls.Server.Network;
+using Souls.Server.Game;
 
-namespace SoulsServer.Objects
+namespace Souls.Server.Objects
 {
 
     public class GamePlayer

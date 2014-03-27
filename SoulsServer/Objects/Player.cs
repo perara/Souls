@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SoulsServer.Engine;
-using SoulsServer.Objects;
-using SoulsServer.Tools;
+using Souls.Server.Engine;
+using Souls.Server.Objects;
+using Souls.Server.Tools;
 using SoulsModel;
 using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
 using NHibernate.Linq;
-using SoulsServer.Network;
+using Souls.Server.Network;
 
-namespace SoulsServer.Objects
+namespace Souls.Server.Objects
 {
     public class Player : Souls.Model.Player
     {

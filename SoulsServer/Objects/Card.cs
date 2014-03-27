@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using SoulsServer.Tools;
-using SoulsServer.Engine;
-using SoulsServer.Objects;
+using Souls.Server.Tools;
+using Souls.Server.Engine;
+using Souls.Server.Objects;
 
-namespace SoulsServer.Objects
+namespace Souls.Server.Objects
 {
     public class Card : Souls.Model.Card, ICloneable
     {

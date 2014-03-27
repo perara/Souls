@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
-using SoulsServer.Engine;
-using SoulsServer.Objects;
-using SoulsServer.Tools;
+using Souls.Server.Engine;
+using Souls.Server.Objects;
+using Souls.Server.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoulsServer.Game
+namespace Souls.Server.Game
 {
     public class GameQueue
     {

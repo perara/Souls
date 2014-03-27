@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Web.Script.Serialization;
-using SoulsServer.Engine;
-using SoulsServer.Tools;
+using Souls.Server.Engine;
+using Souls.Server.Tools;
 using Newtonsoft.Json.Linq;
-using SoulsServer.Objects;
-using SoulsServer.Game;
-using SoulsServer.Network;
+using Souls.Server.Objects;
+using Souls.Server.Game;
+using Souls.Server.Network;
 
-namespace SoulsServer.Game
+namespace Souls.Server.Game
 {
     public class GameRoom
     {

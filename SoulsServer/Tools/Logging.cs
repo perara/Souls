@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoulsServer.Tools
+namespace Souls.Server.Tools
 {
     public class Logging
     {
@@ -41,7 +41,9 @@ namespace SoulsServer.Tools
                     write = "[CHAT]\t\t";                    
                     break;
                 case Type.GAMEQUEUE:
-                    Console.ForegroundColor = ConsoleColor.Magenta;                    write = "[GAMEQUEUE]\t";                    break;
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    write = "[GAMEQUEUE]\t";
+                    break;
                 case Type.ERROR:
                     Console.BackgroundColor = ConsoleColor.DarkRed;
                     Console.ForegroundColor = ConsoleColor.White;

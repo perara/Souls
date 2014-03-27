@@ -5,17 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SoulsServer.Engine;
-using SoulsServer.Game;
-using SoulsServer.Tools;
+using Souls.Server.Engine;
+using Souls.Server.Game;
+using Souls.Server.Tools;
 using Newtonsoft.Json;
-using SoulsServer.Objects;
+using Souls.Server.Objects;
 using Newtonsoft.Json.Linq;
 using SoulsModel;
 using NHibernate.Linq;
-using SoulsServer.Network;
+using Souls.Server.Network;
 
-namespace SoulsServer.Game
+namespace Souls.Server.Game
 {
 
     public class GameEngine
