@@ -71,6 +71,8 @@
 
     function Response_Attack(json) {
 
+        var attackType = json.Payload.type;
+
         // Fetch CardInfo (dmgDOne etc)
         var jsonPInfo = json.Payload.player;
         var jsonOppInfo = json.Payload.opponent;
@@ -78,24 +80,42 @@
         // Determine the attacker
         var jsonAttacker = json.Payload.player.attacker;
 
-        // Get cards
-        var playerCard = that.engine.player.cardManager.board[jsonPInfo.cid];
-        var opponentCard = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
+
+        if (attackType == 0) { // Card on Card
+            // Get cards
+            var playerCard = that.engine.player.cardManager.board[jsonPInfo.cid];
+            var opponentCard = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
 
 
-        // The player is attacking
-        if (jsonAttacker) {
-            playerCard.Attack(jsonPInfo, jsonOppInfo, opponentCard, true);
+            // The player is attacking
+            if (jsonAttacker) {
+                playerCard.Attack(jsonPInfo, jsonOppInfo, opponentCard);
+            }
+            else // The opponent is attacking
+            {
+                opponentCard.Attack(jsonOppInfo, jsonPInfo, playerCard);
+            }
         }
-        else // The opponent is attacking
-        {
-            opponentCard.Attack(jsonOppInfo, jsonPInfo, playerCard, false);
+        else if (attackType == 1) { // Card on hero
+
+            // The player is attacking
+            if (jsonAttacker) {
+                var attacker = that.engine.player.cardManager.board[jsonPInfo.cid];
+                var defender = that.engine.opponent;
+
+                attacker.AttackOpponent(jsonPInfo, jsonOppInfo, defender);
+            }
+            else // The opponent is attacking
+            {
+                var attacker = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
+                var defender = that.engine.player;
+
+                attacker.AttackOpponent(jsonPInfo, jsonOppInfo, defender);
+            }
+
         }
 
-
-
-        console.log(json);
-    }
+    } // -- Function end
 
     function Response_NotLoggedIn(json) {
         console.log((arguments.callee.name) + ": NOT LOGGED IN resp : ");
@@ -297,24 +317,30 @@
     /// <param name="targetCid">The target card (attacker) (cid)</param>    
     GameService.prototype.Request_Attack = function (source, target, type) {
 
+        var json = this.message.GAME.ATTACK;
+        json.Payload.type = type;
 
         if (type == 0) // Card on Card
         {
-            var json = this.message.GAME.ATTACK;
             json.Payload.source = source.cid
             json.Payload.target = target.cid;
-            json.Payload.type = type;
-            this.socket.send(json);
+
         }
         else if (type == 1) // Card on Hero
         {
-
+            json.Payload.source = source.cid
+            json.Payload.target = -1; //TODO?
         }
-
         else if (type == 2) // Hero on Card
         {
 
         }
+        else {
+            console.log("wrong type!");
+            return; // ERROR!
+        }
+
+        this.socket.send(json);
     };
 
     /// <summary>

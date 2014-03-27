@@ -430,8 +430,6 @@ namespace Souls.Server.Game
                     opponent.RemoveBoardCard(targetCard);
                 }
 
-
-
                 // Requester's Card
                 JObject reqObj = new JObject(
                             new JProperty("cid", sourceCard.cid),
@@ -469,8 +467,54 @@ namespace Souls.Server.Game
             }
             else if (type == 1) // Card on Hero
             {
-                Card sourceCard = requestPlayer.boardCards[source];
+                // Do attack
+                Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
                 sourceCard.Attack(opponent);
+
+                if (opponent.isDead)
+                {
+                    // Player won
+                }
+
+                if (sourceCard.isDead)
+                {
+                    Logging.Write(Logging.Type.GAME, "Card: " + sourceCard.cid + " died.");
+                    // Remove the card
+                    requestPlayer.RemoveBoardCard(sourceCard);
+                }
+
+                // Requester's Card
+                JObject reqObj = new JObject(
+                            new JProperty("cid", sourceCard.cid),
+                            new JProperty("dmgTaken", opponent.attack),
+                            new JProperty("dmgDone", sourceCard.attack),
+                            new JProperty("health", sourceCard.health),
+                            new JProperty("attacker", true),
+                            new JProperty("isDead", sourceCard.isDead));
+
+                // Requesters Opponent's Card
+                JObject oppObj = new JObject(
+                            new JProperty("dmgTaken", sourceCard.attack),
+                            new JProperty("dmgDone", opponent.attack),
+                            new JProperty("health", opponent.health),
+                            new JProperty("attacker", false),
+                            new JProperty("isDead", opponent.isDead));
+
+                // Send Response to Requester
+                requestPlayer.playerContext.SendTo(
+                    new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
+                        new JProperty("player", reqObj),
+                        new JProperty("opponent", oppObj),
+                        new JProperty("type", type)
+                        )));
+
+                // Send Response to Opponent
+                opponent.playerContext.SendTo(
+                    new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
+                        new JProperty("player", oppObj),
+                        new JProperty("opponent", reqObj),
+                        new JProperty("type", type)
+                        )));
 
 
 

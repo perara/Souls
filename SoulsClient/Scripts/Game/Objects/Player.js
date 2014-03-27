@@ -27,6 +27,7 @@
         if (isArrowAction)
             var isAttackingC = this.arrow.CardAttackCheck(this.holdingCard);
 
+
         // if no card attack found - do opponent attack
         if(isArrowAction && !isAttackingC)
             var isAttackingP = this.arrow.PlayerAttackCheck(this.holdingCard);
