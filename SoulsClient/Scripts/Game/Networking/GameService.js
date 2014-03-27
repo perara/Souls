@@ -52,7 +52,7 @@
 
             that.engine.player.cardManager.JSONToHandCards(cards,
                 {
-                    x: 200,
+                    x: 165,
                     y: 980
                 });
         }
@@ -61,7 +61,7 @@
 
             that.engine.opponent.cardManager.JSONToHandCards(cards,
              {
-                 x: 200,
+                 x: 165,
                  y: 200
              });
 
@@ -184,12 +184,12 @@
 
         // Give cards to hand
         that.engine.player.cardManager.JSONToHandCards(data.Payload.player.hand, {
-            x: 200,
+            x: 165,
             y: 980
         });
 
         that.engine.opponent.cardManager.JSONToHandCards(data.Payload.opponent.hand, {
-            x: 200,
+            x: 165,
             y: 200
         });
 

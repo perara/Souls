@@ -14,6 +14,7 @@
         this.startCardX = undefined;
         this.startCardY = undefined;
 
+        this.cardSpacing = 60;
     }
 
     CardManager.prototype.constructor = CardManager;
@@ -24,14 +25,12 @@
 
         var count = 0;
 
-
-        var addOffset = 80;
         for (index in this.hand) {
 
 
             var c = this.hand[index];
 
-            c.position.originX = + this.startCardX + (80 * (count++));
+            c.position.originX = +this.startCardX + (this.cardSpacing * (count++));
             c.y = c.position.originY = this.startCardY;
 
             var posTween = this.engine.CreateJS.Tween.get(c)
@@ -142,7 +141,7 @@
 
 
             var position = {
-                x: conf.x + (80 * (count)),
+                x: conf.x + (this.cardSpacing * (count)),
                 y: conf.y,
                 rotation: 0
             };
