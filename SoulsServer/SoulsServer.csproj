@@ -99,12 +99,11 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SoulsModel\SoulsModel.csproj">
+    <ProjectReference Include="..\SoulsModel\SoulsModel.csproj">
       <Project>{431a49e8-61b6-4068-808c-0e34089ecfdf}</Project>
       <Name>SoulsModel</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

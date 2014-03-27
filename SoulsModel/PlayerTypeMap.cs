@@ -17,6 +17,7 @@ namespace Souls.Model.Maps
             LazyLoad();
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             References(x => x.ability).Column("fk_ability");
+            References(x => x.race).Column("fk_race");
             Map(x => x.name).Column("name").Not.Nullable();
             Map(x => x.attack).Column("attack").Not.Nullable();
             Map(x => x.armor).Column("armor").Not.Nullable();

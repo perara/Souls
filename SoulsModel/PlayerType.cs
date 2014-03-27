@@ -11,6 +11,7 @@ namespace Souls.Model
         public PlayerType() { }
         public virtual int id { get; set; }
         public virtual Ability ability { get; set; }
+        public virtual Race race { get; set; }
         public virtual string name { get; set; }
         public virtual int attack { get; set; }
         public virtual int armor { get; set; }

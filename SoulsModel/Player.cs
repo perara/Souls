@@ -1,13 +1,17 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using NHibernate.Criterion;
+using NHibernate;
+using NHibernate.Linq;
+using System.Linq;
 using SoulsModel;
 
 
-namespace Souls.Model {
-    
-    public class Player {
+namespace Souls.Model
+{
+
+    public class Player
+    {
         public Player() { }
         public virtual int id { get; set; }
         public virtual PlayerType playerType { get; set; }
@@ -20,10 +24,12 @@ namespace Souls.Model {
         {
             using (var session = NHibernateHelper.OpenSession())
             {
-                PlayerLogin hash = session.CreateCriteria<PlayerLogin>()
-                    .Add(Restrictions.Eq(Projections.Property<PlayerLogin>(x => x.player), this.id))
-                    .UniqueResult<PlayerLogin>();
-                return hash.hash;
+
+                PlayerLogin pLogin = session.Query<PlayerLogin>()
+                    .Where(x => x.player.id == this.id)
+                    .SingleOrDefault();
+
+                return pLogin.hash;
             }
         }
     }

@@ -8,6 +8,8 @@ namespace Souls.Model {
     public class Game {
         public Game() { }
         public virtual int id { get; set; }
-        public virtual Player player { get; set; }
+        public virtual Player player1 { get; set; }
+        public virtual Player player2 { get; set; }
+
     }
 }

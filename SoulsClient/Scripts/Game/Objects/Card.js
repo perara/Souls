@@ -587,8 +587,7 @@
             this.interactive = false;
         }
 
-        // Reset the arrow
-        //this.engine.player.arrow.Reset();
+
 
         // Check and execute the card attack    
         this.CheckAttack();

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsClient", "SoulsClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsServer", "SoulsServer\SoulsServer.csproj", "{863FB976-9F0F-4949-B0A8-604637AA168E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsModel", "..\SoulsModel\SoulsModel.csproj", "{431A49E8-61B6-4068-808C-0E34089ECFDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsModel", "SoulsModel\SoulsModel.csproj", "{431A49E8-61B6-4068-808C-0E34089ECFDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

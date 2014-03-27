@@ -11,9 +11,9 @@ using Souls.Server.Tools;
 using Newtonsoft.Json;
 using Souls.Server.Objects;
 using Newtonsoft.Json.Linq;
-using SoulsModel;
 using NHibernate.Linq;
 using Souls.Server.Network;
+using SoulsModel;
 
 namespace Souls.Server.Game
 {

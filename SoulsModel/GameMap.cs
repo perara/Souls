@@ -13,7 +13,8 @@ namespace Souls.Model.Maps {
 			Table("game");
 			LazyLoad();
 			Id(x => x.id).GeneratedBy.Identity().Column("id");
-			References(x => x.player).Column("fk_player1");
+			References(x => x.player1).Column("fk_player1");
+            References(x => x.player2).Column("fk_player2");
         }
     }
 }

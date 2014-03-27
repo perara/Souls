@@ -9,6 +9,6 @@ namespace Souls.Model {
         public virtual int id { get; set; }
         public virtual Player player { get; set; }
         public virtual string hash { get; set; }
-        public virtual DateTime? timestamp { get; set; }
+        public virtual long timestamp { get; set; }
     }
 }
