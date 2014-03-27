@@ -51,55 +51,89 @@
     Arrow.prototype = Object.create(pixi.Graphics.prototype);
     Arrow.prototype.constructor = Arrow;
 
-    Arrow.prototype.AttackCheck = function (card) {
+
+    /// <summary>
+    /// This function checks if a card is In a slot and then if its picked up. If so it means the player are doing a attack
+    /// </summary>
+    /// <param name="card">The card</param>
+    /// <returns type="">Weither a attack is beeing done.</returns>
+    Arrow.prototype.ArrowShowCheck = function (card) {
         // The card must actually exist
-        if (!!card) {
+        if (!card) return false;
 
-            // If the card is picked up, but is in a slot (Arrow dragging)
-            if (card.inSlot && card.pickedUp) {
+        // If the card is picked up, but is in a slot (Arrow dragging)
+        if (!!card.inSlot && !!card.pickedUp) {
 
-                this.Show();
-                this.Draw(
-                    this.engine.conf.mouse, //TO
-                    card.position //ORIGIN
-                    );
+            this.Show();
+            this.Draw(
+                this.engine.conf.mouse, //TO
+                card.position //ORIGIN
+                );
 
-                // Check if the arrow is actually active (Is moving)
-                if (this.active) {
-
-                    // Iterate over opponents cards
-                    var opponentBoard = this.engine.opponent.cardManager.board;
-                    for (var index in opponentBoard) {
-                        var oppCard = opponentBoard[index];
-
-
-                        // Check if the mouse is inside the card
-                        var isInside = this.engine.toolbox.Rectangle.containsRaw(
-                        oppCard.x - (oppCard.width / 2), //Top
-                        oppCard.y - (oppCard.height / 2), //LEFT
-                        oppCard.width,
-                        oppCard.height,
-                        this.engine.conf.mouse.x,
-                        this.engine.conf.mouse.y);
-
-                        // Was it inside?
-                        if (isInside) {
-                            // Set card to attack IF mouse is released
-                            card.attackCard = oppCard;
-                            oppCard.ScaleUp();
-                            return;
-                        }
-                        else {
-                            oppCard.ScaleDown();
-                            card.attackCard = undefined;
-                        }
-                    }
-                }
-            }
+            return true;
         }
         else {
             this.Reset();
+            // Deactivate
+            return false;
         }
+    }
+
+
+    Arrow.prototype.PlayerAttackCheck = function (card) {
+
+        var opponent = this.engine.opponent;
+
+        // Determine if the Mouse is inside the card bounds
+        var isInside = this.engine.toolbox.Rectangle.containsRaw(
+        opponent.x - (opponent.width / 2), // Top
+        opponent.y - (opponent.height / 2), // Left
+        opponent.width,
+        opponent.height,
+        this.engine.conf.mouse.x,
+        this.engine.conf.mouse.y);
+
+        if (isInside) {
+            opponent.ScaleUp();
+        }
+        else {
+            opponent.ScaleDown();
+        }
+    }
+
+
+    Arrow.prototype.CardAttackCheck = function (card) {
+
+        // Iterate over opponents cards
+        var opponentBoard = this.engine.opponent.cardManager.board;
+
+        for (var index in opponentBoard) {
+            var opponentCard = opponentBoard[index];
+
+
+            // Determine if the Mouse is inside the card bounds
+            var isInside = this.engine.toolbox.Rectangle.containsRaw(
+            opponentCard.x - (opponentCard.width / 2), // Top
+            opponentCard.y - (opponentCard.height / 2), // Left
+            opponentCard.width,
+            opponentCard.height,
+            this.engine.conf.mouse.x,
+            this.engine.conf.mouse.y);
+
+            if (isInside) {
+                // Assign target on source card to the found opponent card
+                card.target = opponentCard;
+                opponentCard.ScaleUp();
+                return true;
+            }
+            else {
+                // Nothing was found
+                opponentCard.ScaleDown();
+                card.target = undefined;
+                return false;
+            }
+        }
+
     }
 
 
@@ -127,10 +161,6 @@
         this.moveTo(origin.x, origin.y);
         this.lineTo(mouse.x, mouse.y);
         this.endFill();
-
-      
-
-
     }
 
     Arrow.prototype.Show = function () {
@@ -151,30 +181,30 @@
 
     Arrow.prototype.Reset = function () {
         if (this.active) {
+            this.engine.opponent.ScaleDown();
 
             this.arrowHead.visible = false;
             this.active = false;
             var position = { x: this.mousePos.x, y: this.mousePos.y };
             var target = { x: this.originPos.x, y: this.originPos.y };
 
-
-            this.engine.CreateJS.Tween.get(position, { override: true, onChange: onUpdate })
-              .to(target, 300, this.engine.CreateJS.Ease.quadIn)
-              .call(onComplete);
-
             var that = this;
-            function onUpdate() {
-                that.clear();
-                that.lineStyle(20, 0xff0000, 1);
-                that.beginFill(0xffFF00, 0.5);
-                that.moveTo(that.originPos.x, that.originPos.y);
-                that.lineTo(position.x, position.y);
+            this.engine.CreateJS.Tween.get(position, {
+                override: true, onChange: function () {
+                    that.clear();
+                    that.lineStyle(20, 0xff0000, 1);
+                    that.beginFill(0xffFF00, 0.5);
+                    that.moveTo(that.originPos.x, that.originPos.y);
+                    that.lineTo(position.x, position.y);
+                }
+            })
+              .to(target, 300, this.engine.CreateJS.Ease.quadIn)
 
-            }
+               // Call on complete 
+              .call(function () {
+                  that.Hide();
+              });
 
-            function onComplete() {
-                that.Hide();
-            }
         }
     }
 

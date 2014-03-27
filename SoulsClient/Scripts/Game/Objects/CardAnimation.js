@@ -240,6 +240,31 @@
 
     }
 
+    /// <summary>
+    /// Animates the card back to original position
+    /// </summary>
+    /// <param name="c">The card</param>
+    CardAnimation.prototype.AnimateBack = function (c) {
+
+        c.OrderOriginalPosition();
+
+        var target =
+            {
+                x: c.position.originX,
+                y: c.position.originY
+            }
+
+        CreateJS.Tween.get(c, { override: true })
+            .to(target, 1000, CreateJS.Ease.elasticOut)
+            .call(onComplete);
+
+        function onComplete() {
+            // Set Mount variable to true
+            c.pickedUp = false;
+            c.interactive = true;
+        }
+    }
+
 
 
 

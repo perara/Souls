@@ -20,10 +20,18 @@
 
         this.cardManager.Process();
 
+        // Check if the arrow should be activated
+        var isArrowAction = this.arrow.ArrowShowCheck(this.holdingCard);
+            
+        // if movement - check card attack
+        if (isArrowAction)
+            var isAttackingC = this.arrow.CardAttackCheck(this.holdingCard);
 
+        // if no card attack found - do opponent attack
+        if(isArrowAction && !isAttackingC)
+            var isAttackingP = this.arrow.PlayerAttackCheck(this.holdingCard);
 
-        this.arrow.AttackCheck(this.holdingCard);
-
+        
     }
 
 

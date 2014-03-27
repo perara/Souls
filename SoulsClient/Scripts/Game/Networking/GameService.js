@@ -20,7 +20,7 @@
         this.RegisterResponseAction(["100"], Response_QueueOK);
         this.RegisterResponseAction(["206", "220"], Response_GameCreate);
         this.RegisterResponseAction(["209"], Response_GameOpponentMove);
-        this.RegisterResponseAction(["210", "212"], Response_GameOpponentRelease);
+        this.RegisterResponseAction(["210", "212"], Response_GameRelease);
         this.RegisterResponseAction(["207", "211"], Response_UseCard);
         this.RegisterResponseAction(["202"], Repsonse_NotYourTurn);
         this.RegisterResponseAction(["213"], Response_SlotOccupied);
@@ -39,8 +39,7 @@
     ///////////////////////GAME-RESPONSES/////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
-    function Response_UseCard_OOM(json)
-    {
+    function Response_UseCard_OOM(json) {
         that.engine.ScreenMessage(["Not enough mana!"], false);
     }
 
@@ -121,7 +120,7 @@
 
     function Response_UseCard(json) // "207" GAME_USECARD_PLAYER_OK // "211" GAME_USECARD_OPPONENT_OK // TOODO FAILED OSV
     {
-      
+
         var cardData = json.Payload.card;
         var pInfo = json.Payload.pInfo;
         var cid = cardData.cid;
@@ -131,7 +130,7 @@
 
         if (json.Type == 211) // OPPONENT
         {
-            
+
             var opponent = that.engine.opponent
 
             // Set updated opponent text
@@ -236,7 +235,7 @@
 
     }
 
-    function Response_GameOpponentRelease(json) // 210 GAME_OPPONENT_RELEASE // 212 GAME_PLAYER_RELEASE
+    function Response_GameRelease(json) // 210 GAME_OPPONENT_RELEASE // 212 GAME_PLAYER_RELEASE
     {
         var card;
         if (json.Type == 210) {
@@ -246,7 +245,7 @@
             card = that.engine.player.cardManager.hand[json.Payload.cid];
         }
 
-        card.AnimateBack(card);
+        card.CardAnimation.AnimateBack(card);
     }
 
     function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
@@ -315,12 +314,33 @@
         {
 
         }
-
-
     };
 
+    /// <summary>
+    /// Request a move action to the server.
+    /// </summary>
+    GameService.prototype.RequestMove = function (card) {
+        var json = Message.GAME.MOVE_CARD;
+        json.Payload.x = card.x;
+        json.Payload.y = this.engine.conf.height - card.y + (card.height / 4);
+        json.Payload.cid = card.cid;
+        json.Payload.gameId = this.engine.gameId;
 
+        this.engine.gameSocket.send(json);
+    }
 
+    /// <summary>
+    /// Requests a card release.
+    /// </summary>
+    GameService.prototype.RequestRelease = function (card) {
+        // If the card is not in a slot AND it is not hovering a slot
+        if (!card.inSlot && !card.hoverSlot) {
+            var json = Message.GAME.RELEASE_CARD;
+            json.Payload.cid = card.cid;
+            json.Payload.gameId = card.engine.gameId;
+            this.engine.gameSocket.send(json);
+        }
+    }
 
     ////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////

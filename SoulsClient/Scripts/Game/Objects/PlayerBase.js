@@ -184,6 +184,16 @@
         this.position = xy;
     }
 
+    PlayerBase.prototype.ScaleUp = function () {
+        this.scale.x = 1.2;
+        this.scale.y = 1.2;
+    }
+
+    PlayerBase.prototype.ScaleDown = function () {
+        this.scale.x = 1;
+        this.scale.y = 1;
+    }
+
     // playoropp = "Player" or "Opponent" 
     // Conf: {x,y,playoropp}
    

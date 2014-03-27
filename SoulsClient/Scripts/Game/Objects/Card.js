@@ -9,12 +9,13 @@
         // Engine reference
         this.engine = engine;
 
+        // Card Animation
+        this.CardAnimation = CardAnimation;
+
         // Create a global tunnel to "this" object
         that = this;
 
         // Card Dimensions
-        //        this.height = 210;
-        //              this.width = 150;
         this.anchor = { x: 0.5, y: 0.5 };
 
         // Card Position
@@ -67,7 +68,7 @@
         this.owner = undefined;
         this.pickedUp = undefined;
         this.cardFlipped = false;
-        this.attackCard = undefined;
+        this.target = undefined;
 
 
     };
@@ -130,10 +131,6 @@
         portrait.x = 0;
         portrait.y = -31;
         this.frontCard.addChild(portrait);
-
-
-
-
 
         // CardFactory Health Label
         var txtHealth = new pixi.Text(this.health,
@@ -336,30 +333,6 @@
     }
 
     /// <summary>
-    /// Animates the card back to original position
-    /// </summary>
-    /// <param name="c">The card</param>
-    Card.prototype.AnimateBack = function (c) {
-
-        this.OrderOriginalPosition();
-
-        var target =
-            {
-                x: this.position.originX,
-                y: this.position.originY
-            }
-
-        this.engine.CreateJS.Tween.get(c, { override: true })
-            .to(target, 1000, this.engine.CreateJS.Ease.elasticOut)
-            .call(onComplete);
-
-        function onComplete() {
-            // Set Mount variable to true
-            this.pickedUp = false;
-        }
-    }
-
-    /// <summary>
     /// Function which processes Hover effects on the card (Player hovers the card)
     /// </summary>
     Card.prototype.OnHoverEffects = function () {
@@ -477,7 +450,7 @@
         // Check if the card is dragged, and not in a slot.
         if (this.dragging && this.networkStopWatch.getElapsed().milliseconds > 200 && !this.inSlot) {
             this.networkStopWatch.reset();
-            this.RequestMove();
+            this.engine.gameService.RequestMove(this);
         }
 
         // Check if card hovers a cardslot
@@ -487,24 +460,25 @@
         this.OnHoverEffects();
 
         // Ensures that the card is interactive 
-        if (!this.inSlot && !this.pickedUp) {
-            this.interactive = true;
-        }
+        /*   if (!this.inSlot && !this.pickedUp) {
+               this.interactive = true;
+           }
+           */
 
 
 
     }
 
     /// <summary>
-    /// This function checks weither a "this" card has a value set in his attackCard variable 
+    /// This function checks weither a "this" card has a value set in his target variable 
     /// (This is called on mouseRelease). If its set trigger a rquest Attack to the server.
     /// </summary>
     Card.prototype.CheckAttack = function () {
         // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
-        if (!!this.attackCard) {
-            this.engine.gameService.Request_Attack(this, this.attackCard, 0);
-            this.attackCard.ScaleDown();
-            this.attackCard = undefined;
+        if (!!this.target) {
+            this.engine.gameService.Request_Attack(this, this.target, 0);
+            this.target.ScaleDown();
+            this.target = undefined;
         }
     }
 
@@ -563,31 +537,6 @@
 
 
 
-    /// <summary>
-    /// Request a move action to the server.
-    /// </summary>
-    Card.prototype.RequestMove = function () {
-        var json = Message.GAME.MOVE_CARD;
-        json.Payload.x = this.x;
-        json.Payload.y = Conf.height - this.y + (this.height / 4);
-        json.Payload.cid = this.cid;
-        json.Payload.gameId = this.engine.gameId;
-
-        this.engine.gameSocket.send(json);
-    }
-
-    /// <summary>
-    /// Requests a card release.
-    /// </summary>
-    Card.prototype.RequestRelease = function () {
-        // If the card is not in a slot AND it is not hovering a slot
-        if (!this.inSlot && !this.hoverSlot) {
-            var json = Message.GAME.RELEASE_CARD;
-            json.Payload.cid = this.cid;
-            json.Payload.gameId = this.engine.gameId;
-            this.engine.gameSocket.send(json);
-        }
-    }
 
     /// <summary>
     /// Mouse callbacks
@@ -639,13 +588,13 @@
         }
 
         // Reset the arrow
-        this.engine.player.arrow.Reset();
+        //this.engine.player.arrow.Reset();
 
         // Check and execute the card attack    
         this.CheckAttack();
 
         // Check and Request a release of the card
-        this.RequestRelease();
+        this.engine.gameService.RequestRelease(this);
 
         // Check and Request a "UseCard"
         this.engine.gameService.Request_UseCard(this);
