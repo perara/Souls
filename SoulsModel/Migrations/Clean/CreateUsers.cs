@@ -1,4 +1,4 @@
-﻿using FluentMigrator;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SoulsModel.Migrations.Clean
 {
 
-    [Migration(1)]
+    /*[Migration(1)]
     public class CreateUsers : Migration
     {
 
@@ -50,6 +50,6 @@ namespace SoulsModel.Migrations.Clean
             Delete.FromTable("Ability").AllRows();
         }
 
-
-    }
+    
+    }*/
 }

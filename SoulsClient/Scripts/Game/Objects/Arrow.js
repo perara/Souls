@@ -94,10 +94,14 @@
         this.engine.conf.mouse.y);
 
         if (isInside) {
+            card.target = opponent;
             opponent.ScaleUp();
+            return true;
         }
         else {
+            card.target = undefined;
             opponent.ScaleDown();
+            return false;
         }
     }
 

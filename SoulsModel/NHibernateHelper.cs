@@ -16,7 +16,7 @@ namespace SoulsModel
 {
     public class NHibernateHelper
     {
-        private static NHibernateHelper instance = new NHibernateHelper();
+        private static NHibernateHelper instance;
 
         private ISessionFactory _sessionFactory;
 
@@ -53,6 +53,7 @@ namespace SoulsModel
 
         public static ISession OpenSession()
         {
+            instance = new NHibernateHelper();
             return instance._sessionFactory.OpenSession();
         }
     }

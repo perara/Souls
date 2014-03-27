@@ -61,6 +61,8 @@ namespace Souls.Server.Game
 
             Stopwatch w = new Stopwatch();
             w.Start();
+
+            NHibernateHelper.OpenSession();
             using (var session = NHibernateHelper.OpenSession())
             {
 
