@@ -38,8 +38,6 @@ $(document).ready(function () {
 
         $("#messages").append('<li class="sent"><span>ComboQuery Sent:</span>' + txaMessage + '</li>');
             $('#select_query option:eq(0)').prop('selected', true);
-      
-
         return false;
     });
 
