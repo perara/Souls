@@ -27,15 +27,14 @@
 
         this.addChild(this.messageText);
 
-
     }
     // Constructor
     Queue.prototype = Object.create(Pixi.Sprite.prototype);
     Queue.prototype.constructor = Queue;
 
 
-
     Queue.prototype.SetText = function (text) {
+
         console.log(text);
         var that = this;
 
@@ -84,7 +83,7 @@
         .to({ textScaleX: 2, textScaleY: 2 }, 1000, this.engine.CreateJS.Ease.sineInOut)
         .to({ textScaleX: 1, textScaleY: 1 }, 1000, this.engine.CreateJS.Ease.sineInOut)
         .to({ textScaleX: 10, textScaleY: 10, textAlpha: 0.0 }, 2500, this.engine.CreateJS.Ease.sineIn)
-       
+
     }
 
 
@@ -109,8 +108,6 @@
             }
         }
     }
-
-
 
     return Queue;
 

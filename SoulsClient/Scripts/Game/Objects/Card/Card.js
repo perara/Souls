@@ -555,6 +555,10 @@
         var attacker = this;
         this.engine.player.arrow.Hide();
 
+      
+
+
+
         // Set the correct health
         attacker.health = attackerInfo.health;
         defender.health = defenderInfo.health;
@@ -601,6 +605,11 @@
         // Set the correct health
         attacker.health = attackerInfo.health;
         defender.health = defenderInfo.health;
+
+
+        console.log("HEREYOUGO");
+        console.log(attackerInfo);
+        console.log(defenderInfo);
 
         // Check and set death
         if (attacker.health <= 0) {
@@ -696,6 +705,9 @@
 
         // Check and Request a "UseCard"
         this.engine.gameService.Request_UseCard(this);
+
+        // Removes hovercard from owner
+        this.owner._chover = undefined;
 
         // Disable Dragging
         this.dragging = false;

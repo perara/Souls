@@ -132,7 +132,7 @@
                 var attacker = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
                 var defender = that.engine.player;
 
-                attacker.AttackOpponent(jsonPInfo, jsonOppInfo, defender);
+                attacker.AttackOpponent(jsonOppInfo,jsonPInfo, defender);
             }
 
         }
