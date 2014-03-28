@@ -7,7 +7,7 @@
 
 
     CardType.Textures = {
-        0: Asset.Textures.CARD_NONE,
+        0: Asset.Textures.CARD_ERROR,
         1: Asset.Textures.CARD_DARKNESS,
         2: Asset.Textures.CARD_VAMPIRIC,
         3: Asset.Textures.CARD_LIGHTBRINGER,

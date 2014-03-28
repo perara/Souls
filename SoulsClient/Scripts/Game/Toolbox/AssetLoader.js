@@ -71,6 +71,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             CARD_VAMPIRIC: Asset.Path.Textures + "Card/vampiric.png",
             CARD_LIGHTBRINGER: Asset.Path.Textures + "Card/lightbringer.png",
             CARD_FEROCIOUS: Asset.Path.Textures + "Card/ferocious.png",
+            CARD_ERROR: Asset.Path.Textures + "Card/card_error.png",
 
             // Target arrow
             ARROW_CORSHAIR : Asset.Path.Textures + "target.png",

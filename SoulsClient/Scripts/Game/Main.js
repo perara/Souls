@@ -34,23 +34,40 @@ require.config({
         "gamestate": "States/GameState",
         "game": "States/Game",
 
-        // Objects
-        "card": "Objects/Card",
-        "cardtype": "Objects/CardType",
-        "cardslot": "Objects/CardSlot",
-        "player": "Objects/Player",
-        "playerbase": "Objects/PlayerBase",
-        "arrow": "Objects/Arrow",
-        "opponent": "Objects/Opponent",
+        // Networking
         "gameService": "Networking/GameService",
         "chatService": "Networking/ChatService",
         "networkBase": "Networking/NetworkBase",
-        "cardmanager": "Objects/CardManager",
-        "background": "Objects/Background",
-        "chat": "Objects/Chat",
-        "endturnbutton": "Objects/EndTurnButton",
-        "queue": "Objects/Queue",
-        "cardanimation" : "Objects/CardAnimation"
+
+
+        // Objects
+        //// Animation
+        "cardanimation": "Objects/Animation/CardAnimation",
+        "iAnimation" : "Objects/Animation/AnimationInterface",
+        //// Card
+        "card": "Objects/Card/Card",
+        "cardtype": "Objects/Card/CardType",
+        "cardslot": "Objects/Card/CardSlot",
+        "cardmanager": "Objects/Card/CardManager",
+        //// Environment
+        "background": "Objects/Environment/Background",
+        "endturnbutton": "Objects/Environment/EndTurnButton",
+        "queue": "Objects/Environment/Queue",
+        //// Player
+        "player": "Objects/Player/Player",
+        "playerbase": "Objects/Player/PlayerBase",
+        "arrow": "Objects/Player/Arrow",
+        "opponent": "Objects/Player/Opponent",
+        // Other
+        "chat": "Objects/Chat"
+
+        
+       
+        
+        
+        
+        
+        
 
     },
     shim: {
@@ -107,6 +124,23 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
     function Initialize() {
         // Create a stage and the renderer
         this.stage = new Pixi.Stage(0x000000, true);
+
+        // Create a loading message
+        var txtLoading = new Pixi.Text("Loading...",
+            {
+                font: "120px Arial bold",
+                fill: "white",
+                stroke: '#FFFFFF',
+                wordWrap: true,
+                align: 'center',
+
+                wordWrapWidth: this.width
+            });
+        txtLoading.anchor = { x: 0.5, y: 0.5 };
+        txtLoading.x = Conf.width / 2;
+        txtLoading.y = Conf.height / 2;
+        this.stage.addChild(txtLoading);
+
         this.renderer = new Pixi.autoDetectRenderer(Conf.width, Conf.height, null, false, true);
         $("#game-window").html(this.renderer.view);
 

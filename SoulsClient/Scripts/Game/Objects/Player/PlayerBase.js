@@ -6,20 +6,16 @@
         this.engine = engine;
 
         var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };
-        this.graphicText =
-            {
-                name: json.name,
-                attack: json.attack,
-                health: json.health,
-                mana: json.mana
-
-            }
-
 
         this.anchor = { x: 0.5, y: 0.5 };
         this.width = 385;
         this.height = 255;
         this.isPlayer = undefined;
+
+        this.health = json.health;
+        this.attack = json.attack;
+        this.mana = json.mana;
+        this.name = json.name;
 
         var masking = new pixi.Graphics();
         masking.beginFill(0xFFFFFF);
@@ -85,7 +81,7 @@
         pHealthImage.y = this.height / 2 - pHealthImage.height;
 
 
-        this.pNamePanelText = new pixi.Text(this.graphicText.name,
+        this.pNamePanelText = new pixi.Text(this.name,
             {
                 font: "26px Helvetica",
                 fill: "black",
@@ -99,7 +95,7 @@
         this.pNamePanelText.y = this.height / 2;
 
 
-        this.pAttackText = new pixi.Text(this.graphicText.attack,
+        this.pAttackText = new pixi.Text(this.attack,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -113,7 +109,7 @@
         this.pAttackText.x = -this.width / 4;;
         this.pAttackText.y = this.height / 2 - pAttackImage.height;
 
-        this.pManaText = new pixi.Text(this.graphicText.mana,
+        this.pManaText = new pixi.Text(this.mana,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -128,7 +124,7 @@
         this.pManaText.y = 0;
 
 
-        this.pHealthText = new pixi.Text(this.graphicText.health,
+        this.pHealthText = new pixi.Text(this.health,
             {
                 font: "18px Arial",
                 fill: "white",
@@ -172,12 +168,43 @@
     }
 
     /*var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };*/
-    PlayerBase.prototype.SetText = function (jsonData) {
+   /* PlayerBase.prototype.SetText = function (jsonData) {
         this.graphicText = jsonData;
         this.pAttackText.setText(this.graphicText.attack);
         this.pHealthText.setText(this.graphicText.health);
         this.pManaText.setText(this.graphicText.mana);
         this.pNamePanelText.setText(this.graphicText.name);
+    }*/
+
+    /// <summary>
+    /// Sets a text field on the card depending on what the input is. see param
+    /// </summary>
+    /// <param name="text">Example on format : {health: 10, cost: 5}</param>
+    PlayerBase.prototype.SetText = function (text) {
+        console.log(text);
+        this.graphicText = text;
+        if (text.health) {
+            this.health = text.health;
+            this.pHealthText.setText(text.health);
+        }
+        if (text.mana || text.mana == 0) {
+            this.mana = text.mana;
+            this.pManaText.setText(text.mana);
+        }
+        if (text.ability) {
+            //this.setText(text.ability);
+        }
+        if (text.name) {
+            this.name = text.name;
+            this.pNamePanelText.setText(text.name);
+        }
+        if (text.attack) {
+            this.attack = text.attack;
+            this.pAttackText.setText(text.attack);
+        }
+        if (text.race) {
+           // this.race = text.race.id;
+        }
     }
 
     PlayerBase.prototype.SetPosition = function (xy) {

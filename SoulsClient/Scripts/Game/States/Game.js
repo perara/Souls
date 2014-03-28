@@ -38,6 +38,7 @@
             this.addGroup("Card-Focus");
             this.addGroup("Attacker");
             this.addGroup("Queue");
+            this.addGroup("Text");
 
             // Set Default group Visibility to false (Is set to true on Response_GameCreate in GameService.js
             this.getGroup("Player").visible = false;
@@ -47,12 +48,12 @@
 
 
             // Network for best host
-            this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
-            this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
+            //this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
+            //this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
 
             // Network for råtn host
-            //this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
-            //this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
+            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
 
             // Tools etc
             this.toolbox = ToolBox;
@@ -63,7 +64,7 @@
             this.player = new Player(this);
             this.opponent = new Opponent(this);
             this.background = new Background(this);
-            //this.queue = new Queue(this);
+           // this.queue = new Queue(this);
 
             // Connect to the chat service
             this.chatService = new ChatService(this);
@@ -147,7 +148,7 @@
             flashText.forever = forever;
             flashText.message = messageArray;
             flashText.countTo = messageArray.length;
-            var group = that.getGroup("Background")
+            var group = that.getGroup("Text")
             group.addChild(flashText);
 
             var loopFlag = true;

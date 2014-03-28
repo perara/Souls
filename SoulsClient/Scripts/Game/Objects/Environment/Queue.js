@@ -59,7 +59,7 @@
         function fadeOut() {
             that.engine.CreateJS.Tween.get(that)
            .wait(2000)
-           .to({ alpha: 0 }, 1/*5000*/, that.engine.CreateJS.Linear)
+           .to({ alpha: 0 }, 5000, that.engine.CreateJS.Linear)
            .call(onComplete)
 
             function onComplete() {

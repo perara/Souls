@@ -170,8 +170,14 @@
                  cost: cardData.cost,
                  ability: cardData.ability.name,
                  race: cardData.race
-
              });
+
+
+
+            var texture = card.CardType.GetCardTexture(cardData.race.id);
+            card.frontCard.texture = texture;
+            card.ScaleDown();
+
 
             // card.SetupTextData(json.Payload.card, true);
             cardSlot = opponent.cardManager.cardSlots[slotId];

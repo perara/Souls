@@ -255,7 +255,7 @@
                 y: c.position.originY
             }
 
-        CreateJS.Tween.get(c, { override: false })
+        CreateJS.Tween.get(c, { override: true })
             .to(target, 1000, CreateJS.Ease.elasticOut)
             .call(onComplete);
 

@@ -11,6 +11,7 @@
 
         // Card Animation
         this.CardAnimation = CardAnimation;
+        this.CardType = CardType;
 
         // Create a global tunnel to "this" object
         that = this;
@@ -22,8 +23,6 @@
         this.position.x = this.position.originX = 0;
         this.position.y = this.position.originY = 0;
         this.order = count; // Must be set on card creation (When adding to group)
-
-        console.log(this.order);
 
         // Create a stopwatch for network pulse (Movement specifically)
         this.networkStopWatch = new Stopwatch();
@@ -92,14 +91,11 @@
     /// </summary>
     /// <param name="text">Example on format : {health: 10, cost: 5}</param>
     Card.prototype.SetText = function (text) {
-      
+
         if (text.health) {
             this.health = text.health;
+            this.texts.health.setText(text.health);
 
-            console.log(this.txtHealth.text);
-            this.txtHealth.setText(text.health);
-            console.log(this.txtHealth.text);
-          
         }
         if (text.cost || text.cost == 0) {
             this.cost = text.cost;
@@ -119,8 +115,12 @@
         }
         if (text.race) {
             this.race = text.race.id;
-            this.SetupFrontCard();
         }
+    }
+
+    Card.prototype.Reset = function()
+    {
+
     }
 
     Card.prototype.SetupBackCard = function () {
@@ -149,7 +149,7 @@
         this.frontCard.addChild(portrait);
 
         // CardFactory Health Label
-        this.txtHealth = new pixi.Text(this.health,
+        var txtHealth = new pixi.Text(this.health,
             {
                 font: "45px Arial",
                 fill: "white",
@@ -157,11 +157,11 @@
                 strokeThickness: 4,
                 align: "left"
             });
-        this.txtHealth.anchor = { x: 0.5, y: 0.0 };
-    
-        this.txtHealth.position.x = (this.frontCard.width) - (15 * this.health.length) + 3;
-        this.txtHealth.position.y = (this.frontCard.height) - (this.txtHealth.height) - 2;
-        this.texts.health = this.txtHealth;
+        txtHealth.anchor = { x: 0.5, y: 0.0 };
+
+        txtHealth.position.x = (this.frontCard.width) - (15 * this.health.length) + 3;
+        txtHealth.position.y = (this.frontCard.height) - (txtHealth.height) - 2;
+        this.texts.health = txtHealth;
 
         // CardFactory Mana Label
         var txtCost = new pixi.Text(this.cost,
@@ -216,7 +216,7 @@
         txtName.y = -(this.frontCard.height) + 30
         this.texts.name = txtName;
 
-        this.frontCard.addChild(this.txtHealth);
+        this.frontCard.addChild(txtHealth);
         this.frontCard.addChild(txtCost);
         this.frontCard.addChild(txtAttack);
         this.frontCard.addChild(txtAbility);
@@ -558,7 +558,7 @@
         }
 
 
-       
+
 
         // Define callbacks which should be used in the card Animation
         var attackCallbacks =
@@ -585,14 +585,21 @@
     Card.prototype.AttackOpponent = function (attackerInfo, defenderInfo, defender) {
         var attacker = this;
 
+        // Set the correct health
+        attacker.health = attackerInfo.health;
+        defender.health = defenderInfo.health;
+
         // Define callbacks which should be used in the card Animation
         var attackCallbacks =
             {
+               
+
                 ChangeHealth: function () {
+                    console.log(defender.health);
                     defender.SetText(
-                   {
-                       health: defender.health
-                   });
+                    {
+                        health: defender.health
+                    });
 
                     //Attacker
                     attacker.SetText(
