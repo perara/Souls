@@ -5,8 +5,22 @@
  */
 define("iAnimation", ["jquery"], function ($) {
 
-    return {
-        Death: undefined,
-        Attack: undefined,
-    };
+    Interface = function()
+    {
+        return {
+            Death: undefined, // Death animation
+            Attack: undefined, // Attack animation
+            MoveBack: undefined, // Move back to original position
+            MoveTo: undefined, // Move to a location
+            PutIn: undefined, // Put in object
+            Defend: undefined
+        };
+    }
+
+    Interface.prototype.constructor = Interface;
+
+
+
+    return Interface;
+
 });

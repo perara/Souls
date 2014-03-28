@@ -35,8 +35,7 @@
 
 
 
-    Queue.prototype.SetText = function(text)
-    {
+    Queue.prototype.SetText = function (text) {
         console.log(text);
         var that = this;
 
@@ -44,6 +43,48 @@
        .to({ alpha: 0 }, 1000, this.engine.CreateJS.Linear)
        .call(function () { that.messageText.setText(text) })
        .to({ alpha: 1 }, 1000, this.engine.CreateJS.Linear)
+    }
+
+
+    Queue.prototype.FadeInGameEnd = function (text) {
+        var that = this;
+        that.alpha = 0;
+        this.messageText.scale.x = 1;
+        this.messageText.scale.y = 1;
+        this.engine.CreateJS.Tween.removeAllTweens();
+
+
+
+        this.engine.stage.addChild(that.engine.getGroup("Queue"));
+        that.messageText.setText(text)
+
+        var tweenVals =
+            {
+                textAlpha: that.messageText.alpha,
+                bgAlpha: this.alpha,
+                textScaleX: this.messageText.scale.x,
+                textScaleY: this.messageText.scale.y
+            }
+
+
+
+        this.engine.CreateJS.Tween.get(tweenVals, {
+            override: false, onChange: function () {
+                that.alpha = tweenVals.bgAlpha;
+                that.messageText.alpha = tweenVals.textAlpha;
+                that.messageText.scale.x = tweenVals.textScaleX;
+                that.messageText.scale.y = tweenVals.textScaleY;
+
+            }
+        })
+        .to({ bgAlpha: 1, textAlpha: 0.5 }, 5000, this.engine.CreateJS.Linear)
+        .to({ textAlpha: 1 }, 2500, this.engine.CreateJS.Linear)
+        .to({ textScaleX: 2, textScaleY: 2 }, 1000, this.engine.CreateJS.Ease.sineInOut)
+        .to({ textScaleX: 1, textScaleY: 1 }, 1000, this.engine.CreateJS.Ease.sineInOut)
+        .to({ textScaleX: 2, textScaleY: 2 }, 1000, this.engine.CreateJS.Ease.sineInOut)
+        .to({ textScaleX: 1, textScaleY: 1 }, 1000, this.engine.CreateJS.Ease.sineInOut)
+        .to({ textScaleX: 10, textScaleY: 10, textAlpha: 0.0 }, 2500, this.engine.CreateJS.Ease.sineIn)
+       
     }
 
 

@@ -264,7 +264,7 @@
     <Content Include="Scripts\Game\Objects\Environment\Background.js" />
     <Content Include="Scripts\Game\Objects\Animation\AnimationInterface.js" />
     <Content Include="Scripts\Game\Objects\Card\Card.js" />
-    <Content Include="Scripts\Game\Objects\Animation\CardAnimation.js" />
+    <Content Include="Scripts\Game\Objects\Animation\Animation.js" />
     <Content Include="Scripts\Game\Objects\Card\CardManager.js" />
     <Content Include="Scripts\Game\Objects\Card\CardSlot.js" />
     <Content Include="Scripts\Game\Networking\ChatService.js" />

@@ -1,4 +1,12 @@
-﻿define("card", ['pixi', 'asset', 'stopwatch', 'messages', 'conf', 'cardanimation', 'cardtype'], function (pixi, asset, StopWatch, Message, Conf, CardAnimation, CardType) {
+﻿define("card", [
+    'pixi',
+    'asset',
+    'stopwatch',
+    'messages',
+    'conf',
+    'animation',
+    'cardtype',
+    'iAnimation'], function (pixi, asset, StopWatch, Message, Conf, Animation, CardType, AnimationInterface) {
 
     var that = this;
 
@@ -9,17 +17,23 @@
         // Engine reference
         this.engine = engine;
 
-        // Card Animation
-        this.CardAnimation = CardAnimation;
+        // Make CardType Accessible
         this.CardType = CardType;
+
+        // Card Animation
+        this.Animation = new AnimationInterface();
+        this.Animation.Attack = Animation.Card.Attack;
+        this.Animation.Death = Animation.Card.Death;
+        this.Animation.MoveBack = Animation.Card.MoveBack;
+        this.Animation.MoveTo = undefined; //TODO
+        this.Animation.Defend = Animation.Card.Defend;
+        this.Animation.PutIn = Animation.Card.PutInSlot;
 
         // Create a global tunnel to "this" object
         that = this;
 
-        // Card Dimensions
-        this.anchor = { x: 0.5, y: 0.5 };
-
         // Card Position
+        this.anchor = { x: 0.5, y: 0.5 };
         this.position.x = this.position.originX = 0;
         this.position.y = this.position.originY = 0;
         this.order = count; // Must be set on card creation (When adding to group)
@@ -559,7 +573,6 @@
 
 
 
-
         // Define callbacks which should be used in the card Animation
         var attackCallbacks =
             {
@@ -578,7 +591,7 @@
                 }
             }
 
-        CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
+        attacker.Animation.Attack(attacker, defender, attackCallbacks);
     }
 
 
@@ -588,6 +601,19 @@
         // Set the correct health
         attacker.health = attackerInfo.health;
         defender.health = defenderInfo.health;
+
+        // Check and set death
+        if (attacker.health <= 0) {
+            attacker.isDead = true // Sets the card dead
+            attacker.inSlot.Reset(); // Reset the card slot
+        }
+
+        if (defender.health <= 0) {
+            defender.isDead = true; // Sets the card dead
+           // defender.inSlot.Reset(); // Resets the card slot
+
+        }
+
 
         // Define callbacks which should be used in the card Animation
         var attackCallbacks =
@@ -610,7 +636,7 @@
             }
 
 
-        CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
+        attacker.Animation.Attack(attacker, defender, attackCallbacks);
     }
 
 

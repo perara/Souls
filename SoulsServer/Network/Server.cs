@@ -67,7 +67,10 @@ namespace Souls.Server.Network
             // GAME_OPPONENT_HERO_ATTACK = 216,
             // GAME_OPPONENT_HERO_DIE = 217, // Game Won
 
-            GAME_RECOVER = 220 // When the client disconnected and needs a recover update.
+            GAME_RECOVER = 220, // When the client disconnected and needs a recover update.
+
+            GAME_VICTORY = 230,
+            GAME_DEFEAT = 231
         }
 
 

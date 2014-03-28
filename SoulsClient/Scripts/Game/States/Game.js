@@ -64,7 +64,7 @@
             this.player = new Player(this);
             this.opponent = new Opponent(this);
             this.background = new Background(this);
-           // this.queue = new Queue(this);
+            this.queue = new Queue(this);
 
             // Connect to the chat service
             this.chatService = new ChatService(this);

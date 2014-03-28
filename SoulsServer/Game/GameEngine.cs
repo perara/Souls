@@ -99,6 +99,9 @@ namespace Souls.Server.Game
 
             GamePlayer requestPlayer = player.gPlayer;
 
+            // Check that the game is actually ONGOING
+            if (!this.GameRoomRunning(requestPlayer)) return;
+
             JObject retData = new JObject(
                 new JProperty("cid", player.gameContext.data.Payload.cid),
                 new JProperty("x", player.gameContext.data.Payload.x),
@@ -122,6 +125,9 @@ namespace Souls.Server.Game
         public void Request_OpponentReleaseCard(Player player)
         {
             GamePlayer requestPlayer = player.gPlayer;
+
+            // Check that the game is actually ONGOING
+            if (!this.GameRoomRunning(requestPlayer)) return;
 
             JObject retData = new JObject(
              new JProperty("cid", player.gameContext.data.Payload.cid));
@@ -241,6 +247,9 @@ namespace Souls.Server.Game
 
             GamePlayer requestPlayer = player.gPlayer;
 
+            // Check that the game is actually ONGOING
+            if (!this.GameRoomRunning(requestPlayer)) return;
+
             Card c;
             // Check if the card exists or not
             if (!requestPlayer.handCards.TryGetValue(card, out c))
@@ -336,6 +345,9 @@ namespace Souls.Server.Game
 
             GamePlayer requestPlayer = player.gPlayer;
 
+            // Check that the game is actually ONGOING
+            if (!this.GameRoomRunning(requestPlayer)) return;
+
             // Validate player turn
             if (!requestPlayer.IsPlayerTurn()) return;
 
@@ -366,6 +378,7 @@ namespace Souls.Server.Game
 
         public void Request_Attack(Player player)
         {
+
             // Get data
             int source = player.gameContext.payload.source;
             int target = player.gameContext.payload.target;
@@ -374,6 +387,10 @@ namespace Souls.Server.Game
             // Fetch GamePlayers
             GamePlayer requestPlayer = player.gPlayer;
             GamePlayer opponent = requestPlayer.GetOpponent();
+
+            // Check that the game is actually ONGOING
+            if (!this.GameRoomRunning(requestPlayer)) return;
+
 
             //////////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////
@@ -473,7 +490,12 @@ namespace Souls.Server.Game
 
                 if (opponent.isDead)
                 {
-                    // Player won
+                    // Requester won
+                    requestPlayer.gameRoom.winner = requestPlayer;
+                    requestPlayer.gameRoom.isEnded = true;
+
+                    // Check that the game is actually ONGOING
+                    if (!this.GameRoomRunning(requestPlayer)) return;
                 }
 
                 if (sourceCard.isDead)
@@ -537,7 +559,6 @@ namespace Souls.Server.Game
             // Do not allow more than 10 Cards
             if (player.handCards.Count() >= 10) return;
 
-
             // Create the new card
             List<Card> newCard = player.AddCard(num);
 
@@ -564,6 +585,32 @@ namespace Souls.Server.Game
 
             // Send to the player
             player.GetOpponent().playerContext.SendTo(retOpponent);
+        }
+
+
+        /// <summary>
+        /// Determines weither the game is running or not. If its not running, a Message will be sent to the requester with Victory or Defeat
+        /// </summary>
+        /// <param name="gPlayer"> The gme player</param>
+        /// <returns></returns>
+        public bool GameRoomRunning(GamePlayer gPlayer)
+        {
+            if (gPlayer.gameRoom.isEnded)
+            {
+                gPlayer.playerContext.SendTo(
+                    new Response((gPlayer.gameRoom.winner == gPlayer) ?
+                            GameService.GameResponseType.GAME_VICTORY :
+                            GameService.GameResponseType.GAME_DEFEAT,
+                            new JObject(
+                                new JProperty("statistics", null)
+                            ))
+                     );
+
+                return false;
+            }
+            return true;
+
+
         }
 
     }

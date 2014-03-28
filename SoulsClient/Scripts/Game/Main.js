@@ -42,7 +42,7 @@ require.config({
 
         // Objects
         //// Animation
-        "cardanimation": "Objects/Animation/CardAnimation",
+        "animation": "Objects/Animation/Animation",
         "iAnimation" : "Objects/Animation/AnimationInterface",
         //// Card
         "card": "Objects/Card/Card",

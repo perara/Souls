@@ -1,9 +1,14 @@
-﻿define("playerbase", ["jquery", "pixi", "asset", "card"], function ($, pixi, asset, Card) {
+﻿define("playerbase", ["jquery", "pixi", "asset", "iAnimation", "animation"], function ($, pixi, asset, AnimationInterface, Animation) {
 
     PlayerBase = function (texture, engine) {
         pixi.Sprite.call(this, texture);
 
         this.engine = engine;
+        // Card Animation
+        this.Animation =  new AnimationInterface();
+        this.Animation.Death = Animation.Player.Death;
+        this.Animation.Defend = Animation.Player.Defend;
+        this.Animation.Attack = Animation.Player.Attack;
 
         var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };
 
@@ -36,7 +41,7 @@
         pFrame.tint = 0x044444
 
         // Player Image
-        var pPortrait = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT));
+        var pPortrait = this.portrait = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT));
         pPortrait.anchor = { x: 0.5, y: 0.5 };
         pPortrait.width = 220;
         pPortrait.height = 145;

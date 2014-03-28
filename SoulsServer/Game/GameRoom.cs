@@ -31,13 +31,17 @@ namespace Souls.Server.Game
         public int cardCount { get; set; }
         // Contains the Player which is currently playing (Player's turn);
         public GamePlayer currentPlaying { get; set; }
+        public bool isEnded { get; set; }
+        public GamePlayer winner { get; set; }
 
-        // Makes the players gameplayers and deals 3 cards to each player
+
+
         public GameRoom()
         {
             gameId = GameRoom.gameCounter++;
             turn = 0;
             round = 1;
+            isEnded = false;
         }
 
         public void AddGamePlayers(Pair<GamePlayer> players)
@@ -129,6 +133,8 @@ namespace Souls.Server.Game
 
             return gUpdates;
         }
+
+
     }
 
 }

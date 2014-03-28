@@ -28,6 +28,8 @@
         this.RegisterResponseAction(["226"], Response_NextTurn);
         this.RegisterResponseAction(["222", "223"], Response_NewCard);
         this.RegisterResponseAction(["208"], Response_UseCard_OOM);
+        this.RegisterResponseAction(["230", "231"], Response_VictoryDefeat);
+
 
     }
     // Constructor
@@ -68,6 +70,26 @@
         }
 
     }
+
+    function Response_VictoryDefeat(json) // 230 = Victory , 231 = Defeat
+    {
+        var type = json.Type;
+
+        that.engine.stage.interactive = false;
+        if(type == 230)
+        {
+
+            that.engine.queue.FadeInGameEnd("Victory!");
+        }
+        else
+        {
+            that.engine.queue.FadeInGameEnd("Defeat!");
+        }
+
+
+
+    }
+
 
     function Response_Attack(json) {
 
@@ -272,7 +294,7 @@
             card = that.engine.player.cardManager.hand[json.Payload.cid];
         }
 
-        card.CardAnimation.AnimateBack(card);
+        card.Animation.MoveBack(card);
     }
 
     function Repsonse_NotYourTurn(json) // 202 NOT YOUR TURN
