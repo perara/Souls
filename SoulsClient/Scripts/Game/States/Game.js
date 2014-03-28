@@ -34,6 +34,8 @@
             this.addGroup("Opponent");
             this.addGroup("Player");
             this.addGroup("Card-Player");
+            this.addGroup("Arrow");
+            this.addGroup("Card-Focus");
             this.addGroup("Attacker");
             this.addGroup("Queue");
 

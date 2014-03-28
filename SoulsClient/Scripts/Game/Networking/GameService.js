@@ -360,6 +360,7 @@
     /// Requests a card release.
     /// </summary>
     GameService.prototype.RequestRelease = function (card) {
+        card._awaitRequest = true; // Variables which indicates Waiting response from server
         // If the card is not in a slot AND it is not hovering a slot
         if (!card.inSlot && !card.hoverSlot) {
             var json = Message.GAME.RELEASE_CARD;

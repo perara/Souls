@@ -8,7 +8,6 @@
         this.isPlayer = true;
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held
-
     }
     // Constructor
     Player.prototype = Object.create(playerBase.prototype);
@@ -40,9 +39,6 @@
     Player.prototype.Init = function () {
         this.arrow = new Arrow(this.engine);
         this.engine.addChild("Player", this);
-
-        this.engine.addChild("Player", this.arrow);
-        this.engine.getGroup("Player").addChild(this.arrow.arrowHead);
 
         this.cardManager = new CardManager(this.engine, true);
         this.cardManager.AddCardSlots();

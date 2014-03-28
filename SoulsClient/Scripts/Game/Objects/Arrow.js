@@ -46,6 +46,10 @@
         this.arrowHeadTween.setPaused(true);
 
         this.Count = 0;
+
+
+        this.engine.addChild("Arrow", this);
+        this.engine.getGroup("Arrow").addChild(this.arrowHead);
     }
     // Constructor
     Arrow.prototype = Object.create(pixi.Graphics.prototype);
@@ -114,7 +118,7 @@
 
         for (var index in opponentBoard) {
             var opponentCard = opponentBoard[index];
-           
+
             // Determine if the Mouse is inside the card bounds
             var isInside = this.engine.toolbox.Rectangle.containsRaw(
             opponentCard.x - (opponentCard.width / 2), // Top
@@ -126,7 +130,7 @@
 
             if (isInside) {
                 // Assign target on source card to the found opponent card
-               
+
                 card.target = opponentCard;
                 opponentCard.ScaleUp();
                 foundCard = true;
@@ -139,8 +143,8 @@
             }
         }
 
-        
-    
+
+
         return foundCard;
     }
 
@@ -164,7 +168,7 @@
 
         // Draw the arrow shaft
         this.clear();
-        this.lineStyle(15, 0xff0000, 1);
+        this.lineStyle(5, 0xff0000, 1);
         this.beginFill(0xffFF00, 0.5);
         this.moveTo(origin.x, origin.y);
         this.lineTo(mouse.x, mouse.y);
@@ -176,6 +180,7 @@
             this.visible = true;
             this.arrowHead.visible = true;
             this.arrowHeadTween.setPaused(false);
+            $("#game-window").css("cursor", "none");
         }
     }
 
@@ -190,34 +195,19 @@
     Arrow.prototype.Reset = function () {
         if (this.active) {
             this.engine.opponent.ScaleDown();
+            $("#game-window").css("cursor", "arrow");
 
             this.arrowHead.visible = false;
             this.active = false;
-            var position = { x: this.mousePos.x, y: this.mousePos.y };
-            var target = { x: this.originPos.x, y: this.originPos.y };
 
-            var that = this;
-            this.engine.CreateJS.Tween.get(position, {
-                override: true, onChange: function () {
-                    that.clear();
-                    that.lineStyle(20, 0xff0000, 1);
-                    that.beginFill(0xffFF00, 0.5);
-                    that.moveTo(that.originPos.x, that.originPos.y);
-                    that.lineTo(position.x, position.y);
-                }
-            })
-              .to(target, 300, this.engine.CreateJS.Ease.quadIn)
+            this.Hide();
 
-               // Call on complete 
-              .call(function () {
-                  that.Hide();
-              });
 
         }
     }
 
     Arrow.prototype.Process = function () {
-        var count = this.Count += 0.1
+        var count = this.Count += 0.05
 
 
         var colorMatrix = [1, 0, 0, 0,
@@ -225,12 +215,8 @@
                             0, 0, 1, 0,
                             0, 0, 0, 1];
 
-        colorMatrix[1] = Math.sin(count) * 3;
-        colorMatrix[2] = Math.cos(count);
-        colorMatrix[3] = Math.cos(count) * 1.5;
-        colorMatrix[4] = Math.sin(count / 3) * 2;
-        colorMatrix[5] = Math.sin(count / 2);
-        colorMatrix[6] = Math.sin(count / 4);
+        colorMatrix[0] = Math.sin(count);
+
         this.filter.matrix = colorMatrix;
     }
 

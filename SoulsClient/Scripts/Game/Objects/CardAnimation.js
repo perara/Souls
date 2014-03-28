@@ -135,6 +135,7 @@
 
         function DeathAnimation(card) {
             card.owner.holdingCard = undefined;
+            card.inSlot.Reset();
 
             var values = {
                 scaleY: card.scale.y,
@@ -246,22 +247,22 @@
     /// <param name="c">The card</param>
     CardAnimation.prototype.AnimateBack = function (c) {
 
+ 
         c.OrderOriginalPosition();
-
         var target =
             {
                 x: c.position.originX,
                 y: c.position.originY
             }
 
-        CreateJS.Tween.get(c, { override: true })
+        CreateJS.Tween.get(c, { override: false })
             .to(target, 1000, CreateJS.Ease.elasticOut)
             .call(onComplete);
 
         function onComplete() {
             // Set Mount variable to true
-            c.pickedUp = false;
             c.interactive = true;
+            c._awaitRequest = false;
         }
     }
 

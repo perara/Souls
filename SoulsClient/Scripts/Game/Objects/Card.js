@@ -2,7 +2,7 @@
 
     var that = this;
 
-    Card = function (engine, jsonData) {
+    Card = function (engine, jsonData, count) {
         var texture = asset.GetTexture(asset.Textures.CARD_NONE);
         pixi.Sprite.call(this, texture);
 
@@ -21,7 +21,9 @@
         // Card Position
         this.position.x = this.position.originX = 0;
         this.position.y = this.position.originY = 0;
-        this.order = undefined; // Must be set on card creation (When adding to group)
+        this.order = count; // Must be set on card creation (When adding to group)
+
+        console.log(this.order);
 
         // Create a stopwatch for network pulse (Movement specifically)
         this.networkStopWatch = new Stopwatch();
@@ -53,6 +55,7 @@
         // Setup the card layout / graphics
         this.SetupFrontCard(this);
         this.SetupBackCard(this);
+        this.addChild(this.frontCard);
 
         // Setup the text data
         this.SetText(
@@ -70,9 +73,10 @@
         this.hoverSlot = undefined;
         this.inSlot = undefined;
         this.owner = undefined;
-        this.pickedUp = undefined;
+        this.pickedUp = false;
         this.cardFlipped = false;
         this.target = undefined;
+        this.antiSpam = true;
 
 
     };
@@ -95,7 +99,8 @@
         }
         if (text.cost || text.cost == 0) {
             this.cost = text.cost;
-            this.texts.cost.setText(text.cost);
+            //this.texts.cost.setText(text.cost);
+            this.texts.cost.setText((!!this.order) ? this.order : "NA");
         }
         if (text.ability) {
             this.ability = text.ability;
@@ -109,8 +114,7 @@
             this.attack = text.attack;
             this.texts.attack.setText(text.attack);
         }
-        if(text.race)
-        {
+        if (text.race) {
             this.race = text.race.id;
             this.SetupFrontCard();
         }
@@ -130,7 +134,7 @@
         this.frontCard.anchor = { x: 0.5, y: 0.5 };
         this.frontCard.height = 210;
         this.frontCard.width = 150;
-        this.addChild(this.frontCard);
+
 
         // Card Image
         var portrait = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT));
@@ -291,54 +295,57 @@
 
     Card.prototype.OrderOriginalPosition = function () {
         var parent = this.parent;
-        parent.removeChild(this);
 
-        // If the this card's order is higher than actual size of the children array, set it to the last index available.
-        if (this.order >= parent.children.length) {
-            parent.addChild(this);
-            this.order = parent.children.length - 1
-        } else {
+        parent.addChildAt(this, this.order);
 
-            parent.addChildAt(this, this.order);
-        }
-
-
+        //console.log(this.name + " next in line is : " + ((!!parent.children[this.order + 1]) ? parent.children[this.order + 1].name : " none"));
+        //console.log(parent)
     }
 
     /// <summary>
     /// Picks up the card
     /// </summary>
     Card.prototype.Pickup = function () {
-        this.ScaleUp();
+        if (!this.pickedUp) {
+            this.ScaleUp();
 
-        this.OrderLast();
+            this.OrderLast();
 
-        this.pickedUp = true;
-        this.engine.player.holdingCard = this;
 
-        var position = { rotation: this.rotation };
+            this.pickedUp = true;
 
-        asset.GetSound(asset.Sound.CARD_PICKUP).play();
+            this.engine.player.holdingCard = this;
+            var position = { rotation: this.rotation };
+
+            asset.GetSound(asset.Sound.CARD_PICKUP).play();
+
+            if (this.inSlot) {
+                this.engine.SwapFromToGroup(this, "Card-Player", "Card-Focus");
+            }
+        }
     }
 
     /// <summary>
     /// Puts down the card
     /// </summary>
     Card.prototype.PutDown = function () {
-        this.ScaleDown();
+        if (!!this.pickedUp) {
+            this.ScaleDown();
 
-        // Do scaling for the hoverslot if exists
-        if (!!this.hoverSlot) {
-            // this.hoverSlot.card = undefined;
-            this.hoverSlot.doScaling();
-        }
+            // Do scaling for the hoverslot if exists
+            if (!!this.hoverSlot) {
+                // this.hoverSlot.card = undefined;
+                this.hoverSlot.doScaling();
+            }
 
-        if (this.inSlot) {
+            if (this.inSlot) {
+                this.engine.SwapFromToGroup(this, "Card-Focus", "Card-Player");
+            }
+
             this.pickedUp = false;
+            this.engine.player.lastHoldingCard = this.engine.player.holdingCard;
+            this.engine.player.holdingCard = undefined;
         }
-
-        this.engine.player.lastHoldingCard = this.engine.player.holdingCard;
-        this.engine.player.holdingCard = undefined;
     }
 
     /// <summary>
@@ -346,14 +353,19 @@
     /// </summary>
     Card.prototype.OnHoverEffects = function () {
         // Only fire when card is not picked up
-        if (!this.pickedUp && !this.inSlot && !this.engine.player.holdingCard) {
+        if (!this.pickedUp &&
+            !this.inSlot &&
+            !this.engine.player.holdingCard &&
+            !this._awaitRequest) {
+
+
 
             // Create a mouse object to test intersection with
             var mouse =
                 {
-                    x: this.engine.conf.mouse.x + (this.width / 2) - 30,
+                    x: this.engine.conf.mouse.x + (this.width / 2) - 25,
                     y: this.engine.conf.mouse.y,
-                    width: 60,
+                    width: 50,
                     height: this.height
                 }
 
@@ -361,45 +373,58 @@
             // Check if the mouse intersects the card 
             var mouseIntersects = Toolbox.Rectangle.intersectsYAxis(this, mouse, { x: 0, y: 0 }, { x: 0, y: 0 });
 
+
             // If the mouse intersects
             if (mouseIntersects) {
-                // Do antispam
-                if (!!this.antiSpam) {
 
+                if (this.owner._chover != this) {
+                    this.OrderOriginalPosition();
+                    this.owner._chover = this;
+                    this._reset = false;
                     // Scale up
                     this.scale = { x: 2.2, y: 2.2 };
 
                     // Run tween
+                    this.interactive = false;
                     this.engine.CreateJS.Tween.get(this, { override: true })
                         .to({ y: this.position.originY - 120 }, 200, this.engine.CreateJS.Ease.elasticOut)
+                        .call(function () {
+                            this.interactive = true;
+                        })
 
-                    // Reorganize the card order to top
+
                     this.OrderLast();
+                }
+            }
+            else {
 
-                    // Change state of antispam
-                    this.antiSpam = false;
+                if (this.owner._chover == this) {
+                    this._reset = false;
+                    this.owner._chover = undefined;
+                }
+                else {
+                    if (!this._reset) {
+
+                        // Run tween
+                        this.interactive = false;
+                        this.engine.CreateJS.Tween.get(this, { override: true })
+                            .to({ y: this.position.originY }, 500, this.engine.CreateJS.Ease.elasticOut)
+                            .call(function () {
+                                this.interactive = true;
+                            })
+
+
+                        this.ScaleDown();
+                        this._reset = true;
+                    }
+                }
+
+                if (!this.owner._chover) {
+                    this.OrderOriginalPosition();
                 }
 
             }
-            else {
-                // Do antispam
-                if (!this.antiSpam) {
-
-                    this.OrderOriginalPosition();
-
-                    // Scale down
-                    this.ScaleDown();
-
-                    // Run tween
-                    this.engine.CreateJS.Tween.get(this, { override: true })
-                        .to({ y: this.position.originY }, 500, this.engine.CreateJS.Ease.elasticOut)
-
-
-                    // Change antispam state
-                    this.antiSpam = true;
-                }
-            } // -- Intersects
-        } // -- Picked Up
+        }// -- Picked Up
     } // -- Function
 
     /// <summary>
@@ -468,6 +493,7 @@
         // Check if player hovers a card
         this.OnHoverEffects();
 
+
     }
 
     /// <summary>
@@ -487,7 +513,7 @@
             else // Must be a card
             {
                 this.engine.gameService.Request_Attack(this, this.target, 0);
-               
+
             }
 
 
@@ -548,32 +574,28 @@
     }
 
 
-    Card.prototype.AttackOpponent = function(attackerInfo, defenderInfo, defender)
-    {
+    Card.prototype.AttackOpponent = function (attackerInfo, defenderInfo, defender) {
         var attacker = this;
 
         // Define callbacks which should be used in the card Animation
         var attackCallbacks =
             {
                 ChangeHealth: function () {
-                   /* defender.SetText(
-                   {
-                       health: defender.health
-                   });
-
-                    //Attacker
-                    attacker.SetText(
+                    /* defender.SetText(
                     {
-                        health: attacker.health
-                    });*/
+                        health: defender.health
+                    });
+ 
+                     //Attacker
+                     attacker.SetText(
+                     {
+                         health: attacker.health
+                     });*/
                 }
             }
 
 
         CardAnimation.Attack(attacker, defender, attackerInfo, defenderInfo, attackCallbacks);
-        //console.log(attackerInfo);
-        //console.log(defenderInfo);
-
     }
 
 
@@ -621,11 +643,6 @@
 
         // Put the card down
         this.PutDown();
-
-        // Set off interactive while its running Tweens back (Animate Back will fire)
-        if (!this.inSlot) {
-            this.interactive = false;
-        }
 
         // Reset arrow.
         this.owner.arrow.Reset();

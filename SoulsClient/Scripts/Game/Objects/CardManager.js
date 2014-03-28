@@ -15,6 +15,8 @@
         this.startCardY = undefined;
 
         this.cardSpacing = 60;
+
+        this.handCounter = 0;
     }
 
     CardManager.prototype.constructor = CardManager;
@@ -27,8 +29,9 @@
 
         for (index in this.hand) {
 
-
             var c = this.hand[index];
+            c.order = count;
+            c.OrderOriginalPosition();
 
             c.position.originX = +this.startCardX + (this.cardSpacing * (count++));
             c.y = c.position.originY = this.startCardY;
@@ -41,6 +44,7 @@
 
 
         }
+        this.handCounter = count;
 
     }
 
@@ -55,7 +59,7 @@
 
         // If this is Opponent we want to start the card flipped
         if (!this.isPlayer) {
-            this.hand[c.cid].FlipCard();
+            c.FlipCard();
         }
     }
 
@@ -134,24 +138,22 @@
         this.startCardY = conf.y;
 
 
-        var count = Object.keys(this.hand).length;
-
         // Iterate over cards
         for (var cJson in jsonCards) {
 
 
             var position = {
-                x: conf.x + (this.cardSpacing * (count)),
+                x: conf.x + (this.cardSpacing * (this.handCounter)),
                 y: conf.y,
                 rotation: 0
             };
 
             // Create a card
-            var card = this.CreateCard(jsonCards[cJson], position);
-            card.order = count++;
+            var card = this.CreateCard(jsonCards[cJson], position, this.handCounter++);
 
             this.AddCardHand(card);
         }
+
     }
 
     /// <summary>
@@ -161,9 +163,9 @@
     /// <param name="position">Should contain: X position, Y position and ROTATION</param>
     /// <param name="owner">either "Player" or "Opponent"</param>
     /// <returns type=""></returns>
-    CardManager.prototype.CreateCard = function (jsonCard, position) {
+    CardManager.prototype.CreateCard = function (jsonCard, position, order) {
 
-        var c = new Card(this.engine, jsonCard);
+        var c = new Card(this.engine, jsonCard, order);
         c.x = c.position.originX = position.x;
         c.y = c.position.originY = position.y;
         c.originRot = position.rotation;
@@ -181,7 +183,7 @@
         else {
             console.log("Error, a non existing ''playoropp''");
         }
-
+       
         return c;
     }
 
@@ -204,19 +206,17 @@
     }
 
     CardManager.prototype.RemoveCard = function (card) {
-        if (card.owner.isPlayer)
-        {
+        if (card.owner.isPlayer) {
             //console.log(card);
             //console.log(this.engine.getGroup("Card-Player"));
             this.engine.getGroup("Card-Player").removeChild(card);
         }
-        else
-        {
+        else {
             //console.log(card);
             //console.log(this.engine.getGroup("Card-Opponent"));
             this.engine.getGroup("Card-Opponent").removeChild(card);
         }
-       // console.log("Deleted card " + card);
+        // console.log("Deleted card " + card);
         delete this.board[card.cid]; // Delete from hand
     }
 
