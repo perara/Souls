@@ -606,11 +606,6 @@
         attacker.health = attackerInfo.health;
         defender.health = defenderInfo.health;
 
-
-        console.log("HEREYOUGO");
-        console.log(attackerInfo);
-        console.log(defenderInfo);
-
         // Check and set death
         if (attacker.health <= 0) {
             attacker.isDead = true // Sets the card dead

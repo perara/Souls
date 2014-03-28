@@ -50,9 +50,7 @@
         that.alpha = 0;
         this.messageText.scale.x = 1;
         this.messageText.scale.y = 1;
-        this.engine.CreateJS.Tween.removeAllTweens();
-
-
+        //this.engine.CreateJS.Tween.removeAllTweens();
 
         this.engine.stage.addChild(that.engine.getGroup("Queue"));
         that.messageText.setText(text)

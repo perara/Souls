@@ -495,7 +495,8 @@ namespace Souls.Server.Game
                     requestPlayer.gameRoom.isEnded = true;
 
                     // Check that the game is actually ONGOING
-                    if (!this.GameRoomRunning(requestPlayer)) return;
+                    this.GameRoomRunning(requestPlayer);
+                    this.GameRoomRunning(requestPlayer.GetOpponent());
                 }
 
                 if (sourceCard.isDead)
