@@ -92,15 +92,18 @@
     /// </summary>
     /// <param name="text">Example on format : {health: 10, cost: 5}</param>
     Card.prototype.SetText = function (text) {
-        console.log(text);
+      
         if (text.health) {
             this.health = text.health;
-            this.texts.health.setText(text.health);
+
+            console.log(this.txtHealth.text);
+            this.txtHealth.setText(text.health);
+            console.log(this.txtHealth.text);
+          
         }
         if (text.cost || text.cost == 0) {
             this.cost = text.cost;
-            //this.texts.cost.setText(text.cost);
-            this.texts.cost.setText((!!this.order) ? this.order : "NA");
+            this.texts.cost.setText(text.cost);
         }
         if (text.ability) {
             this.ability = text.ability;
@@ -146,17 +149,19 @@
         this.frontCard.addChild(portrait);
 
         // CardFactory Health Label
-        var txtHealth = new pixi.Text(this.health,
+        this.txtHealth = new pixi.Text(this.health,
             {
                 font: "45px Arial",
                 fill: "white",
                 stroke: '#000000',
-                strokeThickness: 4
+                strokeThickness: 4,
+                align: "left"
             });
-        txtHealth.anchor = { x: 0, y: 0 };
-        txtHealth.position.x = (this.frontCard.width) - (txtHealth.width + 13);
-        txtHealth.position.y = (this.frontCard.height) - (txtHealth.height);
-        this.texts.health = txtHealth;
+        this.txtHealth.anchor = { x: 0.5, y: 0.0 };
+    
+        this.txtHealth.position.x = (this.frontCard.width) - (15 * this.health.length) + 3;
+        this.txtHealth.position.y = (this.frontCard.height) - (this.txtHealth.height) - 2;
+        this.texts.health = this.txtHealth;
 
         // CardFactory Mana Label
         var txtCost = new pixi.Text(this.cost,
@@ -211,7 +216,7 @@
         txtName.y = -(this.frontCard.height) + 30
         this.texts.name = txtName;
 
-        this.frontCard.addChild(txtHealth);
+        this.frontCard.addChild(this.txtHealth);
         this.frontCard.addChild(txtCost);
         this.frontCard.addChild(txtAttack);
         this.frontCard.addChild(txtAbility);
@@ -365,7 +370,7 @@
                 {
                     x: this.engine.conf.mouse.x + (this.width / 2) - 25,
                     y: this.engine.conf.mouse.y,
-                    width: 60,
+                    width: 59,
                     height: this.height - 50
 
                 }
@@ -534,7 +539,6 @@
     /// <param name="defender"></param>
     Card.prototype.Attack = function (attackerInfo, defenderInfo, defender) {
         var attacker = this;
-
         this.engine.player.arrow.Hide();
 
         // Set the correct health
@@ -554,14 +558,17 @@
         }
 
 
+       
+
         // Define callbacks which should be used in the card Animation
         var attackCallbacks =
             {
                 ChangeHealth: function () {
+
                     defender.SetText(
-                   {
-                       health: defender.health
-                   });
+                    {
+                        health: defender.health
+                    });
 
                     //Attacker
                     attacker.SetText(
@@ -582,16 +589,16 @@
         var attackCallbacks =
             {
                 ChangeHealth: function () {
-                    /* defender.SetText(
+                    defender.SetText(
+                   {
+                       health: defender.health
+                   });
+
+                    //Attacker
+                    attacker.SetText(
                     {
-                        health: defender.health
+                        health: attacker.health
                     });
- 
-                     //Attacker
-                     attacker.SetText(
-                     {
-                         health: attacker.health
-                     });*/
                 }
             }
 
