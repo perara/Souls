@@ -88,9 +88,10 @@ http://buzz.jaysalvat.com/documentation/buzz/
 
             PLAYER_NONE: Asset.Path.Textures + "Card/player_none.png",
             PLAYER_FRAME: Asset.Path.Textures + "Card/player_frame.png",
+            PLAYER_MANA: Asset.Path.Textures + "Card/player_mana.png",
 
             OPPONENT_NONE: Asset.Path.Textures + "Card/player_none.png", //TODO
-            OPPONENT_FRAME: Asset.Path.Textures + "Card/player_frame.png",//TODO
+            OPPONENT_FRAME: Asset.Path.Textures + "Card/opponent_frame.png",//TODO
 
         }
 

@@ -671,6 +671,9 @@
         // Check and Request a "UseCard"
         this.engine.gameService.Request_UseCard(this);
 
+        // Removes hovercard from owner
+        this.owner._chover = undefined;
+
         // Disable Dragging
         this.dragging = false;
     };

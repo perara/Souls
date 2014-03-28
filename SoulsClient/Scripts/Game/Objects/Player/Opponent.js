@@ -2,16 +2,20 @@
 
 
     Opponent = function (engine) {
-        var texture = asset.GetTexture(asset.Textures.PLAYER_NONE);
-        playerBase.call(this, texture, engine)
+        var portrait = asset.GetTexture(asset.Textures.CARD_PORTRAIT);
+        playerBase.call(this, portrait, engine, false)
 
-        this.isPlayer = false;
+        // Defining differences from player and opponent
+        this.pNamePanelText.y -= this.height / 1.22;
+        this.pHealthText.y -= this.height / 2.25;
+        this.pAttackText.y -= this.height / 2.25;
 
     }
     // Constructor
     Opponent.prototype = Object.create(PlayerBase.prototype);
     Opponent.prototype.constructor = Opponent;
 
+    // Initializer function
     Opponent.prototype.Init = function () {
         this.engine.addChild("Opponent", this);
         this.cardManager = new CardManager(this.engine, false);
@@ -23,12 +27,7 @@
                 x: (this.engine.conf.width / 2),
                 y: this.height / 2
             });
-
     }
-
-
-
-
 
     return Opponent;
 

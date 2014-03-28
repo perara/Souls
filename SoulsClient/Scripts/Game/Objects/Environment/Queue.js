@@ -27,13 +27,10 @@
 
         this.addChild(this.messageText);
 
-
     }
     // Constructor
     Queue.prototype = Object.create(Pixi.Sprite.prototype);
     Queue.prototype.constructor = Queue;
-
-
 
     Queue.prototype.SetText = function(text)
     {
@@ -68,8 +65,6 @@
             }
         }
     }
-
-
 
     return Queue;
 
