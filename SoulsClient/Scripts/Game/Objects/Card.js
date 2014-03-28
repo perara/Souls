@@ -365,8 +365,9 @@
                 {
                     x: this.engine.conf.mouse.x + (this.width / 2) - 25,
                     y: this.engine.conf.mouse.y,
-                    width: 50,
-                    height: this.height
+                    width: 60,
+                    height: this.height - 50
+
                 }
 
 
@@ -375,7 +376,7 @@
 
 
             // If the mouse intersects
-            if (mouseIntersects) {
+            if (mouseIntersects && !(mouse.y < (this.engine.conf.height - 200))) {
 
                 if (this.owner._chover != this) {
                     this.OrderOriginalPosition();
