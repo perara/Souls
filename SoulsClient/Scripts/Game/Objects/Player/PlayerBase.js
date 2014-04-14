@@ -1,17 +1,22 @@
-﻿define("playerbase", ["jquery", "pixi", "asset", "iAnimation", "animation"], function ($, pixi, asset, AnimationInterface, Animation) {
+﻿define("playerbase", ["jquery", "pixi", "asset", "iAnimation", "animation"], function ($, pixi, Asset, AnimationInterface, Animation) {
 
-    PlayerBase = function (portrait, engine, isPlayer) {
 
-        var frame = (isPlayer) ? asset.GetTexture(asset.Textures.PLAYER_FRAME) : asset.GetTexture(asset.Textures.OPPONENT_FRAME);
-        pixi.Sprite.call(this, asset.GetTexture(asset.Textures.PLAYER_NONE));
+    PlayerBase = function (engine, isPlayer) {
+       
+        var frame = (isPlayer) ? Asset.GetTexture(Asset.Textures.PLAYER_FRAME) : Asset.GetTexture(Asset.Textures.OPPONENT_FRAME);
+
+
+
+        pixi.Sprite.call(this, Asset.GetTexture(Asset.Textures.PLAYER_NONE));
         this.engine = engine;
-        // Card Animation
-        this.Animation =  new AnimationInterface();
+
+        // Player Animation
+        this.Animation = new AnimationInterface();
         this.Animation.Death = Animation.Player.Death;
         this.Animation.Defend = Animation.Player.Defend;
         this.Animation.Attack = Animation.Player.Attack;
 
-        var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };
+        var json = { name: "NA", attack: "NA", health: "NA", mana: "NA", type: 0 };
 
         // Defining variables
         this.anchor = { x: 0.5, y: 0.5 };
@@ -22,6 +27,7 @@
         this.attack = json.attack;
         this.mana = json.mana;
         this.name = json.name;
+        this.type = json.type;
         this.manaCrystals = new Array();
 
 
@@ -40,7 +46,7 @@
         pFrame.width = this.width;
         pFrame.height = this.height;
 
-        this._originalScale = 
+        this._originalScale =
             {
                 x: this.scale.x,
                 y: this.scale.y
@@ -48,14 +54,14 @@
 
 
         // Player Portrait
-        var pPortrait = this.portrait = new pixi.Sprite(portrait);
-        pPortrait.anchor = { x: 0.5, y: 0.5 };
-        pPortrait.width = this.width;
-        pPortrait.height = this.height;
-        pPortrait.x = 0;
-        pPortrait.y = 0;
+        this.pPortrait = this.portrait = new pixi.Sprite(this.GetPortrait(this.type));
+        this.pPortrait.anchor = { x: 0.5, y: 0.5 };
+        this.pPortrait.width = this.width;
+        this.pPortrait.height = this.height;
+        this.pPortrait.x = 0;
+        this.pPortrait.y = 0;
 
-        pPortrait.mask = masking;
+        this.pPortrait.mask = masking;
 
         // Name text
         this.pNamePanelText = new pixi.Text(this.name,
@@ -85,7 +91,7 @@
         this.pAttackText.anchor = { x: 0.5, y: 1 };
         this.pAttackText.x -= this.width / 2.66;
         this.pAttackText.y += this.height / 3.2;
-      
+
         // Health text
         this.pHealthText = new pixi.Text(this.health,
             {
@@ -102,7 +108,7 @@
         this.pHealthText.y += this.height / 3.2;
 
         // Adding sprites to base
-        this.addChild(pPortrait);
+        this.addChild(this.pPortrait);
         this.addChild(masking);
         this.addChild(pFrame);
         this.addChild(this.pNamePanelText);
@@ -129,7 +135,7 @@
 
         for (var i = 0; i < num; i++) {
             var item = this.manaCrystals[i];
-            item = new pixi.Sprite(asset.GetTexture(asset.Textures.PLAYER_MANA));
+            item = new pixi.Sprite(Asset.GetTexture(Asset.Textures.PLAYER_MANA));
             item.anchor = { x: 0.5, y: 0.5 };
             item.width = 30;
             item.height = 30;
@@ -146,6 +152,27 @@
     PlayerBase.prototype = Object.create(pixi.Sprite.prototype);
     PlayerBase.prototype.constructor = PlayerBase;
 
+    PlayerBase.prototype.GetPortrait = function (portraitId) {
+        var portraits =
+            {
+                0: Asset.Textures.PLAYER_PORTRAIT_UNKNOWN,
+                1: Asset.Textures.PLAYER_PORTRAIT_ONE,
+                2: Asset.Textures.PLAYER_PORTRAIT_TWO,
+                3: Asset.Textures.PLAYER_PORTRAIT_THREE,
+                4: Asset.Textures.PLAYER_PORTRAIT_FOUR,
+                5: Asset.Textures.PLAYER_PORTRAIT_FIVE,
+                6: Asset.Textures.PLAYER_PORTRAIT_SIX,
+            };
+
+        if (portraits[portraitId]) {
+            return Asset.GetTexture(portraits[portraitId]);
+        }
+        else {
+            console.log("Missing PLAYER Texture ID: " + portraitId);
+            return Asset.GetTexture(portraits[0]);
+        }
+    }
+
     PlayerBase.prototype.Process = function () {
         console.log("> [PlayerBase]: Implement Process()");
     }
@@ -155,21 +182,12 @@
         this.playerNr = undefined;
     }
 
-    /*var json = { name: "NA", attack: "NA", health: "NA", mana: "NA" };*/
-    /* PlayerBase.prototype.SetText = function (jsonData) {
-         this.graphicText = jsonData;
-         this.pAttackText.setText(this.graphicText.attack);
-         this.pHealthText.setText(this.graphicText.health);
-         this.pManaText.setText(this.graphicText.mana);
-         this.pNamePanelText.setText(this.graphicText.name);
-     }*/
 
     /// <summary>
     /// Sets a text field on the card depending on what the input is. see param
     /// </summary>
     /// <param name="text">Example on format : {health: 10, cost: 5}</param>
     PlayerBase.prototype.SetText = function (text) {
-        console.log(text);
         this.graphicText = text;
         if (text.health) {
             this.health = text.health;
@@ -204,6 +222,10 @@
         }
         if (text.race) {
             // this.race = text.race.id;
+        }
+        if(text.type)
+        {
+            this.pPortrait.texture = this.GetPortrait(text.type);
         }
     }
 

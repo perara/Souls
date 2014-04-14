@@ -62,37 +62,45 @@ http://buzz.jaysalvat.com/documentation/buzz/
             END_TURN: Asset.Path.Textures + "endturn.png",
             END_TURN_DISABLED: Asset.Path.Textures + "endturn_disabled.png",
 
-
-            // Card Textures
+            // Card
             CARD_NONE: Asset.Path.Textures + "Card/CARD_NONE.png",
             CARD_SLOT: Asset.Path.Textures + "Card/cardslot.png",
             CARD_BACK: Asset.Path.Textures + "Card/cardback.png",
-            CARD_DARKNESS: Asset.Path.Textures + "Card/darkness.png",
-            CARD_VAMPIRIC: Asset.Path.Textures + "Card/vampiric.png",
-            CARD_LIGHTBRINGER: Asset.Path.Textures + "Card/lightbringer.png",
-            CARD_FEROCIOUS: Asset.Path.Textures + "Card/ferocious.png",
-            CARD_ERROR: Asset.Path.Textures + "Card/card_error.png",
+            CARD_DARKNESS: Asset.Path.Textures + "Card/Texture/darkness.png",
+            CARD_VAMPIRIC: Asset.Path.Textures + "Card/Texture/vampiric.png",
+            CARD_LIGHTBRINGER: Asset.Path.Textures + "Card/Texture/lightbringer.png",
+            CARD_FEROCIOUS: Asset.Path.Textures + "Card/Texture/ferocious.png",
+            CARD_ERROR: Asset.Path.Textures + "Card/Texture/card_error.png",
 
             // Target arrow
             ARROW_CORSHAIR : Asset.Path.Textures + "target.png",
 
+            // Player Frame
+            PLAYER_NONE: Asset.Path.Textures + "Player/player_none.png",
+            PLAYER_FRAME: Asset.Path.Textures + "Player/player_frame.png",
+            PLAYER_MANA: Asset.Path.Textures + "Player/player_mana.png",
 
-            // DEPRECATED, USED FOR PLAYER ATM :o
-            CARD_PORTRAIT: Asset.Path.Textures + "Card/dr_robot.png",
-            CARD_PORTRAIT_BORDER: Asset.Path.Textures + "Card/card_image_frame.png",
-            CARD_HEALTH: Asset.Path.Textures + "Card/card_health.png",
-            CARD_MANA: Asset.Path.Textures + "Card/card_mana.png",
-            CARD_ATTACK: Asset.Path.Textures + "Card/card_attack.png",
-            CARD_ABILITY_PANEL: Asset.Path.Textures + "Card/card_ability_pane.png",
-            CARD_NAME_PANEL: Asset.Path.Textures + "Card/card_name_pane.png",
+            // Opponent Frame
+            OPPONENT_NONE: Asset.Path.Textures + "Player/player_none.png", 
+            OPPONENT_FRAME: Asset.Path.Textures + "Player/opponent_frame.png",
 
-            PLAYER_NONE: Asset.Path.Textures + "Card/player_none.png",
-            PLAYER_FRAME: Asset.Path.Textures + "Card/player_frame.png",
-            PLAYER_MANA: Asset.Path.Textures + "Card/player_mana.png",
+            // Card Portraits
+            CARD_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Card/Portraits/0.jpg",
+            CARD_PORTRAIT_ONE: Asset.Path.Textures + "Card/Portraits/1.png",
+            CARD_PORTRAIT_TWO: Asset.Path.Textures + "Card/Portraits/2.png",
+            CARD_PORTRAIT_THREE: Asset.Path.Textures + "Card/Portraits/3.jpg",
+            CARD_PORTRAIT_FOUR: Asset.Path.Textures + "Card/Portraits/4.jpg",
+            CARD_PORTRAIT_FIVE: Asset.Path.Textures + "Card/Portraits/5.jpg",
+            CARD_PORTRAIT_SIX: Asset.Path.Textures + "Card/Portraits/6.jpg",
 
-            OPPONENT_NONE: Asset.Path.Textures + "Card/player_none.png", //TODO
-            OPPONENT_FRAME: Asset.Path.Textures + "Card/opponent_frame.png",//TODO
-
+            // Player Portraits
+            PLAYER_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Player/Portraits/0.jpg",
+            PLAYER_PORTRAIT_ONE: Asset.Path.Textures + "Player/Portraits/1.png",
+            PLAYER_PORTRAIT_TWO: Asset.Path.Textures + "Player/Portraits/2.png",
+            PLAYER_PORTRAIT_THREE: Asset.Path.Textures + "Player/Portraits/3.jpg",
+            PLAYER_PORTRAIT_FOUR: Asset.Path.Textures + "Player/Portraits/4.jpg",
+            PLAYER_PORTRAIT_FIVE: Asset.Path.Textures + "Player/Portraits/5.jpg",
+            PLAYER_PORTRAIT_SIX: Asset.Path.Textures + "Player/Portraits/6.jpg",
         }
 
         Asset.prototype.Sound =

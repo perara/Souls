@@ -14,6 +14,8 @@
         var texture = asset.GetTexture(asset.Textures.CARD_NONE);
         pixi.Sprite.call(this, texture);
 
+
+
         // Engine reference
         this.engine = engine;
 
@@ -50,7 +52,8 @@
             cost: '',
             ability: '',
             attack: '',
-            name: ''
+            name: '',
+            id: ''
         }; //List with text objects
 
         // Card Data
@@ -60,6 +63,7 @@
         this.name = "NA";
         this.attack = "NA";
         this.ability = "NA";
+        this.id = (!!jsonData.id) ? jsonData.id : 0;
         this.race = (!!jsonData.race) ? jsonData.race.id : 0;
         this.isDead = false;
 
@@ -78,7 +82,8 @@
                 name: jsonData.name,
                 cost: jsonData.cost,
                 ability: (!!jsonData.ability) ? jsonData.ability.name : undefined,
-                race: jsonData.race
+                race: jsonData.race,
+                id: jsonData.id
 
             });
 
@@ -130,6 +135,9 @@
         if (text.race) {
             this.race = text.race.id;
         }
+        if (text.id) {
+            this.id = text.id;
+        }
     }
 
     Card.prototype.Reset = function()
@@ -152,9 +160,9 @@
         this.frontCard.height = 210;
         this.frontCard.width = 150;
 
-
+        
         // Card Image
-        var portrait = new pixi.Sprite(asset.GetTexture(asset.Textures.CARD_PORTRAIT));
+        var portrait = new pixi.Sprite(CardType.GetPortraitTexture(this.id));
         portrait.anchor = { x: 0.5, y: 0.5 };
         portrait.width = 236;
         portrait.height = 167;

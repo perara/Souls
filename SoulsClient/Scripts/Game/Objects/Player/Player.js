@@ -2,9 +2,7 @@
 
 
     Player = function (engine) {
-        var texture = asset.GetTexture(asset.Textures.PLAYER_FRAME);
-        var portrait = asset.GetTexture(asset.Textures.CARD_PORTRAIT);
-        playerBase.call(this, portrait, engine, true);
+        playerBase.call(this, engine, true);
 
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held

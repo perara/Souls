@@ -191,7 +191,8 @@
                  name: cardData.name,
                  cost: cardData.cost,
                  ability: cardData.ability.name,
-                 race: cardData.race
+                 race: cardData.race,
+                 id: cardData.id
              });
 
 

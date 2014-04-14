@@ -35,6 +35,7 @@ namespace Souls.Server.Objects
         public string name { get; set; }
         public int rank { get; set; }
         public GameRoom gameRoom { get; set; }
+        public int type { get; set; }
 
 
         public General playerContext { get; set; }
@@ -53,6 +54,8 @@ namespace Souls.Server.Objects
             data.Add("attack", attack.ToString());
             data.Add("mana", mana.ToString());
             data.Add("name", name);
+            data.Add("type", type.ToString());
+            
             return data;
         }
 

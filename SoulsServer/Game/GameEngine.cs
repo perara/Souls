@@ -163,6 +163,7 @@ namespace Souls.Server.Game
                 rank = players.First.rank,
                 isPlayerOne = true,
                 gameRoom = newRoom,
+                type = players.First.playerType.id
             };
 
             GamePlayer p2 = new GamePlayer(players.Second.gameContext)
@@ -175,6 +176,7 @@ namespace Souls.Server.Game
                 rank = players.Second.rank,
                 isPlayerOne = false,
                 gameRoom = newRoom,
+                type = players.Second.playerType.id
             };
 
             // Add GamePlayer objects to the Player contexts

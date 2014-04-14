@@ -2,8 +2,7 @@
 
 
     Opponent = function (engine) {
-        var portrait = asset.GetTexture(asset.Textures.CARD_PORTRAIT);
-        playerBase.call(this, portrait, engine, false)
+        playerBase.call(this, engine, false)
 
         // Defining differences from player and opponent
         this.pNamePanelText.y -= this.height / 1.22;
