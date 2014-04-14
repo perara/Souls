@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8ab1625b528649c68f334aa841a3105a" Name="Diagram1">
+        <EntityTypeShape EntityType="soulsModel.db_Ability" Width="1.5" PointX="0.75" PointY="4.375" />
+        <EntityTypeShape EntityType="soulsModel.db_Card" Width="1.5" PointX="3" PointY="3.875" />
+        <EntityTypeShape EntityType="soulsModel.db_Card_Type" Width="1.5" PointX="0.75" PointY="1.5" />
+        <EntityTypeShape EntityType="soulsModel.db_Game" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="soulsModel.db_Player" Width="1.5" PointX="5.25" PointY="7.625" />
+        <EntityTypeShape EntityType="soulsModel.db_Player_Hash" Width="1.5" PointX="7.5" PointY="6.75" />
+        <EntityTypeShape EntityType="soulsModel.db_Player_Login" Width="1.5" PointX="7.5" PointY="9.25" />
+        <EntityTypeShape EntityType="soulsModel.db_Player_Type" Width="1.5" PointX="3" PointY="7.75" />
+        <AssociationConnector Association="soulsModel.fk_ability" />
+        <AssociationConnector Association="soulsModel.fk_ability_s" />
+        <AssociationConnector Association="soulsModel.fk_card_type" />
+        <AssociationConnector Association="soulsModel.fk_play_id" />
+        <AssociationConnector Association="soulsModel.fk_player_id" />
+        <AssociationConnector Association="soulsModel.fk_player_type" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

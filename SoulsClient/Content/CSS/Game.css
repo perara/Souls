@@ -1,0 +1,32 @@
+﻿@font-face {
+font-family: ArchivoBlack-Regular;
+src: url("/Content/ArchivoBlack-Regular.otf") format("opentype");
+}
+
+ArchivoBlack-Regular.otf
+div#game-window{
+    min-width: 100%;
+    min-height: 100%;
+
+}
+
+.fullContainer
+{
+    min-width: 100% !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+
+}
+
+/*CHAT STUFF*/
+
+div.chat_messages{
+    min-height: 50%;
+   
+    min-width: 80%;
+    max-width: 80%;
+}
+
+div.chat_window{
+    
+}
