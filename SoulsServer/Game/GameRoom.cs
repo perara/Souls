@@ -38,7 +38,7 @@ namespace Souls.Server.Game
 
         public GameRoom()
         {
-            gameId = GameRoom.gameCounter++;
+            gameId = ++GameRoom.gameCounter;
             turn = 0;
             round = 1;
             isEnded = false;

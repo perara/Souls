@@ -181,11 +181,19 @@ namespace Souls.Server.Network
                 {
                     Logging.Write(Logging.Type.GAME, "User tried to log in twice");
 
-                    // Closes the Original connection
-                    //  origUser.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.NORMAL, "Same user connected twice, terminating first user");
-
+              
                     // Swaps out the old Connection with the new one.
                     this.SwapOutClient(origUser);
+
+                    // Check if gameplayer's game is already ended //TODO ? 
+                    Player player = OnlinePlayers.GetInstance().gameList[this];
+                    if (player.gPlayer != null)
+                    {
+                        if (player.gPlayer.gameRoom.isEnded)
+                        {
+                            player.gPlayer = null;
+                        }
+                    }
 
                     // Send LOGIN Ok
                     SendTo(new Response(ResponseType.LOGIN_OK, "Logged in as " + OnlinePlayers.GetInstance().gameList[this].name));

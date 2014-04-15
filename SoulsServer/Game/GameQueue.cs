@@ -26,9 +26,14 @@ namespace Souls.Server.Game
                 while (queue.Count() > 1)
                 {
                     queue.OrderBy(item => item.rank);
-                    matchedPlayers = new Pair<Player>(queue.First(), queue.Skip(1).First());
-                    queue.RemoveFirst();
-                    queue.RemoveFirst();
+
+                    Player p1 = queue.First();
+                    Player p2 = queue.Skip(1).First();
+
+                    removePlayer(p1);
+                    removePlayer(p2);
+
+                    matchedPlayers = new Pair<Player>(p1,p2);
 
                     // Callbacks to GameEngine's "initGame" and starts a game
                     initGame(matchedPlayers);

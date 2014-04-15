@@ -22,11 +22,11 @@ namespace Souls.Server.Objects
         ///  Flag which determines if the player is already in queue
         /// </summary>
         public bool inQueue { get; set; }
-
         /// <summary>
         /// Contains the game player corresponding to this player
         /// </summary>
         public GamePlayer gPlayer { get; set; }
+
 
         /// <summary>
         /// Contains chatPlayer which controls all of the chat handling
@@ -43,6 +43,27 @@ namespace Souls.Server.Objects
         /// </summary>
         public General chatContext { get; set; }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /************************************************************************/
+        /* Non INGAME stuff                                                     */
+        /************************************************************************/
 
         public bool ValidateHash()
         {

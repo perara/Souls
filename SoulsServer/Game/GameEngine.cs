@@ -41,7 +41,7 @@ namespace Souls.Server.Game
                 while (true)
                 {
                     bool matchMaked = GameQueue.GetInstance().matchPlayers(Request_CreateGame);
-                    // Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
+                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
 
                     Thread.Sleep(500);
                 }
@@ -223,6 +223,9 @@ namespace Souls.Server.Game
             else
             {
                 Console.WriteLine("[GAME] Player was already in game, giving gameUpdate (Create)");
+
+                // Check that the game is actually ONGOING
+                if (!this.GameRoomRunning(player.gPlayer)) return;
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate();
@@ -499,6 +502,7 @@ namespace Souls.Server.Game
                     // Check that the game is actually ONGOING
                     this.GameRoomRunning(requestPlayer);
                     this.GameRoomRunning(requestPlayer.GetOpponent());
+                                    
                 }
 
                 if (sourceCard.isDead)

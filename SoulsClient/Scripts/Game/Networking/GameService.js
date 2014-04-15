@@ -75,7 +75,7 @@
     {
         var type = json.Type;
 
-        that.engine.stage.interactive = false;
+        that.engine.OnEnd();
         if(type == 230)
         {
 

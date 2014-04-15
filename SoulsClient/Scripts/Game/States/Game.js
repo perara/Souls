@@ -96,8 +96,13 @@
         }
 
         Engine.prototype.OnEnd = function () {
-
-
+            this.getGroup("EndTurn").visible = false;
+            this.getGroup("Card-Opponent").visible = false;
+            this.getGroup("Card-Player").visible = false;
+            this.getGroup("Arrow").visible = false;
+            this.getGroup("Card-Focus").visible = false;
+            //this.getGroup("Queue");
+            //this.getGroup("Text");
         }
 
         Engine.prototype.OnPause = function () {
