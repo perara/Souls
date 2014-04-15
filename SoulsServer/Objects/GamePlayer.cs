@@ -47,6 +47,7 @@ namespace Souls.Server.Objects
             boardCards = new Dictionary<int, Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
         }
 
+
         public Dictionary<string, string> GetPlayerData()
         {
             Dictionary<string, string> data = new Dictionary<string, string>();
@@ -64,18 +65,7 @@ namespace Souls.Server.Objects
             return this.mana >= c.cost;
         }
 
-        public GamePlayer GetOpponent()
-        {
-            if (this.gameRoom.players.First.Equals(this))
-            {
-                return this.gameRoom.players.Second;
-            }
-            else if (this.gameRoom.players.Second.Equals(this))
-            {
-                return this.gameRoom.players.First;
-            }
-            return null; //TODO? 
-        }
+
 
 
         public void Attack(Card defCard)
@@ -92,9 +82,23 @@ namespace Souls.Server.Objects
             isDead = true;
         }
 
+        public Player GetOpponent()
+        {
+            if (this.gameRoom.players.First.gPlayer.Equals(this))
+            {
+                return this.gameRoom.players.Second;
+            }
+            else if (this.gameRoom.players.Second.gPlayer.Equals(this))
+            {
+                return this.gameRoom.players.First;
+            }
+            return null; //TODO? 
+        }
+
+
         public bool IsPlayerTurn()
         {
-            return (this.Equals(this.gameRoom.currentPlaying)) ? true : false;
+            return (this.Equals(this.gameRoom.currentPlaying.gPlayer)) ? true : false;
         }
 
         public List<Card> AddCard(int amount = 1)

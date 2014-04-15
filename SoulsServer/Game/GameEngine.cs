@@ -96,11 +96,8 @@ namespace Souls.Server.Game
         public void Request_MoveCard(Player player)
         {
 
-
-            GamePlayer requestPlayer = player.gPlayer;
-
             // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(requestPlayer)) return;
+            if (!this.GameRoomRunning(player)) return;
 
             JObject retData = new JObject(
                 new JProperty("cid", player.gameContext.data.Payload.cid),
@@ -116,7 +113,7 @@ namespace Souls.Server.Game
                 );
 
 
-            requestPlayer.GetOpponent().playerContext.SendTo(response);
+            player.gPlayer.GetOpponent().gameContext.SendTo(response);
 
 
 
@@ -124,10 +121,8 @@ namespace Souls.Server.Game
 
         public void Request_OpponentReleaseCard(Player player)
         {
-            GamePlayer requestPlayer = player.gPlayer;
-
             // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(requestPlayer)) return;
+            if (!this.GameRoomRunning(player)) return;
 
             JObject retData = new JObject(
              new JProperty("cid", player.gameContext.data.Payload.cid));
@@ -138,10 +133,10 @@ namespace Souls.Server.Game
                 );
 
 
-            requestPlayer.playerContext.SendTo(response);
+            player.gameContext.SendTo(response);
 
             response.Type = GameService.GameResponseType.GAME_OPPONENT_RELEASE;
-            requestPlayer.GetOpponent().playerContext.SendTo(response);
+            player.gPlayer.GetOpponent().gameContext.SendTo(response);
 
 
 
@@ -151,52 +146,23 @@ namespace Souls.Server.Game
         public void Request_CreateGame(Pair<Player> players)
         {
 
+            players.First.ConstructGamePlayer(true);
+            players.Second.ConstructGamePlayer(false);
+
+            // Create the GameRoom
             GameRoom newRoom = new GameRoom();
+            newRoom.AddGamePlayers(players);
 
-            GamePlayer p1 = new GamePlayer(players.First.gameContext)
-            {  // TODO missing any?
-                hash = players.First.hash,
-                name = players.First.name,
-                mana = players.First.playerType.mana,
-                attack = players.First.playerType.attack,
-                health = players.First.playerType.health,
-                rank = players.First.rank,
-                isPlayerOne = true,
-                gameRoom = newRoom,
-                type = players.First.playerType.id
-            };
+            players.First.gPlayer.gameRoom = newRoom;
+            players.Second.gPlayer.gameRoom = newRoom;
 
-            GamePlayer p2 = new GamePlayer(players.Second.gameContext)
-            { // TODO missing any?
-                hash = players.Second.hash,
-                name = players.Second.name,
-                mana = players.Second.playerType.mana,
-                attack = players.Second.playerType.attack,
-                health = players.Second.playerType.health,
-                rank = players.Second.rank,
-                isPlayerOne = false,
-                gameRoom = newRoom,
-                type = players.Second.playerType.id
-            };
-
-            // Add GamePlayer objects to the Player contexts
-            players.First.gPlayer = p1;
-            players.Second.gPlayer = p2;
-
-
-            Pair<GamePlayer> playerPair = new Pair<GamePlayer>(p1, p2);
-
-            // Create a game room
-            newRoom.AddGamePlayers(playerPair);
-
-
+            // Generate and send a response
             Pair<Response> response = newRoom.GenerateGameUpdate(true);
             players.First.gameContext.SendTo(response.First);
             players.Second.gameContext.SendTo(response.Second);
 
-
             // Send "Its your turn to the start player"
-            newRoom.currentPlaying.playerContext.SendDebug("Its your turn (DEBUG)");
+            newRoom.currentPlaying.gameContext.SendDebug("Its your turn (DEBUG)");
 
         }
 
@@ -225,7 +191,7 @@ namespace Souls.Server.Game
                 Console.WriteLine("[GAME] Player was already in game, giving gameUpdate (Create)");
 
                 // Check that the game is actually ONGOING
-                if (!this.GameRoomRunning(player.gPlayer)) return;
+                if (!this.GameRoomRunning(player)) return;
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate();
@@ -253,7 +219,7 @@ namespace Souls.Server.Game
             GamePlayer requestPlayer = player.gPlayer;
 
             // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(requestPlayer)) return;
+            if (!this.GameRoomRunning(player)) return;
 
             Card c;
             // Check if the card exists or not
@@ -339,7 +305,7 @@ namespace Souls.Server.Game
 
                 requestPlayer.playerContext.SendTo(response);
                 response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
-                requestPlayer.GetOpponent().playerContext.SendTo(response);
+                player.gPlayer.GetOpponent().gameContext.SendTo(response);
                 Logging.Write(Logging.Type.GAME, player.name + "Used a card!");
             }
         }
@@ -351,7 +317,7 @@ namespace Souls.Server.Game
             GamePlayer requestPlayer = player.gPlayer;
 
             // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(requestPlayer)) return;
+            if (!this.GameRoomRunning(player)) return;
 
             // Validate player turn
             if (!requestPlayer.IsPlayerTurn()) return;
@@ -360,7 +326,7 @@ namespace Souls.Server.Game
             requestPlayer.gameRoom.NextTurn();
 
             // Give a new card to the Opponent
-            this.Request_NewCard(requestPlayer.GetOpponent());
+            this.Request_NewCard(player.gPlayer.GetOpponent());
 
             // Send response
             requestPlayer.playerContext.SendTo(new Response(
@@ -368,14 +334,14 @@ namespace Souls.Server.Game
                 new JObject(
                     new JProperty("yourTurn", false),
                     new JProperty("playerInfo", JObject.FromObject(requestPlayer.GetPlayerData())),
-                    new JProperty("opponentInfo", JObject.FromObject(requestPlayer.GetOpponent().GetPlayerData()))
+                    new JProperty("opponentInfo", JObject.FromObject(player.gPlayer.GetOpponent().gPlayer.GetPlayerData()))
                     )));
 
-            requestPlayer.GetOpponent().playerContext.SendTo(new Response(
+            player.gPlayer.GetOpponent().gameContext.SendTo(new Response(
                 GameService.GameResponseType.GAME_NEXT_TURN,
                 new JObject(
                     new JProperty("yourTurn", true),
-                    new JProperty("playerInfo", JObject.FromObject(requestPlayer.GetOpponent().GetPlayerData())),
+                    new JProperty("playerInfo", JObject.FromObject(player.gPlayer.GetOpponent().gPlayer.GetPlayerData())),
                     new JProperty("opponentInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
                     )));
 
@@ -391,10 +357,10 @@ namespace Souls.Server.Game
 
             // Fetch GamePlayers
             GamePlayer requestPlayer = player.gPlayer;
-            GamePlayer opponent = requestPlayer.GetOpponent();
+            GamePlayer opponent = player.gPlayer.GetOpponent().gPlayer;
 
             // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(requestPlayer)) return;
+            if (!this.GameRoomRunning(player)) return;
 
 
             //////////////////////////////////////////////////////////////////////////
@@ -496,12 +462,12 @@ namespace Souls.Server.Game
                 if (opponent.isDead)
                 {
                     // Requester won
-                    requestPlayer.gameRoom.winner = requestPlayer;
+                    requestPlayer.gameRoom.winner = player;
                     requestPlayer.gameRoom.isEnded = true;
 
                     // Check that the game is actually ONGOING
-                    this.GameRoomRunning(requestPlayer);
-                    this.GameRoomRunning(requestPlayer.GetOpponent());
+                    this.GameRoomRunning(player);
+                    this.GameRoomRunning(player.gPlayer.GetOpponent());
                                     
                 }
 
@@ -561,15 +527,15 @@ namespace Souls.Server.Game
         ///  Sends a new card to the specified GamePlayer
         /// </summary>
         /// <param name="player">The game player</param>
-        public void Request_NewCard(GamePlayer player, int num = 1)
+        public void Request_NewCard(Player player, int num = 1)
         {
             // Do not allow more than 10 Cards
-            if (player.handCards.Count() >= 10) return;
+            if (player.gPlayer.handCards.Count() >= 10) return;
 
             // Create the new card
-            List<Card> newCard = player.AddCard(num);
+            List<Card> newCard = player.gPlayer.AddCard(num);
 
-            player.AddCardToHand(newCard);
+            player.gPlayer.AddCardToHand(newCard);
 
             // Create a response with the new card
             Response ret = new Response(GameService.GameResponseType.GAME_NEWCARD, new JObject(
@@ -577,7 +543,7 @@ namespace Souls.Server.Game
                 ));
 
             // Send to the player
-            player.playerContext.SendTo(ret);
+            player.gameContext.SendTo(ret);
 
 
             // Create a response with the CID to the opponent
@@ -591,7 +557,8 @@ namespace Souls.Server.Game
                ));
 
             // Send to the player
-            player.GetOpponent().playerContext.SendTo(retOpponent);
+
+            player.gPlayer.GetOpponent().gameContext.SendTo(retOpponent);
         }
 
 
@@ -600,12 +567,12 @@ namespace Souls.Server.Game
         /// </summary>
         /// <param name="gPlayer"> The gme player</param>
         /// <returns></returns>
-        public bool GameRoomRunning(GamePlayer gPlayer)
+        public bool GameRoomRunning(Player player)
         {
-            if (gPlayer.gameRoom.isEnded)
+            if (player.gPlayer.gameRoom.isEnded)
             {
-                gPlayer.playerContext.SendTo(
-                    new Response((gPlayer.gameRoom.winner == gPlayer) ?
+                player.gPlayer.playerContext.SendTo(
+                    new Response((player.gPlayer.gameRoom.winner == player) ?
                             GameService.GameResponseType.GAME_VICTORY :
                             GameService.GameResponseType.GAME_DEFEAT,
                             new JObject(

@@ -23,6 +23,7 @@ namespace Souls.Server.Objects
 
         public void addRoom(ChatRoom room)
         {
+            room.id = memberRooms.Count();
             memberRooms.Add(room.id, room);
         }
 

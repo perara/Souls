@@ -322,7 +322,7 @@ namespace Souls.Server.Network
 
                     Player requestPlayer = OnlinePlayers.GetInstance().chatList[this];
                     // Go via the game player object to get opponent context.
-                    Player opponentPlayer = OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent().playerContext];
+                    Player opponentPlayer = requestPlayer.gPlayer.GetOpponent();//OnlinePlayers.GetInstance().gameList[requestPlayer.gPlayer.GetOpponent()];
 
                     engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
 

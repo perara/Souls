@@ -23,10 +23,9 @@ namespace Souls.Server.Objects
         /// </summary>
         public bool inQueue { get; set; }
         /// <summary>
-        /// Contains the game player corresponding to this player
+        /// Contains GamePlayer which controls all of the chat handling
         /// </summary>
         public GamePlayer gPlayer { get; set; }
-
 
         /// <summary>
         /// Contains chatPlayer which controls all of the chat handling
@@ -46,8 +45,27 @@ namespace Souls.Server.Objects
 
 
 
+        public void ConstructGamePlayer(bool playerOne)
+        {
+            this.gPlayer = new GamePlayer(this.gameContext) // <-- needed? TODO
+            {  // TODO missing any?
+                hash = this.hash,
+                name = this.name,
+                mana = this.playerType.mana,
+                attack = this.playerType.attack,
+                health = this.playerType.health,
+                rank = this.rank,
+                isPlayerOne = playerOne,
+                gameRoom = null,
+                type = this.playerType.id
+            };
+        }
 
+        public void DestructGamePlayer()
+        {
+            this.gPlayer = null; //TODO
 
+        }
 
 
 

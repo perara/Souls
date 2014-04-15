@@ -18,7 +18,7 @@ namespace Souls.Server.Game
     {
         public static int gameCounter { get; set; }
 
-        public Pair<GamePlayer> players;
+        public Pair<Player> players;
         public int gameId { get; set; }
         public int turn { get; set; }
         public int round { get; set; }
@@ -30,9 +30,9 @@ namespace Souls.Server.Game
         /// </summary>
         public int cardCount { get; set; }
         // Contains the Player which is currently playing (Player's turn);
-        public GamePlayer currentPlaying { get; set; }
+        public Player currentPlaying { get; set; }
         public bool isEnded { get; set; }
-        public GamePlayer winner { get; set; }
+        public Player winner { get; set; }
 
 
 
@@ -44,7 +44,7 @@ namespace Souls.Server.Game
             isEnded = false;
         }
 
-        public void AddGamePlayers(Pair<GamePlayer> players)
+        public void AddGamePlayers(Pair<Player> players)
         {
             this.players = players;
 
@@ -53,8 +53,8 @@ namespace Souls.Server.Game
 
             List<Card> p1Cards = GetRandomCards(3);
             List<Card> p2Cards = GetRandomCards(3);
-            players.First.AddCardToHand(p1Cards);
-            players.Second.AddCardToHand(p2Cards);
+            players.First.gPlayer.AddCardToHand(p1Cards);
+            players.Second.gPlayer.AddCardToHand(p2Cards);
         }
 
         // Gets a specific number of random cards from the card database
@@ -72,9 +72,9 @@ namespace Souls.Server.Game
         }
 
         // Return GamePlayers of the game troom
-        public Pair<GamePlayer> getPlayers()
+        public Pair<Player> getPlayers()
         {
-            return new Pair<GamePlayer>(players.First, players.Second);
+            return new Pair<Player>(players.First, players.Second);
         }
 
         /// <summary>
@@ -94,10 +94,10 @@ namespace Souls.Server.Game
             }
 
             // Add a new card to player
-            currentPlaying.AddCard();
+            currentPlaying.gPlayer.AddCard();
 
             // Set mana equal to the round (unless +10)
-            currentPlaying.mana = (this.round < 10) ? this.round : 10;
+            currentPlaying.gPlayer.mana = (this.round < 10) ? this.round : 10;
         }
 
         /// <summary>
@@ -128,8 +128,8 @@ namespace Souls.Server.Game
                 );
 
             // Sends player turn update
-            p1Data.Add(new JProperty("yourTurn", players.First.IsPlayerTurn()));
-            p2Data.Add(new JProperty("yourTurn", players.Second.IsPlayerTurn()));
+            p1Data.Add(new JProperty("yourTurn", players.First.gPlayer.IsPlayerTurn()));
+            p2Data.Add(new JProperty("yourTurn", players.Second.gPlayer.IsPlayerTurn()));
 
             return gUpdates;
         }

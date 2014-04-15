@@ -28,14 +28,14 @@ namespace Souls.Server.Game
             if (playerOne)
             {
                 ident = 1;
-                player = room.players.First;
-                opponent = room.players.Second;
+                player = room.players.First.gPlayer;
+                opponent = room.players.Second.gPlayer;
             }
             else
             {
                 ident = 2;
-                player = room.players.Second;
-                opponent = room.players.First;
+                player = room.players.Second.gPlayer;
+                opponent = room.players.First.gPlayer;
             }
 
             // Construct a game update object 
