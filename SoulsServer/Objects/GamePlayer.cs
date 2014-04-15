@@ -37,12 +37,8 @@ namespace Souls.Server.Objects
         public GameRoom gameRoom { get; set; }
         public int type { get; set; }
 
-
-        public General playerContext { get; set; }
-
-        public GamePlayer(General playerContext)
+        public GamePlayer()
         {
-            this.playerContext = playerContext;
             handCards = new Dictionary<int, Card>(10);
             boardCards = new Dictionary<int, Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
         }

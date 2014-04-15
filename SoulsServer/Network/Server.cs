@@ -482,11 +482,6 @@ namespace Souls.Server.Network
 
             // Update Contexts
             outP.gameContext = this;
-            if (outP.gPlayer != null)
-            {
-                outP.gPlayer.playerContext = this;
-            }
-
 
 
             Logging.Write(Logging.Type.GENERAL, "Swapped out the General Object!");

@@ -47,7 +47,7 @@ namespace Souls.Server.Objects
 
         public void ConstructGamePlayer(bool playerOne)
         {
-            this.gPlayer = new GamePlayer(this.gameContext) // <-- needed? TODO
+            this.gPlayer = new GamePlayer() // <-- needed? TODO
             {  // TODO missing any?
                 hash = this.hash,
                 name = this.name,

@@ -197,11 +197,11 @@ namespace Souls.Server.Game
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate();
                 if (player.gPlayer.isPlayerOne)
                 {
-                    player.gPlayer.playerContext.SendTo(response.First);
+                    player.gameContext.SendTo(response.First);
                 }
                 else
                 {
-                    player.gPlayer.playerContext.SendTo(response.Second);
+                    player.gameContext.SendTo(response.Second);
                 }
 
 
@@ -235,7 +235,7 @@ namespace Souls.Server.Game
             else if (!requestPlayer.IsPlayerTurn())
             {
                 // Send a error message, that its not players turn
-                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
                new JObject(
                    new JProperty("card", card),
                    new JProperty("error", "Not your turn!")
@@ -257,7 +257,7 @@ namespace Souls.Server.Game
                 this.Request_OpponentReleaseCard(player);
 
                 // Send error message
-                requestPlayer.playerContext.SendTo(
+                player.gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, new JObject(
                         new JProperty("slot", slot),
                         new JProperty("message", "Slot is already occupied!")
@@ -270,7 +270,7 @@ namespace Souls.Server.Game
             // Not enough mana to use card
             else if (!requestPlayer.HasEnoughMana(c))
             {
-                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
                 Logging.Write(Logging.Type.GAME, "Not enough mana!");
 
                 // Fire releaseCard (to recall the card to origin pos)
@@ -303,7 +303,7 @@ namespace Souls.Server.Game
                         new JProperty("pInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
                     ));
 
-                requestPlayer.playerContext.SendTo(response);
+                player.gameContext.SendTo(response);
                 response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
                 player.gPlayer.GetOpponent().gameContext.SendTo(response);
                 Logging.Write(Logging.Type.GAME, player.name + "Used a card!");
@@ -329,7 +329,7 @@ namespace Souls.Server.Game
             this.Request_NewCard(player.gPlayer.GetOpponent());
 
             // Send response
-            requestPlayer.playerContext.SendTo(new Response(
+            player.gameContext.SendTo(new Response(
                 GameService.GameResponseType.GAME_NEXT_TURN,
                 new JObject(
                     new JProperty("yourTurn", false),
@@ -378,7 +378,7 @@ namespace Souls.Server.Game
             if (!requestPlayer.IsPlayerTurn())
             {
                 // Send a error message, that its not players turn
-                requestPlayer.playerContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+               player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
                new JObject(
                    new JProperty("error", "Not your turn!")
                    )));
@@ -437,7 +437,7 @@ namespace Souls.Server.Game
                             new JProperty("isDead", targetCard.isDead));
 
                 // Send Response to Requester
-                requestPlayer.playerContext.SendTo(
+               player.gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
                         new JProperty("player", reqObj),
                         new JProperty("opponent", oppObj),
@@ -445,7 +445,7 @@ namespace Souls.Server.Game
                         )));
 
                 // Send Response to Opponent
-                opponent.playerContext.SendTo(
+                requestPlayer.GetOpponent().gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
                         new JProperty("player", oppObj),
                         new JProperty("opponent", reqObj),
@@ -496,7 +496,7 @@ namespace Souls.Server.Game
                             new JProperty("isDead", opponent.isDead));
 
                 // Send Response to Requester
-                requestPlayer.playerContext.SendTo(
+                player.gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
                         new JProperty("player", reqObj),
                         new JProperty("opponent", oppObj),
@@ -504,7 +504,7 @@ namespace Souls.Server.Game
                         )));
 
                 // Send Response to Opponent
-                opponent.playerContext.SendTo(
+                player.gPlayer.GetOpponent().gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
                         new JProperty("player", oppObj),
                         new JProperty("opponent", reqObj),
@@ -571,7 +571,7 @@ namespace Souls.Server.Game
         {
             if (player.gPlayer.gameRoom.isEnded)
             {
-                player.gPlayer.playerContext.SendTo(
+                player.gameContext.SendTo(
                     new Response((player.gPlayer.gameRoom.winner == player) ?
                             GameService.GameResponseType.GAME_VICTORY :
                             GameService.GameResponseType.GAME_DEFEAT,
