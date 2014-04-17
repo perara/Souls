@@ -78,20 +78,6 @@ namespace Souls.Server.Objects
             isDead = true;
         }
 
-        public Player GetOpponent()
-        {
-            if (this.gameRoom.players.First.gPlayer.Equals(this))
-            {
-                return this.gameRoom.players.Second;
-            }
-            else if (this.gameRoom.players.Second.gPlayer.Equals(this))
-            {
-                return this.gameRoom.players.First;
-            }
-            return null; //TODO? 
-        }
-
-
         public bool IsPlayerTurn()
         {
             return (this.Equals(this.gameRoom.currentPlaying.gPlayer)) ? true : false;

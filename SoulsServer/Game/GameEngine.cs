@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using NHibernate.Linq;
 using Souls.Server.Network;
 using SoulsModel;
+using SoulsServer.Network;
 
 namespace Souls.Server.Game
 {
@@ -21,7 +22,8 @@ namespace Souls.Server.Game
     public class GameEngine
     {
         public int gameCounter = 0;
-        //public static Dictionary<int, GameRoom> gameRooms = new Dictionary<int, GameRoom>();
+
+        public static Dictionary<int, GameRoom> rooms { get; set; }
         public static List<Card> cards { get; set; }
 
         public GameEngine()
@@ -30,31 +32,17 @@ namespace Souls.Server.Game
             SetupEngine();
 
             // Start Game Queue;
-            pollQueue();
+            QueueLoop();
         }
 
-        // Checks the queue for players, sorts them after rank and matchmake them
-        public void pollQueue()
-        {
-            Thread pollThread = new Thread(delegate()
-            {
-                while (true)
-                {
-                    bool matchMaked = GameQueue.GetInstance().matchPlayers(Request_CreateGame);
-                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
-
-                    Thread.Sleep(500);
-                }
-            });
-
-            pollThread.Start();
-        }
 
         public void SetupEngine()
         {
+            GameEngine.rooms = new Dictionary<int, GameRoom>();
             GameEngine.cards = LoadCards();
 
         }
+
 
         public List<Card> LoadCards()
         {
@@ -93,57 +81,31 @@ namespace Souls.Server.Game
             }
         }
 
-        public void Request_MoveCard(Player player)
+        /// <summary>
+        /// A threaded queue loop which calls callback @see Callback_CreateGame when two or more players are in the queue
+        /// </summary>
+        public void QueueLoop()
         {
+            Thread pollThread = new Thread(delegate()
+            {
+                while (true)
+                {
+                    bool matchMaked = GameQueue.GetInstance().MatchPlayers(Callback_CreateGame);
+                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
 
-            // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(player)) return;
+                    Thread.Sleep(500);
+                }
+            });
 
-            JObject retData = new JObject(
-                new JProperty("cid", player.gameContext.data.Payload.cid),
-                new JProperty("x", player.gameContext.data.Payload.x),
-                new JProperty("y", player.gameContext.data.Payload.y)
-                );
-
-
-
-            Response response = new Response(
-                GameService.GameResponseType.GAME_OPPONENT_MOVE,
-                retData
-                );
-
-
-            player.gPlayer.GetOpponent().gameContext.SendTo(response);
-
-
-
+            pollThread.Start();
         }
 
-        public void Request_OpponentReleaseCard(Player player)
-        {
-            // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(player)) return;
 
-            JObject retData = new JObject(
-             new JProperty("cid", player.gameContext.data.Payload.cid));
-
-            Response response = new Response(
-                GameService.GameResponseType.GAME_RELEASE,
-                retData
-                );
-
-
-            player.gameContext.SendTo(response);
-
-            response.Type = GameService.GameResponseType.GAME_OPPONENT_RELEASE;
-            player.gPlayer.GetOpponent().gameContext.SendTo(response);
-
-
-
-        }
-
-        // Starts the game from the matchmaked players in a new gameroom
-        public void Request_CreateGame(Pair<Player> players)
+        /// <summary>
+        /// Init a new Game on a pair of Players
+        /// </summary>
+        /// <param name="players">Pair of players</param>
+        public void Callback_CreateGame(Pair<Player> players)
         {
 
             players.First.ConstructGamePlayer(true);
@@ -163,6 +125,48 @@ namespace Souls.Server.Game
 
             // Send "Its your turn to the start player"
             newRoom.currentPlaying.gameContext.SendDebug("Its your turn (DEBUG)");
+
+        }
+
+
+
+
+        public void Request_MoveCard(Player player)
+        {
+            JObject retData = new JObject(
+                new JProperty("cid", player.gameContext.payload["cid"]),
+                new JProperty("x", player.gameContext.payload["x"]),
+                new JProperty("y", player.gameContext.payload["y"])
+            );
+
+            Response response = new Response(
+                GameService.GameResponseType.GAME_OPPONENT_MOVE,
+                retData
+            );
+
+            player.GetOpponent().gameContext.SendTo(response);
+
+        }
+
+        public void Request_OpponentReleaseCard(Player player)
+        {
+
+            JObject retData = new JObject(
+                new JProperty("cid", player.gameContext.payload["cid"])
+            );
+
+            Response response = new Response(
+                GameService.GameResponseType.GAME_RELEASE,
+                retData
+            );
+
+
+            player.gameContext.SendTo(response);
+
+            response.Type = GameService.GameResponseType.GAME_OPPONENT_RELEASE;
+            player.GetOpponent().gameContext.SendTo(response);
+
+
 
         }
 
@@ -188,10 +192,7 @@ namespace Souls.Server.Game
             }
             else
             {
-                Console.WriteLine("[GAME] Player was already in game, giving gameUpdate (Create)");
-
-                // Check that the game is actually ONGOING
-                if (!this.GameRoomRunning(player)) return;
+                Logging.Write(Logging.Type.GAME, "Player was already in game, giving gameUpdate (Create)");
 
                 // Send the gamestate to the player (As create since its the first state of this override player)
                 Pair<Response> response = player.gPlayer.gameRoom.GenerateGameUpdate();
@@ -204,110 +205,115 @@ namespace Souls.Server.Game
                     player.gameContext.SendTo(response.Second);
                 }
 
-
-
             }
         }
 
 
         public void Request_UseCard(Player player)
         {
-            int slot = player.gameContext.data.Payload.slotId; //  This is the slot which is the cards destination
-            int card = player.gameContext.data.Payload.cid; // This is the card which the player has on hand
-
+            int slot = int.Parse(player.gameContext.payload["slotId"].ToString()); //  This is the slot which is the cards destination
+            int card = int.Parse(player.gameContext.payload["cid"].ToString()); // This is the card which the player has on hand
 
             GamePlayer requestPlayer = player.gPlayer;
-
-            // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(player)) return;
-
             Card c;
-            // Check if the card exists or not
+
+            //////////////////////////////////////////////////////////////////////////
+            // Check if card exists
+            //////////////////////////////////////////////////////////////////////////
             if (!requestPlayer.handCards.TryGetValue(card, out c))
             {
-                // Card does not exist
-                // TODO
                 Logging.Write(Logging.Type.GAME, "Card does not exist!");
                 return;
-
             }
-            // If opposite players turn
-            else if (!requestPlayer.IsPlayerTurn())
+
+
+            //////////////////////////////////////////////////////////////////////////
+            // Check if player's turn
+            //////////////////////////////////////////////////////////////////////////
+            if (!requestPlayer.IsPlayerTurn())
             {
-                // Send a error message, that its not players turn
+
                 player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
-               new JObject(
-                   new JProperty("card", card),
-                   new JProperty("error", "Not your turn!")
-                   )));
+                    new JObject(
+                        new JProperty("card", card),
+                        new JProperty("error", "Not your turn!")
+                    )
+                ));
 
-
-
-
-                // Fire releaseCard (to recall the card to origin pos)
+                // Fire Card release, (Recalls to original position)
                 this.Request_OpponentReleaseCard(player);
+
                 Logging.Write(Logging.Type.GAME, "Not " + player.name + "'s turn!");
                 return;
             }
 
-            // Check if the card slot is empty
-            else if (requestPlayer.boardCards.ContainsKey(slot))
+            //////////////////////////////////////////////////////////////////////////
+            // Check if card slot is occupied
+            //////////////////////////////////////////////////////////////////////////
+            if (requestPlayer.boardCards.ContainsKey(slot))
             {
-                // Send Release Card request (AnimateBack)
+                // Fire Card release, (Back to original hand position)
                 this.Request_OpponentReleaseCard(player);
 
-                // Send error message
+                // Send Response
                 player.gameContext.SendTo(
-                    new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED, new JObject(
+                new Response(GameService.GameResponseType.GAME_USECARD_OCCUPIED,
+                    new JObject(
                         new JProperty("slot", slot),
                         new JProperty("message", "Slot is already occupied!")
-                )));
+                    )
+                ));
 
-                Logging.Write(Logging.Type.GAME, "Slot occupied!");
+                Logging.Write(Logging.Type.GAME, player.name + " tried to use occupied slot (" + slot + ")");
                 return;
             }
 
-            // Not enough mana to use card
-            else if (!requestPlayer.HasEnoughMana(c))
+            //////////////////////////////////////////////////////////////////////////
+            // Check if enough mana
+            //////////////////////////////////////////////////////////////////////////
+            if (!requestPlayer.HasEnoughMana(c))
             {
-                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!"));
-                Logging.Write(Logging.Type.GAME, "Not enough mana!");
+                player.gameContext.SendTo(
+                    new Response(GameService.GameResponseType.GAME_USECARD_OOM, "Not enough mana!")
+                );
+
+                Logging.Write(Logging.Type.GAME, player.name + " has not enough mana to use " + c.name);
 
                 // Fire releaseCard (to recall the card to origin pos)
                 this.Request_OpponentReleaseCard(player);
+
                 return;
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            // No constricts was met, run USE_CARD code
+            //////////////////////////////////////////////////////////////////////////
 
-            else
-            {
-                // Everything is OK, move the card to the board
-                requestPlayer.handCards.Remove(card);
-                requestPlayer.boardCards.Add(slot, c);
+            // Move card to Board
+            requestPlayer.handCards.Remove(card);
+            requestPlayer.boardCards.Add(slot, c);
 
+            // Subtract mana from player
+            requestPlayer.mana -= c.cost;
 
-                // Subtract mana from player
-                requestPlayer.mana -= c.cost;
+            // Set the slotId on the card.
+            c.slotId = slot;
 
-                // Set the slotId on the card.
-                c.slotId = slot;
+            // Send Response
+            Response response = new Response(GameService.GameResponseType.GAME_USECARD_OK,
+                new JObject(
+                    new JProperty("card", JObject.FromObject(c)),
+                    new JProperty("pInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
+                )
+            );
 
-                //Next turn
-                //requestPlayer.gameRoom.NextTurn();
+            player.gameContext.SendTo(response);
 
+            response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
+            player.GetOpponent().gameContext.SendTo(response);
 
-                // Send Reply
-                Response response = new Response(GameService.GameResponseType.GAME_USECARD_OK,
-                    new JObject(
-                        new JProperty("card", JObject.FromObject(c)),
-                        new JProperty("pInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
-                    ));
+            Logging.Write(Logging.Type.GAME, player.name + " used " + c.name);
 
-                player.gameContext.SendTo(response);
-                response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
-                player.gPlayer.GetOpponent().gameContext.SendTo(response);
-                Logging.Write(Logging.Type.GAME, player.name + "Used a card!");
-            }
         }
 
         public void Request_NextTurn(Player player)
@@ -316,9 +322,6 @@ namespace Souls.Server.Game
 
             GamePlayer requestPlayer = player.gPlayer;
 
-            // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(player)) return;
-
             // Validate player turn
             if (!requestPlayer.IsPlayerTurn()) return;
 
@@ -326,7 +329,7 @@ namespace Souls.Server.Game
             requestPlayer.gameRoom.NextTurn();
 
             // Give a new card to the Opponent
-            this.Request_NewCard(player.gPlayer.GetOpponent());
+            this.Request_NewCard(player.GetOpponent());
 
             // Send response
             player.gameContext.SendTo(new Response(
@@ -334,62 +337,49 @@ namespace Souls.Server.Game
                 new JObject(
                     new JProperty("yourTurn", false),
                     new JProperty("playerInfo", JObject.FromObject(requestPlayer.GetPlayerData())),
-                    new JProperty("opponentInfo", JObject.FromObject(player.gPlayer.GetOpponent().gPlayer.GetPlayerData()))
-                    )));
+                    new JProperty("opponentInfo", JObject.FromObject(player.GetOpponent().gPlayer.GetPlayerData()))
+                 )
+            ));
 
-            player.gPlayer.GetOpponent().gameContext.SendTo(new Response(
+            player.GetOpponent().gameContext.SendTo(new Response(
                 GameService.GameResponseType.GAME_NEXT_TURN,
                 new JObject(
                     new JProperty("yourTurn", true),
-                    new JProperty("playerInfo", JObject.FromObject(player.gPlayer.GetOpponent().gPlayer.GetPlayerData())),
+                    new JProperty("playerInfo", JObject.FromObject(player.GetOpponent().gPlayer.GetPlayerData())),
                     new JProperty("opponentInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
-                    )));
+                 )
+            ));
 
         }
 
         public void Request_Attack(Player player)
         {
 
-            // Get data
-            int source = player.gameContext.payload.source;
-            int target = player.gameContext.payload.target;
-            int type = player.gameContext.payload.type;
+            int source = int.Parse(player.gameContext.payload["source"].ToString());
+            int target = int.Parse(player.gameContext.payload["target"].ToString());
+            int type = int.Parse(player.gameContext.payload["type"].ToString());
 
             // Fetch GamePlayers
             GamePlayer requestPlayer = player.gPlayer;
-            GamePlayer opponent = player.gPlayer.GetOpponent().gPlayer;
-
-            // Check that the game is actually ONGOING
-            if (!this.GameRoomRunning(player)) return;
-
+            GamePlayer opponent = player.GetOpponent().gPlayer;
 
             //////////////////////////////////////////////////////////////////////////
+            // Check players turn
             //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-            // Check criterias
-
-            // Check that none of the data is NULL or default values!
-            if (source != null && target != null && (type != null || type == -1))
-            {
-                // TODO missing data!
-            }
-
-            // Players turn?
             if (!requestPlayer.IsPlayerTurn())
             {
                 // Send a error message, that its not players turn
-               player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
-               new JObject(
-                   new JProperty("error", "Not your turn!")
-                   )));
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+                new JObject(
+                    new JProperty("error", "Not your turn!")
+                    )));
 
                 return;
             }
 
             //////////////////////////////////////////////////////////////////////////
+            // Everything OK, do attack
             //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-
             if (type == 0) // Card on Card
             {
                 // Fetch cards from the CID's
@@ -418,7 +408,7 @@ namespace Souls.Server.Game
                     opponent.RemoveBoardCard(targetCard);
                 }
 
-                // Requester's Card
+                // requesters Card
                 JObject reqObj = new JObject(
                             new JProperty("cid", sourceCard.cid),
                             new JProperty("dmgTaken", targetCard.attack),
@@ -437,15 +427,15 @@ namespace Souls.Server.Game
                             new JProperty("isDead", targetCard.isDead));
 
                 // Send Response to Requester
-               player.gameContext.SendTo(
-                    new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
-                        new JProperty("player", reqObj),
-                        new JProperty("opponent", oppObj),
-                        new JProperty("type", type)
-                        )));
+                player.gameContext.SendTo(
+                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
+                         new JProperty("player", reqObj),
+                         new JProperty("opponent", oppObj),
+                         new JProperty("type", type)
+                         )));
 
                 // Send Response to Opponent
-                requestPlayer.GetOpponent().gameContext.SendTo(
+                player.GetOpponent().gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
                         new JProperty("player", oppObj),
                         new JProperty("opponent", reqObj),
@@ -459,18 +449,6 @@ namespace Souls.Server.Game
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
                 sourceCard.Attack(opponent);
 
-                if (opponent.isDead)
-                {
-                    // Requester won
-                    requestPlayer.gameRoom.winner = player;
-                    requestPlayer.gameRoom.isEnded = true;
-
-                    // Check that the game is actually ONGOING
-                    this.GameRoomRunning(player);
-                    this.GameRoomRunning(player.gPlayer.GetOpponent());
-                                    
-                }
-
                 if (sourceCard.isDead)
                 {
                     Logging.Write(Logging.Type.GAME, "Card: " + sourceCard.cid + " died.");
@@ -478,7 +456,7 @@ namespace Souls.Server.Game
                     requestPlayer.RemoveBoardCard(sourceCard);
                 }
 
-                // Requester's Card
+                // requesters Card
                 JObject reqObj = new JObject(
                             new JProperty("cid", sourceCard.cid),
                             new JProperty("dmgTaken", opponent.attack),
@@ -504,7 +482,7 @@ namespace Souls.Server.Game
                         )));
 
                 // Send Response to Opponent
-                player.gPlayer.GetOpponent().gameContext.SendTo(
+                player.GetOpponent().gameContext.SendTo(
                     new Response(GameService.GameResponseType.GAME_ATTACK, new JObject(
                         new JProperty("player", oppObj),
                         new JProperty("opponent", reqObj),
@@ -520,6 +498,21 @@ namespace Souls.Server.Game
 
 
             }
+
+
+            //////////////////////////////////////////////////////////////////////////
+            // Check winner
+            //////////////////////////////////////////////////////////////////////////
+            if (requestPlayer.isDead || opponent.isDead)
+            {
+                if (requestPlayer.isDead) requestPlayer.gameRoom.winner = player.GetOpponent();
+                if (opponent.isDead) requestPlayer.gameRoom.winner = player;
+
+                this.EndGame(new Pair<Player>(player, player.GetOpponent()));
+
+            }
+
+
 
         }
 
@@ -558,7 +551,7 @@ namespace Souls.Server.Game
 
             // Send to the player
 
-            player.gPlayer.GetOpponent().gameContext.SendTo(retOpponent);
+            player.GetOpponent().gameContext.SendTo(retOpponent);
         }
 
 
@@ -567,23 +560,34 @@ namespace Souls.Server.Game
         /// </summary>
         /// <param name="gPlayer"> The gme player</param>
         /// <returns></returns>
-        public bool GameRoomRunning(Player player)
+        public void EndGame(Pair<Player> players)
         {
-            if (player.gPlayer.gameRoom.isEnded)
-            {
-                player.gameContext.SendTo(
-                    new Response((player.gPlayer.gameRoom.winner == player) ?
-                            GameService.GameResponseType.GAME_VICTORY :
-                            GameService.GameResponseType.GAME_DEFEAT,
-                            new JObject(
-                                new JProperty("statistics", null)
-                            ))
-                     );
+            Player player = players.First;
+            Player opponent = players.Second;
 
-                return false;
-            }
-            return true;
+            player.gameContext.SendTo(
+                new Response((player.gPlayer.gameRoom.winner == player) ?
+                    GameService.GameResponseType.GAME_VICTORY :
+                    GameService.GameResponseType.GAME_DEFEAT,
+                    new JObject(
+                        new JProperty("statistics", null)
+                    )
+                )
+            );
 
+            opponent.gameContext.SendTo(
+                new Response((opponent.gPlayer.gameRoom.winner == opponent) ?
+                    GameService.GameResponseType.GAME_VICTORY :
+                    GameService.GameResponseType.GAME_DEFEAT,
+                    new JObject(
+                        new JProperty("statistics", null)
+                    )
+                )
+            );
+
+            player.gPlayer.gameRoom.isEnded = true;
+            player.gPlayer = null;
+            opponent.gPlayer = null;
 
         }
 

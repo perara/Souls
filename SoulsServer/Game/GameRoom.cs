@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Souls.Server.Objects;
 using Souls.Server.Game;
 using Souls.Server.Network;
+using SoulsServer.Network;
 
 namespace Souls.Server.Game
 {
@@ -49,6 +50,9 @@ namespace Souls.Server.Game
             this.players = players;
 
             currentPlaying = players.First;
+
+            players.First.gPlayer.mana += this.round;
+            players.Second.gPlayer.mana += this.round;
 
 
             List<Card> p1Cards = GetRandomCards(3);

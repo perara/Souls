@@ -69,11 +69,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Network\ChatService.cs" />
+    <Compile Include="Network\GameService.cs" />
+    <Compile Include="Network\Service.cs" />
     <Compile Include="Objects\ChatPlayer.cs" />
     <Compile Include="Network\Response.cs" />
     <Compile Include="Chat\ChatEngine.cs" />
     <Compile Include="Chat\ChatRoom.cs" />
-    <Compile Include="Network\ClientData.cs" />
     <Compile Include="Network\Server.cs" />
     <Compile Include="Game\GameData.cs" />
     <Compile Include="Objects\GamePlayer.cs" />

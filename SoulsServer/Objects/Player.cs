@@ -35,19 +35,30 @@ namespace Souls.Server.Objects
         /// <summary>
         /// Context (Connection) to the GameServer
         /// </summary>
-        public General gameContext { get; set; }
+        public Client gameContext { get; set; }
 
         /// <summary>
         /// Context (Connection) to the ChatServer
         /// </summary>
-        public General chatContext { get; set; }
+        public Client chatContext { get; set; }
 
-
+         public Player GetOpponent()
+        {
+            if (this.gPlayer.gameRoom.players.First.Equals(this))
+            {
+                return this.gPlayer.gameRoom.players.Second;
+            }
+            else if (this.gPlayer.gameRoom.players.Second.Equals(this))
+            {
+                return this.gPlayer.gameRoom.players.First;
+            }
+            return null; 
+        }
 
 
         public void ConstructGamePlayer(bool playerOne)
         {
-            this.gPlayer = new GamePlayer() // <-- needed? TODO
+            this.gPlayer = new GamePlayer()
             {  // TODO missing any?
                 hash = this.hash,
                 name = this.name,
@@ -66,22 +77,6 @@ namespace Souls.Server.Objects
             this.gPlayer = null; //TODO
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /************************************************************************/
-        /* Non INGAME stuff                                                     */
-        /************************************************************************/
 
         public bool ValidateHash()
         {
@@ -104,7 +99,11 @@ namespace Souls.Server.Objects
 
         }
 
-        public bool fetchPlayerInfo()
+        /// <summary>
+        /// Fetches all of the player information from the live database
+        /// </summary>
+        /// <returns>A boolean signaling success of this operation</returns>
+        public bool FetchPlayerInfo()
         {
             using (var session = NHibernateHelper.OpenSession())
             {
@@ -122,13 +121,9 @@ namespace Souls.Server.Objects
 
                     .SingleOrDefault();
 
-
-
-
                 PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
                     .Add(Restrictions.Eq("hash", this.hash))
                     .UniqueResult<PlayerLogin>();
-
 
                 if (pLoginRecord != null)
                 {
@@ -156,9 +151,9 @@ namespace Souls.Server.Objects
 
 
         /// <summary>
-        /// This fetches the newest hash available for the player 
+        /// Fetches new hash from the Database
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The hash</returns>
         public string UpdateHash()
         {
             using (var session = NHibernateHelper.OpenSession())

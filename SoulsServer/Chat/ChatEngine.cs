@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Souls.Server.Network;
+using SoulsServer.Network;
 
 namespace Souls.Server.Chat
 {
@@ -113,8 +114,8 @@ namespace Souls.Server.Chat
         /// <returns></returns>
         public bool Invite(ChatPlayer inviter)
         {
-            int room = inviter.chatContext.payload.room;
-            string name = inviter.chatContext.payload.name;
+            int room = int.Parse(inviter.chatContext.payload["room"].ToString());
+            string name = inviter.chatContext.payload["name"].ToString();
 
             // Checks if client is leader
             if (!chatRooms.ContainsKey(room) || !chatRooms[room].IsLeader(inviter) || chatRooms[room].isStatic)
@@ -124,7 +125,7 @@ namespace Souls.Server.Chat
                 return false;
             }
 
-            ChatPlayer toInvite = OnlinePlayers.GetInstance().gameList.Where(x => x.Value.name == name).FirstOrDefault().Value.chPlayer;
+            ChatPlayer toInvite = Clients.GetInstance().gameList.Where(x => x.Value.name == name).FirstOrDefault().Value.chPlayer;
 
             if (toInvite != null && toInvite.chatContext == null)
             {
@@ -154,8 +155,8 @@ namespace Souls.Server.Chat
         /// <returns></returns>
         public bool Kick(ChatPlayer kicker)
         {
-            int room = kicker.chatContext.payload.room;
-            string name = kicker.chatContext.payload.name;
+            int room = int.Parse(kicker.chatContext.payload["room"].ToString());
+            string name = kicker.chatContext.payload["name"].ToString();
 
             // Checks if client is leader
             if (!chatRooms[room].IsLeader(kicker) || chatRooms[room].isStatic)
@@ -165,7 +166,7 @@ namespace Souls.Server.Chat
                 return false;
             }
 
-            ChatPlayer toKick = OnlinePlayers.GetInstance().gameList.FirstOrDefault(x => x.Value.name == name).Value.chPlayer;
+            ChatPlayer toKick = Clients.GetInstance().gameList.FirstOrDefault(x => x.Value.name == name).Value.chPlayer;
 
             if (chatRooms[room].RemoveClient(toKick))
             {
@@ -185,7 +186,7 @@ namespace Souls.Server.Chat
         /// <returns></returns>
         public bool LeaveRoom(ChatPlayer client)
         {
-            int room = client.chatContext.payload.room;
+            int room = int.Parse(client.chatContext.payload["room"].ToString());
             bool wasLeader = chatRooms[room].IsLeader(client);
 
             chatRooms[room].RemoveClient(client);
@@ -219,8 +220,8 @@ namespace Souls.Server.Chat
         /// <param name="client"></param>
         public void SendMessage(ChatPlayer client)
         {
-            int room = client.chatContext.payload.room;
-            string message = client.chatContext.payload.message;
+            int room = int.Parse(client.chatContext.payload["room"].ToString());
+            string message = client.chatContext.payload["message"].ToString();
             string name = client.name;
 
 

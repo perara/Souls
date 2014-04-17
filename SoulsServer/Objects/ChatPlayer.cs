@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Souls.Server.Chat;
 using Souls.Server.Engine;
 using Souls.Server.Network;
+using SoulsServer.Network;
 
 namespace Souls.Server.Objects
 {
@@ -13,7 +14,7 @@ namespace Souls.Server.Objects
     {
         public Dictionary<int, ChatRoom> memberRooms { get; set; }
         public string name { get; set; }
-        public General chatContext { get; set; }
+        public Client chatContext { get; set; }
 
         public ChatPlayer(string name)
         {

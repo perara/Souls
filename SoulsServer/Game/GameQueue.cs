@@ -18,7 +18,7 @@ namespace Souls.Server.Game
         {
             queue = new LinkedList<Player>();
         }
-        public bool matchPlayers(Action<Pair<Player>> initGame)
+        public bool MatchPlayers(Action<Pair<Player>> initGame)
         {
             Pair<Player> matchedPlayers = null;
 			if(queue.Count() >= 2)
@@ -40,7 +40,7 @@ namespace Souls.Server.Game
 
                 }
 
-                return true; // Matchmaking was successfull
+                return true; // Matchmaking was successful
 			}
             return false; // Matchmaking did not happen
 		}

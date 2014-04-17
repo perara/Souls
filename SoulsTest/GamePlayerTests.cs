@@ -22,8 +22,8 @@ namespace Souls.Test
 
         public void InitGamePlayers()
         {
-            gp1 = new GamePlayer(new GameService(new Server.Game.GameEngine()));
-            gp2 = new GamePlayer(new GameService(new Server.Game.GameEngine()));
+            gp1 = new GamePlayer();
+            gp2 = new GamePlayer();
 
             gp1.health = 10;
             gp1.name = "Hansel";
