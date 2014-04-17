@@ -162,13 +162,13 @@
 
         
         // Card Image
-        var portrait = new pixi.Sprite(CardType.GetPortraitTexture(this.id));
-        portrait.anchor = { x: 0.5, y: 0.5 };
-        portrait.width = 236;
-        portrait.height = 167;
-        portrait.x = 0;
-        portrait.y = -31;
-        this.frontCard.addChild(portrait);
+        this.portrait = new pixi.Sprite(CardType.GetPortraitTexture(this.id));
+        this.portrait.anchor = { x: 0.5, y: 0.5 };
+        this.portrait.width = 236;
+        this.portrait.height = 167;
+        this.portrait.x = 0;
+        this.portrait.y = -31;
+        this.frontCard.addChild(this.portrait);
 
         // CardFactory Health Label
         var txtHealth = new pixi.Text(this.health,

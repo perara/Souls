@@ -7,7 +7,7 @@
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held
 
-        this.glowingCrystals = 0;
+        this.Init();
     }
     // Constructor
     Player.prototype = Object.create(playerBase.prototype);

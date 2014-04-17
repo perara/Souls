@@ -196,9 +196,16 @@
              });
 
 
-
+            // Set the Card Texture
             var texture = card.CardType.GetCardTexture(cardData.race.id);
             card.frontCard.texture = texture;
+
+            // Set the Card Portrait.
+            var portrait = card.CardType.GetPortraitTexture(cardData.id)
+            card.portrait.texture = portrait;
+            card.portrait.width = 236;
+            card.portrait.height = 167;
+
             card.ScaleDown();
 
 
@@ -224,8 +231,12 @@
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
+        // Create the Player and Opponent
+        that.engine.player = new Player(that.engine);
+        that.engine.opponent = new Opponent(that.engine);
+        that.engine.ProcessList.push(that.engine.player);
+        //that.engine.ProcessList.push(that.engine.opponent);
 
-        console.log(data);
         that.engine.gameId = data.Payload.gameId;
         that.engine.player.playerNr = data.Payload.ident;
         that.engine.player.SetText(data.Payload.player.info);

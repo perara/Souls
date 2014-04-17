@@ -60,9 +60,12 @@
             this.CreateJS = CreateJS;
             CreateJS.Ticker.setFPS(Conf.FPS);
 
+            // Process array
+            this.ProcessList = new Array();
+
             // Objects
-            this.player = new Player(this);
-            this.opponent = new Opponent(this);
+            this.player = null//new Player(this);
+            this.opponent = null//new Opponent(this);
             this.background = new Background(this);
             this.queue = new Queue(this);
 
@@ -85,9 +88,6 @@
 
         Engine.prototype.OnStart = function () {
             this.background.Init();
-            this.opponent.Init();
-            this.player.Init();
-
 
             this.gameService.Connect();
             this.gameService.Login();
@@ -115,7 +115,9 @@
             this.gameService.Process();
             this.chatService.Process();
 
-            this.player.Process();
+            $.each(this.ProcessList, function (index, object) {
+                object.Process();
+            });
 
             return this.stage;
         };
