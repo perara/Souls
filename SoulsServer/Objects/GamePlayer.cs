@@ -73,6 +73,15 @@ namespace Souls.Server.Objects
             if (defCard.health < 1) defCard.cardDie();
         }
 
+        public void Attack(GamePlayer opponent)
+        {
+            opponent.health -= this.attack;
+            this.health -= opponent.attack;
+
+            if (this.health < 1) this.playerDie();
+            if (opponent.health < 1) opponent.playerDie();
+        }
+
         public void playerDie()
         {
             isDead = true;

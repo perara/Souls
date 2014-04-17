@@ -118,7 +118,7 @@
                 opponentCard.Attack(jsonOppInfo, jsonPInfo, playerCard);
             }
         }
-        else if (attackType == 1) { // Card on hero
+        else if (attackType == 1) { // Card on Opponent
 
             // The player is attacking
             if (jsonAttacker) {
@@ -134,6 +134,18 @@
 
                 attacker.AttackOpponent(jsonOppInfo,jsonPInfo, defender);
             }
+
+        }
+
+        else if (attackType == 2) { // Player on Card
+
+            console.log("TODO IMPLEMENTATION HERE!")
+
+        }
+
+        else if (attackType == 3) { // Player on Opponent
+
+            console.log("TODO IMPLEMENTATION HERE!")
 
         }
 
@@ -371,10 +383,17 @@
             json.Payload.source = source.cid
             json.Payload.target = -1; //TODO?
         }
-        else if (type == 2) // Hero on Card
+        else if (type == 2) // Player on Card
         {
-
+            json.Payload.source = -1;
+            json.Payload.target = target.cid;
         }
+        else if (type == 3) // Player on Opponent
+        {
+            json.Payload.source = -1;
+            json.Payload.target = -1;
+        }
+
         else {
             console.log("wrong type!");
             return; // ERROR!

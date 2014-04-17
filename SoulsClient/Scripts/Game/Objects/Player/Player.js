@@ -7,6 +7,24 @@
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held
 
+        this.interactive = true;
+        this.isClicked = false;
+        var that = this;
+        this.mousedown = function (mouseData) {
+            console.log(":D");
+            that.isClicked = true;
+        }
+
+        this.mouseup = this.mouseupoutside = function (mouseData) {
+            that.isClicked = false;
+
+            // Reset arrow.
+            this.arrow.Reset();
+
+            this.CheckAttack();
+        }
+
+
         this.Init();
     }
     // Constructor
@@ -25,17 +43,33 @@
         // Process cardmanager
         this.cardManager.Process();
 
-        // Check if the arrow should be activated
-        var isArrowAction = this.arrow.ArrowShowCheck(this.holdingCard);
+        // Whenever the player is holding a card (Clicked a card)
+        if (!!this.holdingCard) {
+            var isArrowAction = this.arrow.ArrowShowCheck(this.holdingCard);
 
-        // if movement - check card attack
-        if (isArrowAction)
-            var isAttackingC = this.arrow.CardAttackCheck(this.holdingCard);
+            // if movement - check card attack
+            if (isArrowAction)
+                var isAttackingC = this.arrow.CardAttackCheck(this.holdingCard);
 
-        // if no card attack found - do opponent attack
-        if (isArrowAction && !isAttackingC)
-            var isAttackingP = this.arrow.PlayerAttackCheck(this.holdingCard);
+            // if no card attack found - do opponent attack
+            if (isArrowAction && !isAttackingC)
+                var isAttackingP = this.arrow.PlayerAttackCheck(this.holdingCard);
 
+        }
+
+        // Player portrait is clicked
+        if(this.isClicked)
+        {
+            var isArrowAction = this.arrow.ArrowShowCheck(this);
+
+            if (isArrowAction)
+                var isAttackingC = this.arrow.CardAttackCheck(this);
+
+            // if no card attack found - do opponent attack
+            if (isArrowAction && !isAttackingC)
+                var isAttackingP = this.arrow.PlayerAttackCheck(this);
+
+        }
 
     }
 
@@ -75,6 +109,30 @@
                     item.visible = false;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// This function checks weither a "this" card has a value set in his target variable 
+    /// (This is called on mouseRelease). If its set trigger a rquest Attack to the server.
+    /// </summary>
+    Player.prototype.CheckAttack = function () {
+        // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
+        if (!!this.target) {
+
+            if (this.target == this.engine.opponent) {
+                this.engine.gameService.Request_Attack(this, this.target, 3);
+            }
+
+            else // Must be a card
+            {
+                this.engine.gameService.Request_Attack(this, this.target, 2);
+
+            }
+
+            this.target.ScaleDown();
+            this.target = undefined;
+
         }
     }
 

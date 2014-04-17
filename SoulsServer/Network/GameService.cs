@@ -77,7 +77,7 @@ namespace SoulsServer.Network
             QUEUE = 100,
 
             // Game
-            ATTACK = 200, // subtypes: 0 = Card on Card | 1 = Card on hero | 2 = Hero on Card
+            ATTACK = 200, // subtypes: 0 = Card on Card | 1 = Card on opponent | 2 = Player on Card | 3 = Player on Opponent
             USECARD = 201,
 
             NEXT_TURN = 226,
@@ -97,27 +97,30 @@ namespace SoulsServer.Network
         public override void Process()
         {
 
-            switch ((GameType)type)
+            if (this.loggedIn)
             {
-                // GAME LOGIC REQUESTS
-                case GameType.QUEUE:
-                    engine.Request_QueuePlayer(Clients.GetInstance().gameList[this]);
-                    break;
-                case GameType.ATTACK:
-                    engine.Request_Attack(Clients.GetInstance().gameList[this]);
-                    break;
-                case GameType.USECARD:
-                    engine.Request_UseCard(Clients.GetInstance().gameList[this]);
-                    break;
-                case GameType.NEXT_TURN:
-                    engine.Request_NextTurn(Clients.GetInstance().gameList[this]);
-                    break;
-                case GameType.MOVE_CARD:
-                    engine.Request_MoveCard(Clients.GetInstance().gameList[this]);
-                    break;
-                case GameType.RELEASE_CARD:
-                    engine.Request_OpponentReleaseCard(Clients.GetInstance().gameList[this]);
-                    break;
+                switch ((GameType)type)
+                {
+                    // GAME LOGIC REQUESTS
+                    case GameType.QUEUE:
+                        engine.Request_QueuePlayer(Clients.GetInstance().gameList[this]);
+                        break;
+                    case GameType.ATTACK:
+                        engine.Request_Attack(Clients.GetInstance().gameList[this]);
+                        break;
+                    case GameType.USECARD:
+                        engine.Request_UseCard(Clients.GetInstance().gameList[this]);
+                        break;
+                    case GameType.NEXT_TURN:
+                        engine.Request_NextTurn(Clients.GetInstance().gameList[this]);
+                        break;
+                    case GameType.MOVE_CARD:
+                        engine.Request_MoveCard(Clients.GetInstance().gameList[this]);
+                        break;
+                    case GameType.RELEASE_CARD:
+                        engine.Request_OpponentReleaseCard(Clients.GetInstance().gameList[this]);
+                        break;
+                }
             }
 
             switch ((SERVICE)type)
@@ -162,9 +165,12 @@ namespace SoulsServer.Network
             //////////////////////////////////////////////////////////////////////////
             Client searchClient = Clients.GetInstance().gameList.Where(x => x.Value.UpdateHash() == hash).FirstOrDefault().Key;
 
-            if(searchClient != null)
+            if (searchClient != null)
             {
                 this.SwapClient(searchClient);
+
+                this.loggedIn = true;
+
                 SendTo(new Response(SERVICE_RESPONSE.LOGIN_OK, "Logged in as " + Clients.GetInstance().gameList[this].name));
 
                 return;
@@ -178,14 +184,19 @@ namespace SoulsServer.Network
             player.hash = hash;
             player.gameContext = this;
             bool success = player.FetchPlayerInfo();
-            
-            Clients.GetInstance().gameList.TryAdd(this, player);
+
+           
 
             if (success)
             {
-                SendTo(new Response(SERVICE_RESPONSE.LOGIN_OK, "Logged in as " + Clients.GetInstance().gameList[this].name));
+                Clients.GetInstance().gameList.TryAdd(this, player);
+
+                SendTo(new Response(SERVICE_RESPONSE.LOGIN_OK, "Logged in as " + player.name));
                 Logging.Write(Logging.Type.GENERAL, "Client: " + Context.UserEndPoint + " authenticated.");
                 Logging.Write(Logging.Type.GENERAL, "Online players: " + Clients.GetInstance().gameList.Count());
+
+                this.loggedIn = true;
+
             }
 
         }

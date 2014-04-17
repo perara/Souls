@@ -70,52 +70,54 @@ namespace SoulsServer.Network
 
         public override void Process()
         {
-            switch ((ChatType)type)
+            if (this.loggedIn)
             {
-                // CHAT REQUESTS
-                case ChatType.ENABLE:
-                    //engine.EnableChat(OnlinePlayers.GetInstance().gameList[this]);
-                    break;
+                switch ((ChatType)type)
+                {
+                    // CHAT REQUESTS
+                    case ChatType.ENABLE:
+                        //engine.EnableChat(OnlinePlayers.GetInstance().gameList[this]);
+                        break;
 
-                case ChatType.DISABLE:
-                    //engine.DisableChat(OnlinePlayers.GetInstance().gameList[this]);
-                    break;
+                    case ChatType.DISABLE:
+                        //engine.DisableChat(OnlinePlayers.GetInstance().gameList[this]);
+                        break;
 
-                case ChatType.MESSAGE:
-                    engine.SendMessage(Clients.GetInstance().chatList[this].chPlayer);
-                    break;
+                    case ChatType.MESSAGE:
+                        engine.SendMessage(Clients.GetInstance().chatList[this].chPlayer);
+                        break;
 
-                case ChatType.NEWROOM:
-                    engine.Request_NewGameRoom(Clients.GetInstance().chatList[this].chPlayer);
-                    break;
-                case ChatType.NEWGAMEROOM:
+                    case ChatType.NEWROOM:
+                        engine.Request_NewGameRoom(Clients.GetInstance().chatList[this].chPlayer);
+                        break;
+                    case ChatType.NEWGAMEROOM:
 
-                    //////////////////////////////////////////////////////////////////////////
-                    //TODO CLEANUP Should check that this.player != null
-
-
-                    Player requestPlayer = Clients.GetInstance().chatList[this];
-                    // Go via the game player object to get opponent context.
-                    Player opponentPlayer = requestPlayer.GetOpponent();
-
-                    engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
+                        //////////////////////////////////////////////////////////////////////////
+                        //TODO CLEANUP Should check that this.player != null
 
 
+                        Player requestPlayer = Clients.GetInstance().chatList[this];
+                        // Go via the game player object to get opponent context.
+                        Player opponentPlayer = requestPlayer.GetOpponent();
 
-                    break;
-                case ChatType.INVITE:
-                    engine.Invite(Clients.GetInstance().gameList[this].chPlayer);
-                    break;
+                        engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
 
-                case ChatType.KICK:
-                    engine.Kick(Clients.GetInstance().gameList[this].chPlayer);
-                    break;
 
-                case ChatType.LEAVE:
-                    engine.LeaveRoom(Clients.GetInstance().gameList[this].chPlayer);
-                    break;
+
+                        break;
+                    case ChatType.INVITE:
+                        engine.Invite(Clients.GetInstance().gameList[this].chPlayer);
+                        break;
+
+                    case ChatType.KICK:
+                        engine.Kick(Clients.GetInstance().gameList[this].chPlayer);
+                        break;
+
+                    case ChatType.LEAVE:
+                        engine.LeaveRoom(Clients.GetInstance().gameList[this].chPlayer);
+                        break;
+                }
             }
-
             switch ((SERVICE)this.type)
             {
                 case SERVICE.LOGIN:

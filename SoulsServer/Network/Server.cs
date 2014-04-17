@@ -29,6 +29,8 @@ namespace Souls.Server.Network
         public int type { get; set; }
         public Logging.Type logType { get; set; }
 
+        public bool loggedIn { get; set; }
+
         public string userEndpoint { get; set; }
 
         public void HeartBeat()

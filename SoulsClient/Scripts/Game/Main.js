@@ -61,14 +61,7 @@ require.config({
         // Other
         "chat": "Objects/Chat"
 
-        
        
-        
-        
-        
-        
-        
-
     },
     shim: {
         'pixi': {
@@ -183,6 +176,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
         // Running keepalive each minute
         setInterval(function () { KeepAlive() }, 60000);
+
     }
 
     function OnResize() {
@@ -194,14 +188,16 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
     }
 
-    function GameLoop() {
 
+    function GameLoop() {
+    
         if (Conf.currentState == Gamestate.LOADING)
         {
             this.renderer.render(this.stage);
         }
         else if (Conf.currentState == Gamestate.GAME) {
-            this.renderer.render(this.gameEngine.Process());
+            this.stage = this.gameEngine.Process();
+            this.renderer.render(this.stage);
         }
 
         else if (Conf.currentState == Gamestate.NOT_SUPPORTED) {

@@ -23,7 +23,7 @@
         var orginalScale = this.arrowHead.scale;
         var updatus = {
             scaleX: this.arrowHead.scale.x,
-            scaleY: this.arrowHead.scale.y,
+            scaleY: this.arrowHead.scale.y
         };
 
         this.arrowHeadTween = this.engine.CreateJS.Tween.get(updatus, {
@@ -41,7 +41,7 @@
         }, 300, this.engine.CreateJS.Ease.quadIn)
         .to({
             scaleX: (orginalScale.x * 1),
-            scaleY: (orginalScale.y * 1),
+            scaleY: (orginalScale.y * 1)
         }, 300, this.engine.CreateJS.Ease.quadIn)
         this.arrowHeadTween.setPaused(true);
 
@@ -62,11 +62,9 @@
     /// <param name="card">The card</param>
     /// <returns type="">Weither a attack is beeing done.</returns>
     Arrow.prototype.ArrowShowCheck = function (card) {
-        // The card must actually exist
-        if (!card) return false;
 
         // If the card is picked up, but is in a slot (Arrow dragging)
-        if (!!card.inSlot && !!card.pickedUp) {
+        if ((!!card.inSlot && !!card.pickedUp) || this.engine.player.isClicked) {
 
             this.Show();
             this.Draw(

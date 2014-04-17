@@ -3,10 +3,7 @@
 
     PlayerBase = function (engine, isPlayer) {
        
-        var frame = (isPlayer) ? Asset.GetTexture(Asset.Textures.PLAYER_FRAME) : Asset.GetTexture(Asset.Textures.OPPONENT_FRAME);
-
-
-
+        var frame = (isPlayer) ? Asset.GetTexture(Asset.Textures.PLAYER_FRAME) : Asset.GetTexture(Asset.Textures.OPPONENT_FRAME); 
         pixi.Sprite.call(this, Asset.GetTexture(Asset.Textures.PLAYER_NONE));
         this.engine = engine;
 
@@ -161,7 +158,7 @@
                 3: Asset.Textures.PLAYER_PORTRAIT_THREE,
                 4: Asset.Textures.PLAYER_PORTRAIT_FOUR,
                 5: Asset.Textures.PLAYER_PORTRAIT_FIVE,
-                6: Asset.Textures.PLAYER_PORTRAIT_SIX,
+                6: Asset.Textures.PLAYER_PORTRAIT_SIX
             };
 
         if (portraits[portraitId]) {
@@ -242,6 +239,82 @@
         this.scale.x = this._originalScale.x;
         this.scale.y = this._originalScale.y;
     }
+
+    PlayerBase.prototype.Attack =
+        {
+            CreateProton : function() {
+                var texture = new Pixi.Texture.fromImage("Content/Images/particle.png");
+                proton = new Proton();
+                emitter = new Proton.BehaviourEmitter();
+                emitter.rate = new Proton.Rate(new Proton.Span(5, 10), new Proton.Span(.02, .015));
+                emitter.addInitialize(new Proton.Mass(10));
+                emitter.addInitialize(new Proton.Life(1, 2.5));
+                emitter.addInitialize(new Proton.ImageTarget(texture, 32));
+                emitter.addInitialize(new Proton.Radius(40));
+                emitter.addInitialize(new Proton.V(new Proton.Span(5, 4), 0, 'polar'));
+                emitter.addBehaviour(new Proton.Alpha(1, 0));
+                emitter.addBehaviour(new Proton.Color('#CECECE'));
+                emitter.addBehaviour(new Proton.Scale(3, 8));
+                emitter.addBehaviour(new Proton.CrossZone(new Proton.RectZone(0, 0, 1003, 1080), 'dead'));
+                emitter.p.x = 1900 / 2;
+                emitter.p.y = 800;
+                emitter.emit();
+                proton.addEmitter(emitter);
+
+            },
+
+            TransformSprite : function(particleSprite, particle) {
+                particleSprite.position.x = particle.p.x;
+                particleSprite.position.y = particle.p.y;
+                particleSprite.scale.x = particle.scale;
+                particleSprite.scale.y = particle.scale;
+                particleSprite.anchor.x = 0.5;
+                particleSprite.anchor.y = 0.5;
+                particle.sprite.tint = '0x' + Pixi.rgb2hex([particle.transform.rgb.r, particle.transform.rgb.g, particle.transform.rgb.b])
+            },
+
+            CreateRender : function(){
+                var renderer = new Proton.Renderer('other', proton);
+                renderer.blendFunc("SRC_ALPHA", "ONE");
+
+                renderer.onProtonUpdate = function () {
+
+                };
+
+                var that = this;
+                renderer.onParticleCreated = function (particle) {
+                    var particleSprite = new Pixi.Sprite(particle.target);
+
+                    particle.sprite = particleSprite;
+
+                    that.stage.addChild(particle.sprite);
+                };
+
+                renderer.onParticleUpdate = function (particle) {
+                    transformSprite(particle.sprite, particle);
+          
+                    particle.sprite.tint = Pixi.rgb2hex([particle.transform.rgb.r, particle.transform.rgb.g, particle.transform.rgb.b])
+                };
+
+                renderer.onParticleDead = function (particle) {
+                    that.stage.removeChild(particle.sprite);
+                };
+                
+            },
+
+            Start: function()
+            {
+                renderer.start();
+            },
+
+            Stop : function()
+            {
+                renderer.stop();
+            }
+
+
+        };
+
 
     // playoropp = "Player" or "Opponent" 
     // Conf: {x,y,playoropp}
