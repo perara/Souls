@@ -37,8 +37,10 @@
             this.addGroup("Arrow");
             this.addGroup("Card-Focus");
             this.addGroup("Attacker");
+            this.addGroup("Player-Particles")
             this.addGroup("Queue");
             this.addGroup("Text");
+
 
             // Set Default group Visibility to false (Is set to true on Response_GameCreate in GameService.js
             this.getGroup("Player").visible = false;

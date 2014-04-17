@@ -1,10 +1,9 @@
-﻿define("playerbase", ["jquery", "pixi", "asset", "iAnimation", "animation"], function ($, pixi, Asset, AnimationInterface, Animation) {
+﻿define("playerbase", ["jquery", "pixi", "asset", "iAnimation", "animation"], function ($, Pixi, Asset, AnimationInterface, Animation) {
 
-
+    
     PlayerBase = function (engine, isPlayer) {
-       
         var frame = (isPlayer) ? Asset.GetTexture(Asset.Textures.PLAYER_FRAME) : Asset.GetTexture(Asset.Textures.OPPONENT_FRAME); 
-        pixi.Sprite.call(this, Asset.GetTexture(Asset.Textures.PLAYER_NONE));
+        Pixi.Sprite.call(this, Asset.GetTexture(Asset.Textures.PLAYER_NONE));
         this.engine = engine;
 
         // Player Animation
@@ -29,7 +28,7 @@
 
 
         // Making mask for the portrait
-        var masking = new pixi.Graphics();
+        var masking = new Pixi.Graphics();
         masking.beginFill(0xFFFFFF);
         masking.lineStyle(0, 0xffffff);
         masking.fillAlpha = 0.5;
@@ -38,7 +37,7 @@
         masking.x -= 4;
 
         // Player Frame
-        var pFrame = new pixi.Sprite(frame);
+        var pFrame = new Pixi.Sprite(frame);
         pFrame.anchor = { x: 0.5, y: 0.5 };
         pFrame.width = this.width;
         pFrame.height = this.height;
@@ -51,7 +50,7 @@
 
 
         // Player Portrait
-        this.pPortrait = this.portrait = new pixi.Sprite(this.GetPortrait(this.type));
+        this.pPortrait = this.portrait = new Pixi.Sprite(this.GetPortrait(this.type));
         this.pPortrait.anchor = { x: 0.5, y: 0.5 };
         this.pPortrait.width = this.width;
         this.pPortrait.height = this.height;
@@ -61,7 +60,7 @@
         this.pPortrait.mask = masking;
 
         // Name text
-        this.pNamePanelText = new pixi.Text(this.name,
+        this.pNamePanelText = new Pixi.Text(this.name,
             {
                 font: "26px Helvetica",
                 fill: "white",
@@ -75,7 +74,7 @@
         this.pNamePanelText.y = this.height / 2.1;
 
         // Attack damage text
-        this.pAttackText = new pixi.Text(this.attack,
+        this.pAttackText = new Pixi.Text(this.attack,
             {
                 font: "35px Arial",
                 fill: "white",
@@ -90,7 +89,7 @@
         this.pAttackText.y += this.height / 3.2;
 
         // Health text
-        this.pHealthText = new pixi.Text(this.health,
+        this.pHealthText = new Pixi.Text(this.health,
             {
                 font: "35px Arial",
                 fill: "white",
@@ -132,7 +131,7 @@
 
         for (var i = 0; i < num; i++) {
             var item = this.manaCrystals[i];
-            item = new pixi.Sprite(Asset.GetTexture(Asset.Textures.PLAYER_MANA));
+            item = new Pixi.Sprite(Asset.GetTexture(Asset.Textures.PLAYER_MANA));
             item.anchor = { x: 0.5, y: 0.5 };
             item.width = 30;
             item.height = 30;
@@ -146,7 +145,7 @@
 
     }
     // Constructor
-    PlayerBase.prototype = Object.create(pixi.Sprite.prototype);
+    PlayerBase.prototype = Object.create(Pixi.Sprite.prototype);
     PlayerBase.prototype.constructor = PlayerBase;
 
     PlayerBase.prototype.GetPortrait = function (portraitId) {
@@ -240,80 +239,34 @@
         this.scale.y = this._originalScale.y;
     }
 
-    PlayerBase.prototype.Attack =
+    PlayerBase.prototype.Attack = function(jsonPlayerInfo, jsonOpponentInfo, defender)
+    {
+        var spriteGroup = this.engine.getGroup("Player-Particles");
+        
+        var that = this;
+        var callbacks = 
         {
-            CreateProton : function() {
-                var texture = new Pixi.Texture.fromImage("Content/Images/particle.png");
-                proton = new Proton();
-                emitter = new Proton.BehaviourEmitter();
-                emitter.rate = new Proton.Rate(new Proton.Span(5, 10), new Proton.Span(.02, .015));
-                emitter.addInitialize(new Proton.Mass(10));
-                emitter.addInitialize(new Proton.Life(1, 2.5));
-                emitter.addInitialize(new Proton.ImageTarget(texture, 32));
-                emitter.addInitialize(new Proton.Radius(40));
-                emitter.addInitialize(new Proton.V(new Proton.Span(5, 4), 0, 'polar'));
-                emitter.addBehaviour(new Proton.Alpha(1, 0));
-                emitter.addBehaviour(new Proton.Color('#CECECE'));
-                emitter.addBehaviour(new Proton.Scale(3, 8));
-                emitter.addBehaviour(new Proton.CrossZone(new Proton.RectZone(0, 0, 1003, 1080), 'dead'));
-                emitter.p.x = 1900 / 2;
-                emitter.p.y = 800;
-                emitter.emit();
-                proton.addEmitter(emitter);
-
-            },
-
-            TransformSprite : function(particleSprite, particle) {
-                particleSprite.position.x = particle.p.x;
-                particleSprite.position.y = particle.p.y;
-                particleSprite.scale.x = particle.scale;
-                particleSprite.scale.y = particle.scale;
-                particleSprite.anchor.x = 0.5;
-                particleSprite.anchor.y = 0.5;
-                particle.sprite.tint = '0x' + Pixi.rgb2hex([particle.transform.rgb.r, particle.transform.rgb.g, particle.transform.rgb.b])
-            },
-
-            CreateRender : function(){
-                var renderer = new Proton.Renderer('other', proton);
-                renderer.blendFunc("SRC_ALPHA", "ONE");
-
-                renderer.onProtonUpdate = function () {
-
-                };
-
-                var that = this;
-                renderer.onParticleCreated = function (particle) {
-                    var particleSprite = new Pixi.Sprite(particle.target);
-
-                    particle.sprite = particleSprite;
-
-                    that.stage.addChild(particle.sprite);
-                };
-
-                renderer.onParticleUpdate = function (particle) {
-                    transformSprite(particle.sprite, particle);
-          
-                    particle.sprite.tint = Pixi.rgb2hex([particle.transform.rgb.r, particle.transform.rgb.g, particle.transform.rgb.b])
-                };
-
-                renderer.onParticleDead = function (particle) {
-                    that.stage.removeChild(particle.sprite);
-                };
-                
-            },
-
-            Start: function()
+            SetHealth : function()
             {
-                renderer.start();
-            },
+                that.SetText(
+                    {
+                        health: jsonPlayerInfo.health
+                    });
 
-            Stop : function()
-            {
-                renderer.stop();
+                that.engine.opponent.SetText(
+                    {
+                        health: jsonOpponentInfo.health
+                    });
             }
+        }
 
 
-        };
+        this.Animation.Attack(this.engine.player, this.engine.opponent, spriteGroup, callbacks);
+        this.Animation.Attack(this.engine.opponent, this.engine.player, spriteGroup, callbacks);
+
+    }
+
+
 
 
     // playoropp = "Player" or "Opponent" 

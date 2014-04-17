@@ -11,7 +11,6 @@
         this.isClicked = false;
         var that = this;
         this.mousedown = function (mouseData) {
-            console.log(":D");
             that.isClicked = true;
         }
 
@@ -24,8 +23,8 @@
             this.CheckAttack();
         }
 
-
         this.Init();
+
     }
     // Constructor
     Player.prototype = Object.create(playerBase.prototype);

@@ -1,4 +1,4 @@
-﻿define("animation", ['tweenjs', 'easeljs', 'asset'], function (_, CreateJS, Asset) {
+﻿define("animation", ['tweenjs', 'easeljs', 'asset', 'pixi'], function (_, CreateJS, Asset, Pixi) {
 
     Animation = function () {
 
@@ -77,8 +77,8 @@
         };
 
         // Set interactive to false on both
-        attacker.interactive = false;
-        defender.interactive = false;
+       // attacker.interactive = false;
+       // defender.interactive = false;
 
 
         // This is the temporary tween object
@@ -157,7 +157,8 @@
 
             // Activate the interactive again if its a player
             if (attacker.owner.isPlayer) {
-                attacker.interactive = true
+                attacker.interactive = true;
+                defender.interactive = true;
             }
         });
 
@@ -255,14 +256,108 @@
 
 
         var die = CreateJS.Tween.get(player, { override: false })
-        .to({rotation: 20}, 1000, CreateJS.Ease.QuadIn)
+        .to({ rotation: 20 }, 1000, CreateJS.Ease.QuadIn)
 
 
     }
 
-    Animation.prototype.Player.Attack = function () {
+    Animation.prototype.Player.Attack = function (attacker, defender, spriteGroup, callbacks) {
+        console.log(attacker);
+
+        var sprites = new Object();
+        var container = new Pixi.SpriteBatch();
+
+        spriteGroup.addChild(container);
+
+        var yAxisDirection = (attacker.y < defender.y) ? -1 : 1;
+        var startY = attacker.y + ((attacker.height / 2) * yAxisDirection*-1) + (15 * yAxisDirection);
+        var count = 0;
+        var incrementor = 1;
+        var width = 50;
+        var pause = false;
+        var intervalId = setInterval(function () {
+
+            if (!pause) {
+                // Create and push the sprite
+                var sprite = new Pixi.Sprite.fromImage("Content/Images/Player/beam.png");
+                sprites[count] = sprite;
+                container.addChild(sprite);
+
+                // Check if we should invert the incrementor
+                if (count % 50 == 0) {
+                    incrementor *= -1;
+                }
+
+                // Set position and stuff
+                width += incrementor;
+                sprite.width = width;
+                //sprite.rotation = count;
+                sprite.height = 5;
+                sprite.x = attacker.position.x;
+                sprite.anchor = { x: 0.5, y: 0.5 }
+                sprite.y = startY
+
+                count += 5;
+            }
+
+            for (var index in sprites) {
+                var sprite = sprites[index];
+
+                sprite.y -= 5 * yAxisDirection
+
+                if (pause && sprite.width > 0)
+                {
+                    sprite.width -= 1;
+                    if (sprite.width <= 1) sprite.visible = false;
+                }
+
+                // Calculate Distance from Player and beam fragment
+                var deltaY = sprite.y - (defender.y + defender.height /3*yAxisDirection) - (30*yAxisDirection);
+                deltaY *= (deltaY < 0) ? -1 : 1;
+
+                if(deltaY <= 5)
+                {
+                    delete sprites[index];
+                    container.removeChild(sprite); 
+                }
+
+                
+            }
+
+            if($.isEmptyObject(sprite))
+            {
+                clearInterval(intervalId);
+            }
+
+        }, 10);
+
+        // Blink opponent
+        var blinkOn = false;
+        var opponentBlinkIntId = setInterval(function () {
+            if (blinkOn) {
+                defender.pPortrait.tint = 0xFF0000;
+                blinkOn = false;
+            }
+
+            else {
+                defender.pPortrait.tint = 0xFFFFFF;
+                blinkOn = true;
+            }
+        }, 200);
+
+
+        setTimeout(function () {
+            pause = true;
+            clearInterval(opponentBlinkIntId);
+            callbacks.SetHealth();
+            defender.pPortrait.tint = 0xFFFFFF;
+
+        },5200);
 
     }
+
+
+
 
     Animation.prototype.Player.Defend = function (player) {
 

@@ -45,6 +45,7 @@ namespace SoulsServer.Network
             GAME_NOT_YOUR_TURN = 202,
             GAME_NEXT_ROUND_FAIL = 203,
             GAME_ATTACK = 218,
+            GAME_CANNOT_ATTACK_TWICE = 232,
             // GAME_CARD_DIE = 219,
             // GAME_HERO_ATTACK = 220,
             // GAME_HERO_DIE = 221, // Game lost

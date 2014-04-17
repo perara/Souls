@@ -389,6 +389,13 @@ namespace Souls.Server.Game
                 // Ignore if one of the card did not exist
                 if (sourceCard == null || targetCard == null) return;
 
+                // Ensure that the entity has not attacked this round
+                if(sourceCard.hasAttacked)
+                {
+                    this.CannotAttackTwice(player);
+                    return;
+                }
+         
 
                 sourceCard.Attack(targetCard);
 
@@ -447,6 +454,14 @@ namespace Souls.Server.Game
             {
                 // Do attack
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
+
+                // Ensure that the entity has not attacked this round
+                if (sourceCard.hasAttacked)
+                {
+                    this.CannotAttackTwice(player);
+                    return;
+                }
+                
                 sourceCard.Attack(opponent);
 
                 if (sourceCard.isDead)
@@ -496,6 +511,13 @@ namespace Souls.Server.Game
             {
                 Card targetCard = opponent.boardCards.FirstOrDefault(x => x.Value.cid == target).Value;
 
+                // Ensure that the entity has not attacked this round
+                if (requestPlayer.hasAttacked)
+                {
+                    this.CannotAttackTwice(player);
+                    return;
+                }
+
                 requestPlayer.Attack(targetCard);
 
 
@@ -540,8 +562,15 @@ namespace Souls.Server.Game
                         )));
 
             }
-            else if (type == 3) // Player on Card
+            else if (type == 3) // Player on Opponent
             {
+
+                // Ensure that the entity has not attacked this round
+                if (requestPlayer.hasAttacked)
+                {
+                    this.CannotAttackTwice(player);
+                    return;
+                }
 
                 requestPlayer.Attack(opponent);
 
@@ -668,6 +697,11 @@ namespace Souls.Server.Game
             player.gPlayer = null;
             opponent.gPlayer = null;
 
+        }
+
+        public void CannotAttackTwice(Player p)
+        {
+            p.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_CANNOT_ATTACK_TWICE, "This entity cannot attack twice!"));
         }
 
     }

@@ -19,6 +19,8 @@ namespace Souls.Server.Objects
         // Which slot the card resides in.
         public int slotId { get; set; }
 
+        public bool hasAttacked { get; set; }
+
 
       /*  public Card(Souls.Model.Card modelCard) : base(modelCard)
         {
@@ -52,6 +54,8 @@ namespace Souls.Server.Objects
             {
                 defender.cardDie();
             }
+
+            this.hasAttacked = true;
         }
 
         public void Attack(GamePlayer defender)
@@ -61,6 +65,8 @@ namespace Souls.Server.Objects
 
             if (this.health < 1) this.cardDie();
             if (defender.health < 1) defender.playerDie();
+
+            this.hasAttacked = true;
         }
 
         // A card attacks another collection of cards
@@ -71,6 +77,8 @@ namespace Souls.Server.Objects
                 card.health -= this.attack;
                 if (card.health < 1) card.cardDie();
             }
+
+            this.hasAttacked = true;
         }
 
         // Removes a specific card only if used

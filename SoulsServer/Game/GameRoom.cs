@@ -102,6 +102,10 @@ namespace Souls.Server.Game
 
             // Set mana equal to the round (unless +10)
             currentPlaying.gPlayer.mana = (this.round < 10) ? this.round : 10;
+
+            // Reset hasAttacked (Attack once per turn limit)
+            players.First.gPlayer.ResetAttacked();
+            players.Second.gPlayer.ResetAttacked();
         }
 
         /// <summary>

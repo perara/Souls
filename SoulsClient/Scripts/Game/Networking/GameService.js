@@ -29,7 +29,7 @@
         this.RegisterResponseAction(["222", "223"], Response_NewCard);
         this.RegisterResponseAction(["208"], Response_UseCard_OOM);
         this.RegisterResponseAction(["230", "231"], Response_VictoryDefeat);
-
+        this.RegisterResponseAction(["232"], Response_CannotAttackTwice);
 
     }
     // Constructor
@@ -43,6 +43,11 @@
     //////////////////////////////////////////////////////////////////////////////
     function Response_UseCard_OOM(json) {
         that.engine.ScreenMessage(["Not enough mana!"], false);
+    }
+
+    function Response_CannotAttackTwice(json)
+    {
+        that.engine.ScreenMessage(["Cannot attack twice this round!"], false);
     }
 
     function Response_NewCard(json) {
@@ -139,13 +144,42 @@
 
         else if (attackType == 2) { // Player on Card
 
-            console.log("TODO IMPLEMENTATION HERE!")
+           /* // The player is attacking
+            if (jsonAttacker) {
+                var attacker = that.engine.player;
+                var defender = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
+
+                attacker.Attack(jsonPInfo, jsonOppInfo, defender);
+            }
+            else // The opponent is attacking
+            {
+                var attacker = that.engine.opponent;
+                var defender = that.engine.player.cardManager.board[jsonPInfo.cid];
+
+                attacker.Attack(jsonOppInfo, jsonPInfo, defender);
+
+            }*/
+
+            cosole.log("UNIMPLEMENTED!")
 
         }
 
         else if (attackType == 3) { // Player on Opponent
+            // The player is attacking
+            if (jsonAttacker) {
+                var attacker = that.engine.player;
+                var defender = that.engine.opponent;
 
-            console.log("TODO IMPLEMENTATION HERE!")
+                attacker.Attack(jsonPInfo, jsonOppInfo, defender);
+            }
+            else // The opponent is attacking
+            {
+                var attacker = that.engine.opponent;
+                var defender = that.engine.player;
+
+                attacker.Attack(jsonOppInfo, jsonPInfo, defender);
+
+            }
 
         }
 

@@ -36,6 +36,8 @@ namespace Souls.Server.Objects
         public int rank { get; set; }
         public GameRoom gameRoom { get; set; }
         public int type { get; set; }
+        public bool hasAttacked { get; set; }
+        
 
         public GamePlayer()
         {
@@ -56,6 +58,16 @@ namespace Souls.Server.Objects
             return data;
         }
 
+        public void ResetAttacked()
+        {
+            this.hasAttacked = false;
+           
+            foreach(Card c in this.boardCards.Values)
+            {
+                c.hasAttacked = false;
+            }
+        }
+
         public bool HasEnoughMana(Card c)
         {
             return this.mana >= c.cost;
@@ -71,6 +83,8 @@ namespace Souls.Server.Objects
 
             if (this.health < 1) this.playerDie();
             if (defCard.health < 1) defCard.cardDie();
+
+            this.hasAttacked = true;
         }
 
         public void Attack(GamePlayer opponent)
@@ -80,6 +94,8 @@ namespace Souls.Server.Objects
 
             if (this.health < 1) this.playerDie();
             if (opponent.health < 1) opponent.playerDie();
+
+            this.hasAttacked = true;
         }
 
         public void playerDie()
