@@ -227,7 +227,7 @@
 
         function onComplete() {
             // Set Mount variable to true
-            c.interactive = true;
+            //c.interactive = true;
             c._awaitRequest = false;
         }
     }
