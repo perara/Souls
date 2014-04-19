@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/CSS")
-    @Styles.Render("~/Content/CSS/Game.css")
+    @Styles.Render("~/Content/CSS/Base.css")
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
     @Scripts.Render("~/bundles/modernizr")
 </head>
@@ -46,19 +46,39 @@
     @Scripts.Render("~/Scripts/jquery-ui-1.10.4.min.js")
     @Scripts.Render("~/Scripts/jquery.dialogextend.min.js")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/Page/perfect-scrollbar.min.js")
+    
     @RenderSection("scripts", required: false)
 
-    <div class="container body-content">
-        @RenderBody()
 
-        @if (!(@ViewContext.RouteData.Values["controller"].Equals("Game")))
-        {
-            <!--<hr/>
-            <footer>
-                <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-            </footer>-->
-        }
+    <div class="
+             page-wrapper
+             col-lg-10
+             col-lg-offset-1
+             fill">
+
+        <div class="
+             page-logo
+              col-lg-2
+              col-lg-offset-5"></div>
+   
+
+        <div class="page-content
+              col-lg-12
+              col-lg-offset-0">
+            @RenderBody()
+        </div>
     </div>
+
+    <script>
+        $('.page-wrapper').perfectScrollbar(
+            {
+                suppressScrollX: true,
+                includePadding: true
+            });
+
+    </script>
+
 
 </body>
 </html>

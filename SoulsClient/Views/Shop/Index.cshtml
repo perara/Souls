@@ -5,58 +5,74 @@
 
 <h2>Hansel's Card Shop</h2>
 
-<table class="table">
-    <tr>
-        <th>
-            Name
-        </th>
-        <th>
-            Attack
-        </th>
-        <th>
-            Health
-        </th>
-        <th>
-            Armor
-        </th>
-        <th>
-            Mana Cost
-        </th>
-        <th>
-            Price
-        </th>
-        <th></th>
-    </tr>
+<div class="buy-confirm col-lg-offset-4 col-lg-4" >
+    <div class="buy-confirm-card"></div>
+    <div class="buy-confirm-text">
+        Are you sure you want to purchase this card?
+        <br />
+        <button>Purchase</button>
+        <button>Cancel</button>
+    </div>
+</div>
+<br />
 
+<table class="table">
+
+    @{int counter = 0;}
     @foreach (var card in ViewBag.cards)
     {
-        <tr>
-            <td>
-                @card.name
-            </td>
-            <td>
-                @card.attack
-            </td>
-            <td>
-                @card.health
-            </td>
-            <td>
-                @card.armor
-            </td>
-            <td>
-                @card.cost
-            </td>
-            <td>
-                @card.vendor_price
-            </td>
-            <td>
-                @Html.ActionLink("Purchase", "Purchase", new { id = card.id })
 
-            </td>
-        </tr>
+        if (counter == 0)
+        {
+            @Html.Raw("<tr>")
+        }
+
+        <td>
+            <div class="card-container" id="card_@card.id" style="background-image: url('@ViewBag.races[card.race.id]');">
+                <div class="card-portrait" style="background-image: url('/Content/Images/Card/Portraits/@(card.id).png');"></div>
+                <div class="card-cost">@card.cost</div>
+                <div class="card-name">@card.name</div>
+                <div class="card-ability">@card.ability.name</div>
+                <div class="card-health">@card.health</div>
+                <div class="card-attack">@card.attack</div>
+            </div>
+          
+        </td>
+
+        if (counter % 5 == 4)
+        {
+            @Html.Raw("</tr>")
+        }
+
+        counter++;
     }
 
-    </table>
 
 
 
+</table>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".card-container").on("click", function () {
+
+            var card = $(this).clone();
+            //card.attr("id", card.attr("id").split("_")[1]);
+            card.removeAttr("id");
+            card.addClass("buy-card-custom");
+
+            $(".buy-confirm-card").html(card);
+            $(".buy-confirm").css("display", "hidden");
+            $(".buy-confirm").fadeIn();
+
+
+
+        });
+
+    });
+
+
+</script>

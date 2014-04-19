@@ -1,0 +1,20 @@
+﻿
+.buy-confirm {
+    border: 1px solid black;
+    padding: 5px;
+    display: none;
+    margin-bottom: 15px;
+}
+
+.buy-confirm-card {
+    max-width: 150px;
+}
+
+.buy-card-custom {
+    margin-left: 70%;
+    width: 100%;
+}
+
+.buy-confirm-text{
+    text-align: center;
+}

@@ -85,22 +85,22 @@ http://buzz.jaysalvat.com/documentation/buzz/
             OPPONENT_FRAME: Asset.Path.Textures + "Player/opponent_frame.png",
 
             // Card Portraits
-            CARD_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Card/Portraits/0.jpg",
+            CARD_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Card/Portraits/0.png",
             CARD_PORTRAIT_ONE: Asset.Path.Textures + "Card/Portraits/1.png",
             CARD_PORTRAIT_TWO: Asset.Path.Textures + "Card/Portraits/2.png",
-            CARD_PORTRAIT_THREE: Asset.Path.Textures + "Card/Portraits/3.jpg",
-            CARD_PORTRAIT_FOUR: Asset.Path.Textures + "Card/Portraits/4.jpg",
-            CARD_PORTRAIT_FIVE: Asset.Path.Textures + "Card/Portraits/5.jpg",
-            CARD_PORTRAIT_SIX: Asset.Path.Textures + "Card/Portraits/6.jpg",
+            CARD_PORTRAIT_THREE: Asset.Path.Textures + "Card/Portraits/3.png",
+            CARD_PORTRAIT_FOUR: Asset.Path.Textures + "Card/Portraits/4.png",
+            CARD_PORTRAIT_FIVE: Asset.Path.Textures + "Card/Portraits/5.png",
+            CARD_PORTRAIT_SIX: Asset.Path.Textures + "Card/Portraits/6.png",
 
             // Player Portraits
-            PLAYER_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Player/Portraits/0.jpg",
+            PLAYER_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Player/Portraits/0.png",
             PLAYER_PORTRAIT_ONE: Asset.Path.Textures + "Player/Portraits/1.png",
             PLAYER_PORTRAIT_TWO: Asset.Path.Textures + "Player/Portraits/2.png",
-            PLAYER_PORTRAIT_THREE: Asset.Path.Textures + "Player/Portraits/3.jpg",
-            PLAYER_PORTRAIT_FOUR: Asset.Path.Textures + "Player/Portraits/4.jpg",
-            PLAYER_PORTRAIT_FIVE: Asset.Path.Textures + "Player/Portraits/5.jpg",
-            PLAYER_PORTRAIT_SIX: Asset.Path.Textures + "Player/Portraits/6.jpg",
+            PLAYER_PORTRAIT_THREE: Asset.Path.Textures + "Player/Portraits/3.png",
+            PLAYER_PORTRAIT_FOUR: Asset.Path.Textures + "Player/Portraits/4.png",
+            PLAYER_PORTRAIT_FIVE: Asset.Path.Textures + "Player/Portraits/5.png",
+            PLAYER_PORTRAIT_SIX: Asset.Path.Textures + "Player/Portraits/6.png"
         }
 
         Asset.prototype.Sound =

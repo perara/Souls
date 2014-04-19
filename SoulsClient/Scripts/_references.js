@@ -12,7 +12,6 @@
 /// <reference path="game/client/socket.js" />
 /// <reference path="game/toolbox/rectangle.js" />
 /// <reference path="game/toolbox/toolbox.js" />
-/// <reference path="javascript1.js" />
 /// <reference path="game/client/messages.js" />
 /// <reference path="pixi.js" />
 /// <reference path="stopwatch.js" />
@@ -41,8 +40,8 @@
 /// <reference path="game/objects/animation/animation.js" />
 /// <reference path="easeljs-0.7.1.js" />
 /// <reference path="jquery.dialogextend.js" />
-/// <reference path="proton-1.0.0.js" />
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
 /// <reference path="tweenjs-0.5.1.js" />
+/// <reference path="page/perfect-scrollbar.js" />
 

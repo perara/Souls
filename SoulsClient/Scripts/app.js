@@ -6,7 +6,6 @@ var socketStatus = document.getElementById('status');
 var gameId;
 
 $(document).ready(function () {
-    $("body").css("padding-bottom", "70px", "important");
 
     // Whenever its connected
     sClient.onOpen(function (event) {

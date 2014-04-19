@@ -14,8 +14,7 @@
     "toolbox",
     'easeljs',
     'tweenjs',
-    'queue',
-    'proton'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox, CreateJS, _, Queue, proton) {
+    'queue'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox, CreateJS, _, Queue) {
 
         var that;
         Engine = function () {

@@ -1,0 +1,33 @@
+﻿body {
+    height: 100%;
+    padding-bottom: 50px;
+    background-image: url(/Content/Images/Page/bg.jpg);
+}
+
+html {
+    height: 100%;
+}
+
+.page-wrapper {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    padding: 50px;
+    padding-top: 5px;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    background-color: whitesmoke;
+    /*opacity: 0.97;*/
+}
+
+.page-logo {
+    background-image: url(/Content/Images/Page/Logo.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    max-width: 100%;
+    min-height: 15%;
+    border-bottom: 1px solid #b4b4b4;
+}
+
+.page-content {
+}

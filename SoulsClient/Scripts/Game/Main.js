@@ -11,7 +11,6 @@ require.config({
 
 
         "pixi": "/Scripts/pixi.dev", // PIXI.js
-        "proton" : "/Scripts/proton-1.0.0.min",
         "tweenjs": "/Scripts/tweenjs-0.5.1.min",
         "easeljs": "/Scripts/easeljs-0.7.1.min",
         "soundjs": "/Scripts/soundjs-0.5.2.min",
@@ -135,7 +134,12 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         this.stage.addChild(txtLoading);
 
         this.renderer = new Pixi.autoDetectRenderer(Conf.width, Conf.height, null, false, true);
-        $("#game-window").html(this.renderer.view);
+
+        var gameWindow = $("#game-window").clone();
+        gameWindow.html(this.renderer.view);
+
+        $(".page-wrapper").remove();
+        $("body").append(gameWindow);
 
         // Set current state to LOAD
         Conf.currentState = Gamestate.LOADING;
