@@ -6,9 +6,12 @@
     var Conf =
      {
          Data: {
-             hash: "@SoulsClient.Controllers.cSession.Current.hash"
+             hash: "@SoulsClient.Classes.cSession.Current.login.hash",
+             pid : "@SoulsClient.Classes.cSession.Current.player.id"
          }
      }
+
+    console.log(Conf.Data);
 </script>
 
 

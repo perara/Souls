@@ -13,10 +13,11 @@ namespace Souls.Model.Maps {
 			Table("player");
 			LazyLoad();
 			Id(x => x.id).GeneratedBy.Identity().Column("id");
-			References(x => x.playerType).Column("fk_type");
+			References(x => x.playerType).Column("fk_type").Not.Nullable();
 			Map(x => x.name).Column("name").Not.Nullable().Unique();
 			Map(x => x.password).Column("password").Not.Nullable();
 			Map(x => x.rank).Column("rank").Not.Nullable();
+            Map(x => x.money).Column("money").Not.Nullable();
 			Map(x => x.created).Column("created");
         }
     }

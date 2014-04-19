@@ -5,7 +5,7 @@ using System.Web;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace SoulsClient.Controllers
+namespace SoulsClient.Classes
 {
     public class Toolkit
     {

@@ -70,6 +70,8 @@
     <Compile Include="Migrations\Clean\CreateUsers.cs" />
     <Compile Include="NHibernateHelper.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="PlayerCards.cs" />
+    <Compile Include="PlayerCardsMap.cs" />
     <Compile Include="PlayerLogin.cs" />
     <Compile Include="PlayerLoginMap.cs" />
     <Compile Include="PlayerMap.cs" />

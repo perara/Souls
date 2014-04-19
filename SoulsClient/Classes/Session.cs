@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Souls.Model;
 
-namespace SoulsClient.Controllers
+namespace SoulsClient.Classes
 {
     public class cSession
     {
         // private constructor
         private cSession()
         {
-            playerId = -1;
+            player = null;
+            login = null;
         }
 
         // Gets the current session.
@@ -29,8 +31,7 @@ namespace SoulsClient.Controllers
             }
         }
 
-
-        public int playerId { get; set; }
-        public string hash { get; set; }
+        public Player player { get; set; }
+        public PlayerLogin login { get; set; }
     }
 }

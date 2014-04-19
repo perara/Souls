@@ -17,6 +17,7 @@ namespace Souls.Model
         public virtual PlayerType playerType { get; set; }
         public virtual string name { get; set; }
         public virtual string password { get; set; }
+        public virtual int money { get; set; }
         public virtual int rank { get; set; }
         public virtual DateTime? created { get; set; }
 

@@ -43,6 +43,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Iesi.Collections">
       <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
@@ -125,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -162,12 +169,14 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\GameController.cs" />
-    <Compile Include="Controllers\JsonpResult.cs" />
+    <Compile Include="Classes\JsonpResult.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\Session.cs" />
-    <Compile Include="Controllers\Toolkit.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Classes\Session.cs" />
+    <Compile Include="Classes\Toolkit.cs" />
+    <Compile Include="Controllers\ShopController.cs" />
+    <Compile Include="Filters\AuthFilter.cs" />
+    <Compile Include="Filters\BasicAuthorizeAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -357,6 +366,8 @@
     <Content Include="Views\Admin\Players.cshtml" />
     <Content Include="Views\Admin\CardEditor.cshtml" />
     <Content Include="Views\Admin\Games.cshtml" />
+    <Content Include="Views\Shop\Index.cshtml" />
+    <Content Include="Views\Shared\Player.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

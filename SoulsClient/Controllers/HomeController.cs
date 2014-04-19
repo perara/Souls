@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SoulsClient.Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -12,7 +13,7 @@ namespace SoulsClient.Controllers
         {
             ViewBag.Title = "Home Page";
 
-            if(cSession.Current.playerId == -1)
+            if (cSession.Current.player == null)
             {
                 ViewBag.loggedIn = false;
             }
@@ -21,6 +22,7 @@ namespace SoulsClient.Controllers
                 ViewBag.loggedIn = true;
             }
 
+     
             return View();
         }
     }

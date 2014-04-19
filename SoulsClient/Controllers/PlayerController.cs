@@ -14,37 +14,28 @@ using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
 using NHibernate.Linq;
+using SoulsClient.Classes;
 
 namespace SoulsClient.Controllers
 {
+
     public class PlayerController : BaseController
     {
 
         // GET: /Player/
         public ActionResult Index()
         {
-            // If user is not logged in
-            if (cSession.Current.hash.Equals(""))
-            {
-                // Redirect to login controller
-                return RedirectToAction("Login");
-            }
-            else
-            {
-                // Redirect to Player home
-                return RedirectToAction("Index");
-            }
-
-
+            return View("Index");
         }
 
         public JsonpResult Hash()
         {
-            JsonpResult result = new JsonpResult(new { hash = cSession.Current.hash });
+            JsonpResult result = new JsonpResult(new { hash = cSession.Current.login.hash });
             return result;
         }
 
         // GET: /Player/Login/
+        [AllowAnonymousAttribute]
         public ActionResult Login()
         {
             return View();
@@ -52,6 +43,7 @@ namespace SoulsClient.Controllers
 
         // POST: /Player/Login/
         [HttpPost]
+        [AllowAnonymousAttribute]
         public ActionResult Login(Souls.Model.Player player)
         {
 
@@ -63,8 +55,12 @@ namespace SoulsClient.Controllers
                 Player playerRecord = session.Query<Player>()
                     .Where(x => x.name == player.name)
                     .Where(x => x.password == Toolkit.sha256_hash(player.password))
+                    .Fetch(x => x.playerType)
+                    .ThenFetch(x => x.race)
+                    .Fetch(x => x.playerType)
+                    .ThenFetch(x => x.ability)
                     .SingleOrDefault();
-           
+
                 // Check if the player record exists
                 if (playerRecord != null)
                 {
@@ -72,9 +68,6 @@ namespace SoulsClient.Controllers
 
                     using (ITransaction transaction = session.BeginTransaction())
                     {
-
-
-
 
                         // Try to get Login Record (If exists)
                         PlayerLogin loginRecord = session.CreateCriteria<PlayerLogin>()
@@ -103,8 +96,9 @@ namespace SoulsClient.Controllers
                         transaction.Commit();
 
                         // Set session
-                        cSession.Current.hash = newHash;
-                        cSession.Current.playerId = playerRecord.id;
+                        player.password = null; // For security :)
+                        cSession.Current.player = playerRecord;
+                        cSession.Current.login = loginRecord;
 
                         // Set auth
                         FormsAuthentication.SetAuthCookie(newHash, false);
@@ -126,17 +120,9 @@ namespace SoulsClient.Controllers
         // GET: /Player/Details/5
         public ActionResult Details(int? id)
         {
-            /* if (id == null)
-             {
-                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-             }
-             db_Player player = db.db_Player.Find(id);
-             if (player == null)
-             {
-                 return HttpNotFound();
-             }*/
+
             return View();
-            // return View(player);
+
         }
 
         // GET: /Player/Create
