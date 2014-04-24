@@ -77,7 +77,7 @@
         };
 
         // Set interactive to false on both
-       // attacker.interactive = false;
+        attacker.interactive = false;
        // defender.interactive = false;
 
 
@@ -150,6 +150,7 @@
             y: attackerOrigin.y
         }, 150)
         // Animation done, call reset functions flags
+        .wait(150)
         .call(function () {
 
             // Set back to correct group
@@ -158,7 +159,6 @@
             // Activate the interactive again if its a player
             if (attacker.owner.isPlayer) {
                 attacker.interactive = true;
-                defender.interactive = true;
             }
         });
 
