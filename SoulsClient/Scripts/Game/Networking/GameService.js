@@ -84,11 +84,11 @@
         if(type == 230)
         {
 
-            that.engine.queue.FadeInGameEnd("Victory!");
+            that.engine.queue.FadeInGameEnd("Victory!", json.Payload.statistics);
         }
         else
         {
-            that.engine.queue.FadeInGameEnd("Defeat!");
+            that.engine.queue.FadeInGameEnd("Defeat!", json.Payload.statistics);
         }
 
 

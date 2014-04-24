@@ -1,17 +1,17 @@
 ﻿@{
     ViewBag.Title = "Index";
 }
-@Html.Partial("~/Views/Shared/Player.cshtml");
+@Html.Partial("~/Views/Shared/Partials/Player.cshtml");
 
 <h2>Hansel's Card Shop</h2>
 
-<div class="buy-confirm col-lg-offset-4 col-lg-4" >
+<div class="buy-confirm">
+
     <div class="buy-confirm-card"></div>
+
     <div class="buy-confirm-text">
         Are you sure you want to purchase this card?
         <br />
-        <button>Purchase</button>
-        <button>Cancel</button>
     </div>
 </div>
 <br />
@@ -29,14 +29,14 @@
 
         <td>
             <div class="card-container" id="card_@card.id" style="background-image: url('@ViewBag.races[card.race.id]');">
-                <div class="card-portrait" style="background-image: url('/Content/Images/Card/Portraits/@(card.id).png');"></div>
-                <div class="card-cost">@card.cost</div>
-                <div class="card-name">@card.name</div>
-                <div class="card-ability">@card.ability.name</div>
-                <div class="card-health">@card.health</div>
-                <div class="card-attack">@card.attack</div>
+                <div class="card-portrait card-noselect" style="background-image: url('/Content/Images/Card/Portraits/@(card.id).png');"></div>
+                <div class="card-cost card-noselect">@card.cost</div>
+                <div class="card-name card-noselect">@card.name</div>
+                <div class="card-ability card-noselect">@card.ability.name</div>
+                <div class="card-health card-noselect">@card.health</div>
+                <div class="card-attack card-noselect">@card.attack</div>
             </div>
-          
+
         </td>
 
         if (counter % 5 == 4)
@@ -57,6 +57,8 @@
 
     $(document).ready(function () {
 
+
+
         $(".card-container").on("click", function () {
 
             var card = $(this).clone();
@@ -66,8 +68,26 @@
 
             $(".buy-confirm-card").html(card);
             $(".buy-confirm").css("display", "hidden");
+
             $(".buy-confirm").fadeIn();
 
+
+            $(".buy-confirm").dialog(
+                {
+                    title: "Purchase " + card.find(".card-name").html(),
+                    modal: true,
+                    open: function (event, ui) {
+                        $(event.target).css("overflow", "hidden");
+                    },
+                    buttons: {
+                        "Purchase": function () {
+                            $(this).dialog("close");
+                        },
+                        Cancel: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
 
 
         });

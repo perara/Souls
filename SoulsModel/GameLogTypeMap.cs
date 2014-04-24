@@ -13,8 +13,9 @@ namespace Souls.Model.Maps {
 			Table("game_log_type");
 			LazyLoad();
 			Id(x => x.id).GeneratedBy.Identity().Column("id");
-			Map(x => x.title).Column("title");
-			Map(x => x.description).Column("description");
+			Map(x => x.title).Column("title").Not.Nullable();
+			Map(x => x.text).Column("text").Not.Nullable();
+			Map(x => x.description).Column("description").Not.Nullable();
         }
     }
 }

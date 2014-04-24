@@ -1,0 +1,58 @@
+﻿
+
+
+<div class="row">
+    <div id="page-wrapper">
+
+        <h1>Souls API Console</h1>
+        <div id="status">Connecting...</div>
+        <ul id="messages"></ul>
+        <form id="message-form" action="#" method="post">
+
+            @Html.ActionLink("Login", "Login", "Player", new { area = "" }, null)
+
+
+            <h2>Write Query</h2>
+            <textarea id="message" placeholder="Write your message here..." @((!ViewBag.loggedIn) ? "readonly" : "")></textarea>
+
+
+
+            Service:  <select id="service" @((!ViewBag.loggedIn) ? "disabled" : "")>
+                <option value="?">No selected</option>
+            </select><br><br>
+
+            Request: <select id="select_query" @((!ViewBag.loggedIn) ? "disabled" : "")>
+                <option value="?">No selected</option>
+            </select><br><br>
+
+
+            <button type="submit" @((!ViewBag.loggedIn) ? "disabled=disabled" : "")>Send Message</button>
+            <button type="button" id="close">Close Connection</button>
+        </form>
+
+
+        <div class="chat-window">
+            <div class="chat_messages">
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+                [SERVER]: Guy was kicked <br />
+            </div>
+
+            <div class="chat_input_div">
+                <textarea class="chat_input">
+                    Bla
+                </textarea>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>

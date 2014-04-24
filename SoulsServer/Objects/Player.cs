@@ -42,7 +42,7 @@ namespace Souls.Server.Objects
         /// </summary>
         public Client chatContext { get; set; }
 
-         public Player GetOpponent()
+        public Player GetOpponent()
         {
             if (this.gPlayer.gameRoom.players.First.Equals(this))
             {
@@ -52,7 +52,7 @@ namespace Souls.Server.Objects
             {
                 return this.gPlayer.gameRoom.players.First;
             }
-            return null; 
+            return null;
         }
 
 

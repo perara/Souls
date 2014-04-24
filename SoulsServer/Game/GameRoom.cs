@@ -12,6 +12,7 @@ using Souls.Server.Objects;
 using Souls.Server.Game;
 using Souls.Server.Network;
 using SoulsServer.Network;
+using SoulsModel;
 
 namespace Souls.Server.Game
 {
@@ -35,6 +36,7 @@ namespace Souls.Server.Game
         public bool isEnded { get; set; }
         public Player winner { get; set; }
 
+        public GameLogger logger { get; set; }
 
 
         public GameRoom()
@@ -59,6 +61,8 @@ namespace Souls.Server.Game
             List<Card> p2Cards = GetRandomCards(3);
             players.First.gPlayer.AddCardToHand(p1Cards);
             players.Second.gPlayer.AddCardToHand(p2Cards);
+
+            logger = new GameLogger(this);
         }
 
         // Gets a specific number of random cards from the card database
@@ -140,6 +144,28 @@ namespace Souls.Server.Game
             p2Data.Add(new JProperty("yourTurn", players.Second.gPlayer.IsPlayerTurn()));
 
             return gUpdates;
+        }
+
+        public void SaveGameRoom()
+        {
+            using(var session = NHibernateHelper.OpenSession())
+            {
+
+
+                using(var transaction = session.BeginTransaction())
+                {
+                    Souls.Model.Game g = new Souls.Model.Game();
+                    g.player1 = this.players.First;
+                    g.player2 = this.players.Second;
+                    session.Save(g);
+                    transaction.Commit();
+                    this.gameId = g.id;
+                }
+
+            }
+
+
+
         }
 
 

@@ -9,6 +9,7 @@ namespace Souls.Model {
         public GameLogType() { }
         public virtual int id { get; set; }
         public virtual string title { get; set; }
+        public virtual string text { get; set; }
         public virtual string description { get; set; }
     }
 }

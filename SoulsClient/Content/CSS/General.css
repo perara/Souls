@@ -27,6 +27,7 @@ html {
     max-width: 100%;
     min-height: 15%;
     border-bottom: 1px solid #b4b4b4;
+    margin-bottom: 50px;
 }
 
 .page-content {

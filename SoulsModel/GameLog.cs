@@ -9,5 +9,9 @@ namespace Souls.Model {
         public virtual int id { get; set; }
         public virtual GameLogType gameLogType { get; set; }
         public virtual Game game { get; set; }
+        public virtual int obj1id { get; set; }
+        public virtual int obj2id { get; set; }
+        public virtual string obj1type { get; set; }
+        public virtual string obj2type { get; set; }
     }
 }

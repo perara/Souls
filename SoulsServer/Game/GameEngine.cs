@@ -13,8 +13,9 @@ using Souls.Server.Objects;
 using Newtonsoft.Json.Linq;
 using NHibernate.Linq;
 using Souls.Server.Network;
-using SoulsModel;
 using SoulsServer.Network;
+using SoulsModel;
+
 
 namespace Souls.Server.Game
 {
@@ -39,6 +40,7 @@ namespace Souls.Server.Game
         public void SetupEngine()
         {
             GameEngine.rooms = new Dictionary<int, GameRoom>();
+            GameLogger.GenerateLogTypes();
             GameEngine.cards = LoadCards();
 
         }
@@ -71,7 +73,7 @@ namespace Souls.Server.Game
                     attack = x.attack,
                     health = x.health,
                     armor = x.armor,
-                    cost = x.cost
+                    cost = x.cost,
                 }));
 
                 Logging.Write(Logging.Type.GAME, "Loaded " + cards.Count() + " cards, Took: " + w.ElapsedMilliseconds);
@@ -449,6 +451,16 @@ namespace Souls.Server.Game
                         new JProperty("type", type)
                         )));
 
+                // Log the event
+                player.gPlayer.gameRoom.logger.Add(
+                    GameLogger.logTypes[GameLogger.LogTypes.CARD_ATTACK_CARD],
+                    sourceCard.id,
+                    targetCard.id,
+                    "Card",
+                    "Card"
+                    );
+
+    
             }
             else if (type == 1) // Card on Hero
             {
@@ -504,6 +516,15 @@ namespace Souls.Server.Game
                         new JProperty("type", type)
                         )));
 
+
+                // Log the event
+                player.gPlayer.gameRoom.logger.Add(
+                    GameLogger.logTypes[GameLogger.LogTypes.CARD_ATTACK_PLAYER],
+                    sourceCard.id,
+                    player.GetOpponent().id,
+                    "Card",
+                    "Player"
+                    );
 
 
             }
@@ -561,6 +582,15 @@ namespace Souls.Server.Game
                         new JProperty("type", type)
                         )));
 
+                // Log the event
+                player.gPlayer.gameRoom.logger.Add(
+                    GameLogger.logTypes[GameLogger.LogTypes.PLAYER_ATTACK_CARD],
+                    player.id,
+                    targetCard.id,
+                    "Player",
+                    "Player"
+                    );
+
             }
             else if (type == 3) // Player on Opponent
             {
@@ -605,6 +635,15 @@ namespace Souls.Server.Game
                         new JProperty("opponent", playerObj),
                         new JProperty("type", type)
                         )));
+
+                // Log the event
+                player.gPlayer.gameRoom.logger.Add(
+                    GameLogger.logTypes[GameLogger.LogTypes.PLAYER_ATTACK_PLAYER],
+                    player.id,
+                    player.GetOpponent().id,
+                    "Player",
+                    "Card"
+                    );
 
             }
 
@@ -673,12 +712,18 @@ namespace Souls.Server.Game
             Player player = players.First;
             Player opponent = players.Second;
 
+            // Publish to DB
+            player.gPlayer.gameRoom.SaveGameRoom();
+            player.gPlayer.gameRoom.logger.Publish();
+  
+
+
             player.gameContext.SendTo(
                 new Response((player.gPlayer.gameRoom.winner == player) ?
                     GameService.GameResponseType.GAME_VICTORY :
                     GameService.GameResponseType.GAME_DEFEAT,
                     new JObject(
-                        new JProperty("statistics", null)
+                        new JProperty("statistics", player.gPlayer.gameRoom.gameId)
                     )
                 )
             );
@@ -688,7 +733,7 @@ namespace Souls.Server.Game
                     GameService.GameResponseType.GAME_VICTORY :
                     GameService.GameResponseType.GAME_DEFEAT,
                     new JObject(
-                        new JProperty("statistics", null)
+                        new JProperty("statistics", opponent.gPlayer.gameRoom.gameId)
                     )
                 )
             );

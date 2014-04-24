@@ -69,6 +69,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\GameDatabase.cs" />
+    <Compile Include="Game\GameLogger.cs" />
     <Compile Include="Network\ChatService.cs" />
     <Compile Include="Network\GameService.cs" />
     <Compile Include="Network\Service.cs" />

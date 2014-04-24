@@ -45,7 +45,7 @@
     }
 
 
-    Queue.prototype.FadeInGameEnd = function (text) {
+    Queue.prototype.FadeInGameEnd = function (text, statisticsId) {
         var that = this;
         that.alpha = 0;
         this.messageText.scale.x = 1;
@@ -64,7 +64,7 @@
             }
 
 
-
+        this.engine.CreateJS.Tween.removeAllTweens();
         this.engine.CreateJS.Tween.get(tweenVals, {
             override: false, onChange: function () {
                 that.alpha = tweenVals.bgAlpha;
@@ -81,6 +81,10 @@
         .to({ textScaleX: 2, textScaleY: 2 }, 1000, this.engine.CreateJS.Ease.sineInOut)
         .to({ textScaleX: 1, textScaleY: 1 }, 1000, this.engine.CreateJS.Ease.sineInOut)
         .to({ textScaleX: 10, textScaleY: 10, textAlpha: 0.0 }, 2500, this.engine.CreateJS.Ease.sineIn)
+        .wait(3000)
+        .call(function () {
+            window.location.replace("/Game/Stats/" + statisticsId);
+        });
 
     }
 

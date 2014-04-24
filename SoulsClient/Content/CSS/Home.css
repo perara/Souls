@@ -1,0 +1,16 @@
+﻿.github-feed
+{
+    max-height: 400px;
+    height:400px;
+    overflow-y: hidden;
+
+    border: 1px solid black;
+}
+
+.github-feed-title
+{
+    padding: 10px;
+    font-size: 20px;
+    font-style:normal;
+ 
+}

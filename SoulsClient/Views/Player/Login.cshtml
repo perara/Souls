@@ -1,4 +1,8 @@
-﻿@model Souls.Model.Player
+﻿@Scripts.Render("~/Scripts/jquery.ui.touch-punch.js")
+@Scripts.Render("~/Scripts/WebSocketClient.js")
+@Scripts.Render("~/Scripts/app.js")
+
+@model Souls.Model.Player
 @{
     ViewBag.Title = "Login";
 }
@@ -25,3 +29,62 @@
 </fieldset>
 </div>
 }
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+
+        $(".chat-window").tabs();
+        $(".chat-window").dialog({
+            height: 325,
+            width: 500,
+            "title": "Chat"
+
+        })
+            .dialogExtend({
+                "closable": false,
+                "maximizable": true,
+                "minimizable": true,
+                "collapsable": true,
+                "dblclick": "collapse",
+                "titlebar": "transparent",
+                "minimizeLocation": "right",
+                "icons": {
+                    "close": "ui-icon-circle-close",
+                    "maximize": "ui-icon-circle-plus",
+                    "minimize": "ui-icon-circle-minus",
+                    "collapse": "ui-icon-triangle-1-s",
+                    "restore": "ui-icon-bullet"
+                },
+                "load": function (evt, dlg) { },
+                "beforeCollapse": function (evt, dlg) { },
+                "beforeMaximize": function (evt, dlg) { },
+                "beforeMinimize": function (evt, dlg) { },
+                "beforeRestore": function (evt, dlg) { },
+                "collapse": function (evt, dlg) { },
+                "maximize": function (evt, dlg) { },
+                "minimize": function (evt, dlg) { },
+                "restore": function (evt, dlg) { }
+            });
+        $(".chat-window").parent().css("opacity", 0.2);
+
+        $(".chat-window").parent().mouseenter(function () {
+            $(this).fadeTo("fast", 1);
+
+        });
+        $(".chat-window").parent().mouseleave(function () {
+            $(this).fadeTo("fast", 0.2);
+        });
+
+
+
+    });
+
+
+
+</script>
+

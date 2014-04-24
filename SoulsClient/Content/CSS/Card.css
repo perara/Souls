@@ -4,11 +4,9 @@
     background-size: 150px 210px;
     background-repeat: no-repeat;
     max-width: 150px;
-
 }
 
-.card-purchase
-{
+.card-purchase {
     position: relative;
     top: -20px;
     left: 40px;
@@ -74,4 +72,13 @@
     font-family: "Arial";
     font-size: 17px;
     font-weight: bold;
+}
+
+.card-noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
