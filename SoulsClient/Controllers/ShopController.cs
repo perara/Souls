@@ -1,11 +1,11 @@
 ﻿using Souls.Model;
-using SoulsModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Souls.Model.Helpers;
 
 namespace SoulsClient.Controllers
 {

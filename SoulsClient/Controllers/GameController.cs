@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using SoulsModel;
 using Souls.Model;
 using NHibernate.Linq;
+using Souls.Model.Helpers;
 
 namespace SoulsClient.Controllers
 {
@@ -50,10 +50,13 @@ namespace SoulsClient.Controllers
                     .Fetch(x => x.gameLogType)
                     .ToList();
 
+                bool firstPlayerWon = (log.Where(x => x.gameLogType.title == "WON").FirstOrDefault().obj1id == game.player1.id) ? true : false;
+
                 List<Card> cards = session.Query<Card>()
                    .Fetch(x => x.race)
                    .ToList();
 
+                ViewBag.winner = firstPlayerWon;
                 ViewBag.cards = cards;
                 ViewBag.log = log;
                 ViewBag.game = game;

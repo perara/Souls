@@ -23,6 +23,8 @@
             this.CardType = CardType;
 
             // Card Animation
+
+
             this.Animation = new AnimationInterface();
             this.Animation.Attack = Animation.Card.Attack;
             this.Animation.Death = Animation.Card.Death;
@@ -100,7 +102,7 @@
         };
         // Global order counter
         Card.counter = 0;
-
+        
         // Constructor
         Card.prototype = Object.create(pixi.Sprite.prototype);
         Card.prototype.constructor = Card;
@@ -143,6 +145,7 @@
         Card.prototype.Reset = function () {
 
         }
+
 
         Card.prototype.SetupBackCard = function () {
             // Make card backside

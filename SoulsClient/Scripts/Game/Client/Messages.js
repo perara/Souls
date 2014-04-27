@@ -22,7 +22,7 @@
                 NEXT_TURN: 226,
                 NOT_YOUR_TURN: 202,
                 MOVE_CARD: 203,
-                RELEASE_CARD: 204,
+                RELEASE_CARD: 204
             },
             Chat: {
                 ENABLE: 1000,
@@ -32,7 +32,8 @@
                 INVITE: 1004,
                 KICK: 1005,
                 LEAVE: 1006,
-                NEWGAMEROOM: 1009
+                NEWGAMEROOM: 1009,
+                CHAT_LIST_ATTENDEES: 1010
             }
         }
 
@@ -74,7 +75,7 @@
                 "Type": Messages.prototype.Type.Game.USECARD,
                 "Payload": {
                     "cid": undefined,
-                    "slotId": undefined,
+                    "slotId": undefined
                 }
             },
             NEXT_TURN: {
@@ -176,11 +177,19 @@
                 "Payload": {
                     "hash": Conf.hash
                 }
+            },
+            CHAT_LIST_ATTENDEES: {
+                "Type": Messages.prototype.Type.Chat.CHAT_LIST_ATTENDEES,
+                "Payload": {
+                    "hash": Conf.hash,
+                    "room" : undefined
+                }
             }
-        };
+
+};
 
 
 
 
-    return new Messages();
+return new Messages();
 });

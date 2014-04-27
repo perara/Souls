@@ -44,4 +44,5 @@
 /// <reference path="stats.js" />
 /// <reference path="tweenjs-0.5.1.js" />
 /// <reference path="page/perfect-scrollbar.js" />
+/// <reference path="jssor.slider.mini.js" />
 

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 using Souls.Server.Tools;
 using Souls.Server.Objects;
 
-namespace SoulsServer.Network
+namespace Souls.Server.Network
 {
     public class GameService : Service
     {

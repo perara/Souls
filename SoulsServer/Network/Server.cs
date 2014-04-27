@@ -14,7 +14,6 @@ using Souls.Server.Tools;
 using Souls.Server.Network;
 using Souls.Server.Objects;
 using Souls.Server.Game;
-using SoulsServer.Network;
 
 // https://github.com/sta/websocket-sharp#websocket-server
 namespace Souls.Server.Network
@@ -112,6 +111,8 @@ namespace Souls.Server.Network
 
             wssv.AddWebSocketService<GameService>("/game", () => new GameService(gameEngine));
             wssv.AddWebSocketService<ChatService>("/chat", () => new ChatService(chatEngine));
+            wssv.AddWebSocketService<AdminService>("/admin", () => new AdminService(gameEngine, chatEngine));
+
 
             wssv.Log.Level = LogLevel.Fatal;
 

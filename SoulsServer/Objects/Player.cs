@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Souls.Server.Engine;
 using Souls.Server.Objects;
 using Souls.Server.Tools;
-using SoulsModel;
 using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
 using NHibernate.Linq;
 using Souls.Server.Network;
+using Souls.Model.Helpers;
 
 namespace Souls.Server.Objects
 {

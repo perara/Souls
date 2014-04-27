@@ -13,8 +13,7 @@ using Souls.Server.Objects;
 using Newtonsoft.Json.Linq;
 using NHibernate.Linq;
 using Souls.Server.Network;
-using SoulsServer.Network;
-using SoulsModel;
+using Souls.Model.Helpers;
 
 
 namespace Souls.Server.Game
@@ -95,7 +94,7 @@ namespace Souls.Server.Game
                     bool matchMaked = GameQueue.GetInstance().MatchPlayers(Callback_CreateGame);
                     Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
 
-                    Thread.Sleep(500);
+                    Thread.Sleep(5000);
                 }
             });
 
@@ -125,9 +124,13 @@ namespace Souls.Server.Game
             players.First.gameContext.SendTo(response.First);
             players.Second.gameContext.SendTo(response.Second);
 
-            // Send "Its your turn to the start player"
-            newRoom.currentPlaying.gameContext.SendDebug("Its your turn (DEBUG)");
-
+            newRoom.logger.Add(
+                   GameLogger.logTypes[GameLogger.LogTypes.GAME_CREATED],
+                   players.First.id,
+                   players.Second.id,
+                   "Player",
+                   "Player"
+                   );
         }
 
 
@@ -314,6 +317,14 @@ namespace Souls.Server.Game
             response.Type = GameService.GameResponseType.GAME_OPPONENT_USECARD_OK;
             player.GetOpponent().gameContext.SendTo(response);
 
+            requestPlayer.gameRoom.logger.Add(
+               GameLogger.logTypes[GameLogger.LogTypes.USE_CARD],
+               player.id,
+               c.id,
+               "Player",
+               "Card"
+               );
+
             Logging.Write(Logging.Type.GAME, player.name + " used " + c.name);
 
         }
@@ -351,6 +362,14 @@ namespace Souls.Server.Game
                     new JProperty("opponentInfo", JObject.FromObject(requestPlayer.GetPlayerData()))
                  )
             ));
+
+            requestPlayer.gameRoom.logger.Add(
+               GameLogger.logTypes[GameLogger.LogTypes.NEXT_TURN],
+               player.id,
+               player.GetOpponent().id,
+               "Player",
+               "Player"
+               );
 
         }
 
@@ -392,12 +411,12 @@ namespace Souls.Server.Game
                 if (sourceCard == null || targetCard == null) return;
 
                 // Ensure that the entity has not attacked this round
-                if(sourceCard.hasAttacked)
+                if (sourceCard.hasAttacked)
                 {
                     this.CannotAttackTwice(player);
                     return;
                 }
-         
+
 
                 sourceCard.Attack(targetCard);
 
@@ -460,7 +479,7 @@ namespace Souls.Server.Game
                     "Card"
                     );
 
-    
+
             }
             else if (type == 1) // Card on Hero
             {
@@ -473,7 +492,7 @@ namespace Souls.Server.Game
                     this.CannotAttackTwice(player);
                     return;
                 }
-                
+
                 sourceCard.Attack(opponent);
 
                 if (sourceCard.isDead)
@@ -602,6 +621,8 @@ namespace Souls.Server.Game
                     return;
                 }
 
+
+
                 requestPlayer.Attack(opponent);
 
                 // Player's Response
@@ -655,8 +676,15 @@ namespace Souls.Server.Game
                 if (requestPlayer.isDead) requestPlayer.gameRoom.winner = player.GetOpponent();
                 if (opponent.isDead) requestPlayer.gameRoom.winner = player;
 
-                this.EndGame(new Pair<Player>(player, player.GetOpponent()));
+                player.gPlayer.gameRoom.logger.Add(
+                    GameLogger.logTypes[GameLogger.LogTypes.WON],
+                    requestPlayer.gameRoom.winner.id,
+                    requestPlayer.gameRoom.winner.GetOpponent().id,
+                    "Player",
+                    "Player"
+                    );
 
+                this.EndGame(new Pair<Player>(player, player.GetOpponent()));
             }
 
 
@@ -696,9 +724,17 @@ namespace Souls.Server.Game
                                  ))
                ));
 
-            // Send to the player
-
+            // Send to the opponent
             player.GetOpponent().gameContext.SendTo(retOpponent);
+
+            player.gPlayer.gameRoom.logger.Add(
+               GameLogger.logTypes[GameLogger.LogTypes.NEW_CARD],
+                player.GetOpponent().id, //TODO?
+               newCard[0].id,
+               "Player",
+               "Card"
+               );
+
         }
 
 
@@ -715,7 +751,7 @@ namespace Souls.Server.Game
             // Publish to DB
             player.gPlayer.gameRoom.SaveGameRoom();
             player.gPlayer.gameRoom.logger.Publish();
-  
+
 
 
             player.gameContext.SendTo(

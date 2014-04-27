@@ -8,7 +8,7 @@ using Souls.Server.Tools;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 
-namespace SoulsServer.Network
+namespace Souls.Server.Network
 {
     public class Service : Client
     {

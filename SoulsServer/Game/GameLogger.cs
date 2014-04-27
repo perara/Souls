@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SoulsModel;
 using Souls.Server.Tools;
 using System.Diagnostics;
+using Souls.Model.Helpers;
 
 namespace Souls.Server.Game
 {
@@ -43,7 +43,11 @@ namespace Souls.Server.Game
             CARD_ATTACK_PLAYER,
             CARD_ATTACK_CARD,
             PLAYER_ATTACK_PLAYER,
-            PLAYER_ATTACK_CARD
+            PLAYER_ATTACK_CARD,
+            GAME_CREATED,
+            USE_CARD,
+            NEXT_TURN,
+            NEW_CARD
         }
 
 
@@ -109,6 +113,39 @@ namespace Souls.Server.Game
                text = "{0} attacks {1} for {2} damage."
            });
 
+            logTypes.Add(LogTypes.GAME_CREATED, new GameLogType()
+            {
+                id = (int)LogTypes.GAME_CREATED,
+                title = "GAME_CREATED",
+                description = "A game was created where X player begins",
+                text = "The battle begins, {0} starts the game against {1}"
+            });
+
+            logTypes.Add(LogTypes.USE_CARD, new GameLogType()
+            {
+                id = (int)LogTypes.USE_CARD,
+                title = "USE_CARD",
+                description = "A player uses a card",
+                text = "{0} uses {1}"
+            });
+
+            logTypes.Add(LogTypes.NEXT_TURN, new GameLogType()
+            {
+                id = (int)LogTypes.NEXT_TURN,
+                title = "NEXT_TURN",
+                description = "a player initiates next turn",
+                text = "{0} gives turn to {1}"
+            });
+
+            logTypes.Add(LogTypes.NEW_CARD, new GameLogType()
+            {
+                id = (int)LogTypes.NEW_CARD,
+                title = "NEW_CARD",
+                description = "a player draws a new card",
+                text = "{0} draws a card. The card was {1}"
+            });
+
+
 
             GameLogger.logTypes = logTypes;
 
@@ -122,7 +159,7 @@ namespace Souls.Server.Game
                     {
 
                         GameLogType item = session.Get<GameLogType>(i.Value.id);
-                        if(item == null)
+                        if (item == null)
                         {
                             session.Save(i.Value, i.Value.id);
                         }
@@ -135,9 +172,9 @@ namespace Souls.Server.Game
                             session.Update(item);
                         }
 
-                   
+
                     }
-                   
+
                     transaction.Commit();
                     Logging.Write(Logging.Type.GENERAL, "Updated LogTypes, took: " + watch.ElapsedMilliseconds + "ms");
                     watch.Stop();

@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Souls.Server.Network;
-using SoulsServer.Network;
+
 
 namespace Souls.Server.Chat
 {
@@ -211,6 +211,24 @@ namespace Souls.Server.Chat
                 Logging.Write(Logging.Type.CHAT, client.name + " left room " + room);
                 return true;
             }
+        }
+
+        public void GetRoomAttendees(ChatPlayer client)
+        {
+            int roomId = int.Parse(client.chatContext.payload["room"].ToString());
+
+
+            ChatRoom room = chatRooms[roomId];
+
+            List<string> clientNames = new List<string>();
+            foreach(ChatPlayer ch in room.clients)
+            {
+                clientNames.Add(ch.name);
+            }
+
+            client.chatContext.SendTo(
+                new Response(ChatService.ResponseType.CHAT_LIST_MEMBERS, clientNames));
+
         }
 
 

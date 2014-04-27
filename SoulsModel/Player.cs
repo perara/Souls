@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Linq;
 using System.Linq;
 using SoulsModel;
+using Souls.Model.Helpers;
 
 
 namespace Souls.Model

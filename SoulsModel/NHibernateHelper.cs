@@ -11,8 +11,9 @@ using NHibernate.Tool.hbm2ddl;
 using Souls.Model;
 using FluentNHibernate.Automapping;
 using FluentNHibernate.Data;
+using System.Reflection;
 
-namespace SoulsModel
+namespace Souls.Model.Helpers
 {
     public class NHibernateHelper
     {
@@ -30,24 +31,32 @@ namespace SoulsModel
 
         private ISessionFactory CreateSessionFactory()
         {
+
             return Fluently.Configure()
-            .Database(MySQLConfiguration.Standard
-            .ConnectionString(@"Server=persoft.no;Port=6001;Database=souls;Uid=root;Pwd=Perpass1;"))
-            .Mappings(m => m.FluentMappings
+                .Database(MySQLConfiguration.Standard
+                .ConnectionString(@"Server=persoft.no;Port=6001;Database=souls;Uid=root;Pwd=Perpass1;"))
+                .Mappings(m => m.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
+                .BuildSessionFactory();
 
-            // Add maps
-            .AddFromAssemblyOf<Ability>()
-            .AddFromAssemblyOf<Card>()
-            .AddFromAssemblyOf<Game>()
-            .AddFromAssemblyOf<GameLog>()
-            .AddFromAssemblyOf<GameLogType>()
-            .AddFromAssemblyOf<Player>()
-            .AddFromAssemblyOf<PlayerLogin>()
-            .AddFromAssemblyOf<PlayerType>()
-            .AddFromAssemblyOf<Race>()
-            )
 
-            .BuildSessionFactory();
+            /* return Fluently.Configure()
+             .Database(MySQLConfiguration.Standard
+             .ConnectionString(@"Server=persoft.no;Port=6001;Database=souls;Uid=root;Pwd=Perpass1;"))
+             .Mappings(m => m.FluentMappings
+
+             // Add maps
+             .AddFromAssemblyOf<Ability>()
+             .AddFromAssemblyOf<Card>()
+             .AddFromAssemblyOf<Game>()
+             .AddFromAssemblyOf<GameLog>()
+             .AddFromAssemblyOf<GameLogType>()
+             .AddFromAssemblyOf<Player>()
+             .AddFromAssemblyOf<PlayerLogin>()
+             .AddFromAssemblyOf<PlayerType>()
+             .AddFromAssemblyOf<Race>()
+             )
+
+             .BuildSessionFactory();*/
 
         }
 

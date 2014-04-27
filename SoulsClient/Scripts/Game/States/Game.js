@@ -49,12 +49,15 @@
 
 
             // Network for best host
-           // this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
+            // this.gameSocket = new Socket("ws://hybel.keel.no:8140/game");
             //this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
 
             // Network for råtn host
-            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
-            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+            //this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
+            //this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+
+            this.gameSocket = new Socket("ws://localhost:8140/game");
+            this.chatSocket = new Socket("ws://localhost:8140/chat");
 
             // Tools etc
             this.toolbox = ToolBox;
@@ -72,8 +75,7 @@
 
             // Connect to the chat service
             this.chatService = new ChatService(this);
-            //this.chatService.OpenChatWindow(this);
-
+            this.chatService.OpenChatWindow(this);
             // Connect to the game service
             this.gameService = new GameService(this)
 
@@ -93,7 +95,6 @@
             this.gameService.Connect();
             this.gameService.Login();
             this.chatService.Connect();
-
         }
 
         Engine.prototype.OnEnd = function () {

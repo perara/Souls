@@ -9,12 +9,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web.Security;
 using System.Web.Helpers;
-using SoulsModel;
 using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
 using NHibernate.Linq;
 using SoulsClient.Classes;
+using System.ComponentModel.DataAnnotations;
+using Souls.Model.Helpers;
 
 namespace SoulsClient.Controllers
 {
@@ -38,19 +39,33 @@ namespace SoulsClient.Controllers
         [AllowAnonymousAttribute]
         public ActionResult Login()
         {
+            if (cSession.Current.isLogin()) return RedirectToAction("Index", "Home");
+
             return View();
         }
 
         // POST: /Player/Login/
         [HttpPost]
         [AllowAnonymousAttribute]
+
         public ActionResult Login(Souls.Model.Player player)
         {
+
+            if (player.name == null)
+            {
+                ModelState.AddModelError("", "Username is empty!");
+                return View(player);
+
+            }
+            else if (player.password == null)
+            {
+                ModelState.AddModelError("", "Password is empty!");
+                return View(player);
+            }
 
 
             using (var session = NHibernateHelper.OpenSession())
             {
-
 
                 Player playerRecord = session.Query<Player>()
                     .Where(x => x.name == player.name)
@@ -100,8 +115,11 @@ namespace SoulsClient.Controllers
                         cSession.Current.player = playerRecord;
                         cSession.Current.login = loginRecord;
 
-                        // Set auth
-                        FormsAuthentication.SetAuthCookie(newHash, false);
+                        var authTicket = new FormsAuthenticationTicket(1, newHash, DateTime.Now, DateTime.Now.AddHours(2),  /*Login Expiring*/true,  /*Remember Me*/"", /*roles */ "/");
+
+                        HttpCookie cookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(authTicket));
+                        Response.Cookies.Add(cookie);
+
                         return RedirectToAction("Index", "Home");
 
 
@@ -116,6 +134,16 @@ namespace SoulsClient.Controllers
 
             return View(player);
         }
+
+
+        public ActionResult Logout()
+        {
+            cSession.Current.player = null;
+            cSession.Current.login = null;
+
+            return RedirectToAction("Index", "Home");
+        }
+
 
         // GET: /Player/Details/5
         public ActionResult Details(int? id)

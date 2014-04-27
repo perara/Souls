@@ -21,15 +21,19 @@
     @{int count = 0;}
     @foreach (var player in players)
     {
-        if (count++ == 1)
+        var winBorder = (ViewBag.winner && count == 0) ? "border-color: green !important;" : "border-color: red !important;";
+        
+        if (count == 1)
         {
             <div class="stats-versus col-lg-2">
             </div>
         }
 
+      
+
         <div class="stats-player-block col-lg-5">
-            <div class="stats-player-name col-lg-6 col-lg-offset-3">@player.name</div>
-            <div class="stats-player-portrait col-lg-6 col-lg-offset-3" style="background-image: url(/Content/Images/Player/Portraits/@(player.playerType.id).png)"></div>
+            <div class="stats-player-name col-lg-6 col-lg-offset-3">@player.name the @((ViewBag.winner && count == 0) ? "Victorious" : "Defeated") </div>
+            <div class="stats-player-portrait col-lg-6 col-lg-offset-3" style="background-image: url(/Content/Images/Player/Portraits/@(player.playerType.id).png); @winBorder"></div>
             <div class="stats-player-stats col-lg-6 col-lg-offset-3">
                 <p class="">Type: @player.playerType.name</p>
                 <p class="">Attack:@player.playerType.attack</p>
@@ -37,6 +41,7 @@
             </div>
         </div>
 
+        count++;
     }
 
 
@@ -87,10 +92,44 @@
             }
             else if (logItem.gameLogType.title == "PLAYER_ATTACK_CARD")
             {
-             @String.Format(logItem.gameLogType.text,
+                @String.Format(logItem.gameLogType.text,
             players.Where(x => x.id == logItem.obj1id).First().name,
             cards.Where(x => x.id == logItem.obj2id).First().name,
             players.Where(x => x.id == logItem.obj1id).First().playerType.attack);
+            }
+            else if (logItem.gameLogType.title == "NEW_CARD")
+            {
+                @String.Format(logItem.gameLogType.text,
+            players.Where(x => x.id == logItem.obj1id).First().name,
+            cards.Where(x => x.id == logItem.obj2id).First().name);
+            }
+            else if (logItem.gameLogType.title == "NEXT_TURN")
+            {
+                <br />
+                @String.Format(logItem.gameLogType.text,
+            players.Where(x => x.id == logItem.obj1id).First().name,
+            players.Where(x => x.id == logItem.obj2id).First().name);
+
+            }
+            else if (logItem.gameLogType.title == "USE_CARD")
+            {
+                @String.Format(logItem.gameLogType.text,
+            players.Where(x => x.id == logItem.obj1id).First().name,
+            cards.Where(x => x.id == logItem.obj2id).First().name);
+            }
+            else if (logItem.gameLogType.title == "GAME_CREATED")
+            {
+                @String.Format(logItem.gameLogType.text,
+            players.Where(x => x.id == logItem.obj1id).First().name,
+            players.Where(x => x.id == logItem.obj2id).First().name);
+            }
+
+
+
+
+            else
+            {
+                @String.Format("Unhandled Type: {0}", logItem.gameLogType.title)
             }
 
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Souls.Server.Chat;
 using Souls.Server.Engine;
 using Souls.Server.Network;
-using SoulsServer.Network;
+using Newtonsoft.Json.Linq;
 
 namespace Souls.Server.Objects
 {
@@ -44,7 +44,12 @@ namespace Souls.Server.Objects
         {
             foreach (var room in this.memberRooms)
             {
-                room.Value.Broadcast(new Response(ChatService.ResponseType.CHAT_CLIENT_CONNECT, "Player \"" + this.name + "\" connected!"));
+                room.Value.Broadcast(new Response(ChatService.ResponseType.CHAT_CLIENT_CONNECT,
+                    new JObject(
+                        new JProperty("name", this.name),
+                        new JProperty("room", room.Key)
+                        ))
+                    );
             }
         }
 

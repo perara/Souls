@@ -11,7 +11,7 @@ using Souls.Server.Tools;
 using Souls.Server.Objects;
 using Souls.Server.Chat;
 
-namespace SoulsServer.Network
+namespace Souls.Server.Network
 {
     public class ChatService : Service
     {
@@ -19,7 +19,7 @@ namespace SoulsServer.Network
         /// <summary>
         /// Responses is 1000 ++
         /// </summary>
-        public new enum ResponseType
+        public enum ResponseType
         {
             // General
             CHAT_ENABLED = 1000,
@@ -39,6 +39,7 @@ namespace SoulsServer.Network
             NOT_LEADER = 1097,
             CLIENT_NOT_FOUND = 1098,
             CHAT_ERROR = 1099,
+            CHAT_LIST_MEMBERS = 1093,
 
         }
 
@@ -58,6 +59,7 @@ namespace SoulsServer.Network
             CHAT_LOGIN = 1007,
             CHAT_LOGOUT = 1008,
             NEWGAMEROOM = 1009,
+            LIST_CLIENTS = 1010,
         }
 
         public ChatEngine engine;
@@ -102,19 +104,20 @@ namespace SoulsServer.Network
 
                         engine.Request_NewGameRoom(new Pair<ChatPlayer>(requestPlayer.chPlayer, opponentPlayer.chPlayer));
 
-
-
                         break;
                     case ChatType.INVITE:
-                        engine.Invite(Clients.GetInstance().gameList[this].chPlayer);
+                        engine.Invite(Clients.GetInstance().chatList[this].chPlayer);
                         break;
 
                     case ChatType.KICK:
-                        engine.Kick(Clients.GetInstance().gameList[this].chPlayer);
+                        engine.Kick(Clients.GetInstance().chatList[this].chPlayer);
                         break;
 
                     case ChatType.LEAVE:
-                        engine.LeaveRoom(Clients.GetInstance().gameList[this].chPlayer);
+                        engine.LeaveRoom(Clients.GetInstance().chatList[this].chPlayer);
+                        break;
+                    case ChatType.LIST_CLIENTS:
+                        engine.GetRoomAttendees(Clients.GetInstance().chatList[this].chPlayer);
                         break;
                 }
             }
@@ -156,6 +159,7 @@ namespace SoulsServer.Network
 
                 // Insert the chatConnection record
                 Clients.GetInstance().chatList.TryAdd(this, existingPlayer);
+                this.loggedIn = true;
 
                 // Create a new chatPlayer
                 if (existingPlayer.chPlayer == null)

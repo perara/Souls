@@ -1,43 +1,81 @@
-﻿@Scripts.Render("~/Scripts/jquery.ui.touch-punch.js")
-@Scripts.Render("~/Scripts/WebSocketClient.js")
-@Scripts.Render("~/Scripts/app.js")
-
-@model Souls.Model.Player
+﻿@model Souls.Model.Player
 @{
     ViewBag.Title = "Login";
 }
 
-<h2>Login</h2>
 
-@using (Html.BeginForm())
-{
-    @Html.ValidationSummary(true, "Login Failed, check details");
-    <div>
-        <fieldset>
-            <legend>Login Form</legend>
-            <div class="editor-label">@Html.LabelFor(u => u.name)</div>
-            <div class="editor-field">
-                @Html.TextBoxFor(u => u.name)
-            @Html.ValidationMessageFor(u => u.name)
-        </div>
-        <div class="editor-label">@Html.LabelFor(u => u.password)</div>
-        <div class="editor-field">
-            @Html.PasswordFor(u => u.password)
-        @Html.ValidationMessageFor(u => u.password)
+<div class="login-form col-lg-4 col-lg-offset-4">
+
+    <div style="border: 1px solid black; padding: 10px">
+        @using (Html.BeginForm("Login", "Player", FormMethod.Post, new { @class = "form-horizontal", @role = "form" }))
+        {
+
+            <fieldset>
+                <legend>Authentication</legend>
+
+
+                @Html.ValidationSummary(true, "Login Failed, check details")
+
+                <div class="form-group">
+                    <label for="user" class="col-sm-2 control-label">Username</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(u => u.name, new { @class = "form-control", @placeholder = "Username", @id = "user" })
+                        @Html.ValidationMessageFor(u => u.name)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="col-sm-2 control-label">Password</label>
+                    <div class="col-sm-10">
+                        @Html.PasswordFor(u => u.password, new { @class = "form-control", @placeholder = "Password", @id = "password" })
+                        @Html.ValidationMessageFor(u => u.password)
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox"> Remember me
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default">Sign in</button>
+                    </div>
+                </div>
+
+            </fieldset>
+
+        }
     </div>
-    <input type="submit" value="Log In" />
-</fieldset>
+
+
 </div>
-}
+
+
+
+
+
 
 
 
 <script>
+    $(".page-wrapper").css("background-color", "transparent", "important");
+    $(".page-top").css("top", "5%");
+    $(".page-top").css("z-index", "99");
+    $(".page-top").css("border-bottom", "none", "important");
+    $(".page-logo").css("margin-left", "37%", "important")
+
+
 
     $(document).ready(function () {
 
-
-
+        /*
         $(".chat-window").tabs();
         $(".chat-window").dialog({
             height: 325,
@@ -79,7 +117,7 @@
         $(".chat-window").parent().mouseleave(function () {
             $(this).fadeTo("fast", 0.2);
         });
-
+        */
 
 
     });

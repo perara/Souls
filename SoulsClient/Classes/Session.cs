@@ -31,6 +31,12 @@ namespace SoulsClient.Classes
             }
         }
 
+        public bool isLogin()
+        {
+
+            return (cSession.Current.player == null) ? false : true;
+        }
+
         public Player player { get; set; }
         public PlayerLogin login { get; set; }
     }

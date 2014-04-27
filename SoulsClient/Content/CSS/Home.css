@@ -1,16 +1,95 @@
-﻿.github-feed
-{
+﻿.github-feed {
     max-height: 400px;
-    height:400px;
+    height: 400px;
     overflow-y: hidden;
-
+    overflow-x: hidden;
     border: 1px solid black;
 }
 
-.github-feed-title
-{
+.github-feed-title {
     padding: 10px;
     font-size: 20px;
-    font-style:normal;
- 
+    font-style: normal;
+}
+
+
+.services-plugin {
+    margin-top: 10px;
+    max-height: 400px;
+    overflow-y: hidden;
+    border: 1px solid black;
+}
+
+.services-plugin-title {
+    padding: 10px;
+    font-size: 20px;
+    font-style: normal;
+}
+
+.news-plugin {
+    overflow-y: hidden;
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+}
+
+.image-slider-plugin {
+    height: 150px;
+    margin-bottom: 10px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    border: 1px solid black;
+    width: 40.988% !important;
+}
+
+.image-slider-image {
+    width: 100%;
+    height:100%;
+    background-image: url(/Content/Images/Player/Portraits/0.png);
+    background-size: 100% 150px;
+}
+
+
+.game-stats-feed {
+    overflow-y: hidden;
+    border: 1px solid black;
+    height: 150px;
+    margin-left: 10px !important;
+}
+
+.game-stats-feed-title {
+    font: 14px Arial;
+    font-weight: bold;
+    padding-top: 10px;
+    padding-left: 10px;
+}
+
+.news-item {
+    border: 1px solid black;
+    margin-bottom: 10px;
+}
+
+.news-item-title {
+    padding: 20px;
+    font: 20px Arial;
+    font-weight: bold;
+}
+
+.news-item-text {
+    padding-left: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.news-item-bottom {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.play-now-button {
+    margin-left: 10px !important;
+    width: 32.13% !important;
+    background: url(http://www.romecasino.com/mailers/ladyluck/images/playNow_button.png);
+    height: 150px;
+    background-size: 100% 150px;
+    background-repeat: no-repeat;
 }
