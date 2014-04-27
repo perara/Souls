@@ -9,6 +9,7 @@
         this.pHealthText.y -= this.height / 2.25;
         this.pAttackText.y -= this.height / 2.25;
 
+
         this.Init();
     }
     // Constructor

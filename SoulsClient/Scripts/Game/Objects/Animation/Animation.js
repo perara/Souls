@@ -78,7 +78,7 @@
 
         // Set interactive to false on both
         attacker.interactive = false;
-       // defender.interactive = false;
+        // defender.interactive = false;
 
 
         // This is the temporary tween object
@@ -259,10 +259,124 @@
         .to({ rotation: 20 }, 1000, CreateJS.Ease.QuadIn)
 
 
+        CreateJS.Tween.get(c, { override: true })
+           .to(target, 1000, CreateJS.Ease.elasticOut)
+           .call(onComplete);
+
+
+
+
+
     }
 
+    Animation.prototype.Player.CardAttack = function (attacker, defender, callbacks) {
+
+        // Distance between the cards
+        var delta =
+            {
+                x: defender.x - attacker.x,
+                y: defender.y - attacker.y
+            }
+
+        // Original Position and Scale of the attacker
+        var attackerOrigin = {
+            scaleX: attacker.scale.y,
+            scaleY: attacker.scale.x,
+            x: attacker.x,
+            y: attacker.y
+        };
+
+        // Original Position and Scale of the defender
+        var defenderOrigin = {
+            scaleX: defender.scale.y,
+            scaleY: defender.scale.x,
+            x: defender.x,
+            y: defender.y
+        };
+
+        // Set interactive to false on both
+        attacker.interactive = false;
+        // defender.interactive = false;
+
+
+        // This is the temporary tween object
+        var values = attackerOrigin;
+
+        // Change the card to the attacker group
+        Asset.GetSound(Asset.Sound.ATTACK_1).play();
+
+        var attackTween = CreateJS.Tween.get(values, {
+            override: false,
+            onChange: function onChange(e) {
+                //attacker.scale.y = values.scaleY; TODO makes portrait WIERD?
+                //attacker.scale.x = values.scaleX;
+                attacker.x = values.x;
+                attacker.y = values.y;
+            }
+        })
+        // Jump Half Way
+        .to(
+        {
+            scaleX: attacker.scale.y + 1,
+            scaleY: attacker.scale.x + 1,
+            x: attackerOrigin.x + delta.x,
+            y: attackerOrigin.y + (delta.y / 2)
+        }, 700)
+        // Land on opponent
+        .to(
+        {
+            scaleX: attackerOrigin.scaleX,
+            scaleY: attackerOrigin.scaleY,
+            x: attackerOrigin.x + delta.x,
+            y: attackerOrigin.y + (delta.y / 1.5)
+        }, 300)
+        // Hits the card, call Defend on the target
+        .call(function () {
+
+            // Change health on the object
+            callbacks.SetHealth();
+
+            // Check alive status
+            if (defender.isDead) {
+                defender.Animation.Death(defender);
+            }
+            else {
+                defender.Animation.Defend(defender);
+            }
+
+            // Check alive status attacker
+            if (attacker.isDead) {
+                CreateJS.Tween.removeTweens(values);
+                attacker.Animation.Death(attacker);
+            }
+
+
+        })
+        // Wait abit before returning
+        .wait(200)
+
+        // Return to origin position.
+        .to(
+        {
+            scaleX: 0.8,
+            scaleY: 0.8,
+            x: attackerOrigin.x,
+            y: attackerOrigin.y
+        }, 150)
+        // Animation done, call reset functions flags
+        .wait(150)
+        .call(function () {
+
+            // Activate the interactive again if its a player
+            if (attacker.isPlayer) {
+                attacker.interactive = true;
+            }
+        });
+
+    }
+
+
     Animation.prototype.Player.Attack = function (attacker, defender, spriteGroup, callbacks) {
-        console.log(attacker);
 
         var sprites = new Object();
         var container = new Pixi.SpriteBatch();
@@ -270,7 +384,7 @@
         spriteGroup.addChild(container);
 
         var yAxisDirection = (attacker.y < defender.y) ? -1 : 1;
-        var startY = attacker.y + ((attacker.height / 2) * yAxisDirection*-1) + (15 * yAxisDirection);
+        var startY = attacker.y + ((attacker.height / 2) * yAxisDirection * -1) + (15 * yAxisDirection);
         var count = 0;
         var incrementor = 1;
         var width = 50;
@@ -305,27 +419,24 @@
 
                 sprite.y -= 5 * yAxisDirection
 
-                if (pause && sprite.width > 0)
-                {
+                if (pause && sprite.width > 0) {
                     sprite.width -= 1;
                     if (sprite.width <= 1) sprite.visible = false;
                 }
 
                 // Calculate Distance from Player and beam fragment
-                var deltaY = sprite.y - (defender.y + defender.height /3*yAxisDirection) - (30*yAxisDirection);
+                var deltaY = sprite.y - (defender.y + defender.height / 3 * yAxisDirection) - (30 * yAxisDirection);
                 deltaY *= (deltaY < 0) ? -1 : 1;
 
-                if(deltaY <= 5)
-                {
+                if (deltaY <= 5) {
                     delete sprites[index];
-                    container.removeChild(sprite); 
+                    container.removeChild(sprite);
                 }
 
-                
+
             }
 
-            if($.isEmptyObject(sprite))
-            {
+            if ($.isEmptyObject(sprite)) {
                 clearInterval(intervalId);
             }
 
@@ -352,7 +463,7 @@
             callbacks.SetHealth();
             defender.pPortrait.tint = 0xFFFFFF;
 
-        },5200);
+        }, 5200);
 
     }
 

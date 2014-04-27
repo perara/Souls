@@ -147,23 +147,24 @@
 
         else if (attackType == 2) { // Player on Card
 
-           /* // The player is attacking
+
+          // The Player is attacking
             if (jsonAttacker) {
+                // Get cards
                 var attacker = that.engine.player;
                 var defender = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
 
-                attacker.Attack(jsonPInfo, jsonOppInfo, defender);
+                attacker.CardAttack(jsonPInfo, jsonOppInfo, attacker,defender);
             }
-            else // The opponent is attacking
+            else // The opponent card is attacking
             {
+                // Get cards
                 var attacker = that.engine.opponent;
                 var defender = that.engine.player.cardManager.board[jsonPInfo.cid];
 
-                attacker.Attack(jsonOppInfo, jsonPInfo, defender);
+                attacker.CardAttack(jsonOppInfo, jsonPInfo, attacker,defender);
+            }
 
-            }*/
-
-            cosole.log("UNIMPLEMENTED!")
 
         }
 

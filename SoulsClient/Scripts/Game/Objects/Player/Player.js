@@ -7,6 +7,7 @@
         this.holdingCard; // Currently holding card (Object)
         this.lastHoldingCard; // The last card the player held
 
+        
         this.interactive = true;
         this.isClicked = false;
         var that = this;

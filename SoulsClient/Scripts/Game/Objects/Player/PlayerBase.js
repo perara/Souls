@@ -11,6 +11,7 @@
         this.Animation.Death = Animation.Player.Death;
         this.Animation.Defend = Animation.Player.Defend;
         this.Animation.Attack = Animation.Player.Attack;
+        this.Animation.CardAttack = Animation.Player.CardAttack;
 
         var json = { name: "NA", attack: "NA", health: "NA", mana: "NA", type: 0 };
 
@@ -266,11 +267,29 @@
 
     }
 
+    PlayerBase.prototype.CardAttack = function (jsonPlayerInfo, jsonOpponentInfo, attacker,defender) {
+    
+
+        
+        var callbacks =
+        {
+            SetHealth: function () {
+                attacker.SetText(
+                    {
+                        health: jsonPlayerInfo.health
+                    });
+
+                defender.SetText(
+                    {
+                        health: jsonOpponentInfo.health
+                    });
+            }
+        }
 
 
+        this.Animation.CardAttack(attacker, defender, callbacks);
+    }
 
-    // playoropp = "Player" or "Opponent" 
-    // Conf: {x,y,playoropp}
 
 
     return PlayerBase
