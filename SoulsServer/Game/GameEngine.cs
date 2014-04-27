@@ -676,15 +676,19 @@ namespace Souls.Server.Game
                 if (requestPlayer.isDead) requestPlayer.gameRoom.winner = player.GetOpponent();
                 if (opponent.isDead) requestPlayer.gameRoom.winner = player;
 
+
+                bool isDraw = (requestPlayer.isDead && opponent.isDead);
+                GameLogger.LogTypes gameEndType = (isDraw) ? GameLogger.LogTypes.DRAW : GameLogger.LogTypes.WON;
+
                 player.gPlayer.gameRoom.logger.Add(
-                    GameLogger.logTypes[GameLogger.LogTypes.WON],
+                    GameLogger.logTypes[gameEndType],
                     requestPlayer.gameRoom.winner.id,
                     requestPlayer.gameRoom.winner.GetOpponent().id,
                     "Player",
                     "Player"
                     );
 
-                this.EndGame(new Pair<Player>(player, player.GetOpponent()));
+                this.EndGame(new Pair<Player>(player, player.GetOpponent()), isDraw);
             }
 
 
@@ -743,7 +747,7 @@ namespace Souls.Server.Game
         /// </summary>
         /// <param name="gPlayer"> The gme player</param>
         /// <returns></returns>
-        public void EndGame(Pair<Player> players)
+        public void EndGame(Pair<Player> players, bool isDraw)
         {
             Player player = players.First;
             Player opponent = players.Second;
@@ -753,25 +757,38 @@ namespace Souls.Server.Game
             player.gPlayer.gameRoom.logger.Publish();
 
 
-
-            player.gameContext.SendTo(
-                new Response((player.gPlayer.gameRoom.winner == player) ?
+            // Create Responses
+            Response pResponse = new Response((player.gPlayer.gameRoom.winner == player) ?
                     GameService.GameResponseType.GAME_VICTORY :
                     GameService.GameResponseType.GAME_DEFEAT,
                     new JObject(
                         new JProperty("statistics", player.gPlayer.gameRoom.gameId)
                     )
-                )
-            );
+                );
 
-            opponent.gameContext.SendTo(
-                new Response((opponent.gPlayer.gameRoom.winner == opponent) ?
+            Response oppResponse = new Response((opponent.gPlayer.gameRoom.winner == opponent) ?
                     GameService.GameResponseType.GAME_VICTORY :
                     GameService.GameResponseType.GAME_DEFEAT,
                     new JObject(
                         new JProperty("statistics", opponent.gPlayer.gameRoom.gameId)
                     )
-                )
+                );
+
+            // Check if draw
+            if (isDraw)
+            {
+                pResponse.Type = GameService.GameResponseType.GAME_DRAW;
+                oppResponse.Type = GameService.GameResponseType.GAME_DRAW;
+            }
+
+
+            // Send Responses
+            player.gameContext.SendTo(
+                pResponse
+            );
+
+            opponent.gameContext.SendTo(
+                oppResponse
             );
 
             player.gPlayer.gameRoom.isEnded = true;

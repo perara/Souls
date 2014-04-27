@@ -50,16 +50,25 @@ namespace SoulsClient.Controllers
                     .Fetch(x => x.gameLogType)
                     .ToList();
 
-                bool firstPlayerWon = (log.Where(x => x.gameLogType.title == "WON").FirstOrDefault().obj1id == game.player1.id) ? true : false;
+                List<Player> players = new List<Player>();
+                players.Add(game.player1);
+                players.Add(game.player2);
+
+                Player winner = players.Where(x => x.id == log.Where(y => y.gameLogType.title == "WON" || y.gameLogType.title == "DRAW").FirstOrDefault().obj1id).FirstOrDefault();
+                bool isDraw = (log.Where(y=> y.gameLogType.title == "DRAW").FirstOrDefault() == null) ? false : true;
+
 
                 List<Card> cards = session.Query<Card>()
                    .Fetch(x => x.race)
                    .ToList();
 
-                ViewBag.winner = firstPlayerWon;
+                ViewBag.isDraw = isDraw;
+                ViewBag.winner = winner;
                 ViewBag.cards = cards;
                 ViewBag.log = log;
                 ViewBag.game = game;
+                ViewBag.players = players;
+                
 
 
 

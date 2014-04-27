@@ -28,7 +28,7 @@
         this.RegisterResponseAction(["226"], Response_NextTurn);
         this.RegisterResponseAction(["222", "223"], Response_NewCard);
         this.RegisterResponseAction(["208"], Response_UseCard_OOM);
-        this.RegisterResponseAction(["230", "231"], Response_VictoryDefeat);
+        this.RegisterResponseAction(["230", "231", "233"], Response_VictoryDefeat);
         this.RegisterResponseAction(["232"], Response_CannotAttackTwice);
 
     }
@@ -86,9 +86,12 @@
 
             that.engine.queue.FadeInGameEnd("Victory!", json.Payload.statistics);
         }
-        else
+        else if (type == 231)
         {
             that.engine.queue.FadeInGameEnd("Defeat!", json.Payload.statistics);
+        }
+        else if (type == 233) {
+            that.engine.queue.FadeInGameEnd("Draw!", json.Payload.statistics);
         }
 
 

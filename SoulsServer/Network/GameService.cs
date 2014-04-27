@@ -65,7 +65,8 @@ namespace Souls.Server.Network
             GAME_RECOVER = 220, // When the client disconnected and needs a recover update.
 
             GAME_VICTORY = 230,
-            GAME_DEFEAT = 231
+            GAME_DEFEAT = 231,
+            GAME_DRAW = 233
         }
 
 

@@ -3,9 +3,7 @@
 
     Souls.Model.Game game = ViewBag.game;
 
-    List<Souls.Model.Player> players = new List<Souls.Model.Player>();
-    players.Add(game.player1);
-    players.Add(game.player2);
+    List<Souls.Model.Player> players = ViewBag.players;
 
     List<Souls.Model.GameLog> log = ViewBag.log;
 
@@ -21,7 +19,7 @@
     @{int count = 0;}
     @foreach (var player in players)
     {
-        var winBorder = (ViewBag.winner && count == 0) ? "border-color: green !important;" : "border-color: red !important;";
+        var winBorder = (ViewBag.winner == player && !ViewBag.isDraw) ? "border-color: green !important;" : "border-color: red !important;";
         
         if (count == 1)
         {
@@ -32,7 +30,7 @@
       
 
         <div class="stats-player-block col-lg-5">
-            <div class="stats-player-name col-lg-6 col-lg-offset-3">@player.name the @((ViewBag.winner && count == 0) ? "Victorious" : "Defeated") </div>
+            <div class="stats-player-name col-lg-6 col-lg-offset-3">@player.name the @((ViewBag.winner == player && !ViewBag.isDraw) ? "Victorious" : "Defeated") </div>
             <div class="stats-player-portrait col-lg-6 col-lg-offset-3" style="background-image: url(/Content/Images/Player/Portraits/@(player.playerType.id).png); @winBorder"></div>
             <div class="stats-player-stats col-lg-6 col-lg-offset-3">
                 <p class="">Type: @player.playerType.name</p>
