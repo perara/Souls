@@ -42,7 +42,7 @@ require.config({
         // Objects
         //// Animation
         "animation": "Objects/Animation/Animation",
-        "iAnimation" : "Objects/Animation/AnimationInterface",
+        "iAnimation": "Objects/Animation/AnimationInterface",
         //// Card
         "card": "Objects/Card/Card",
         "cardtype": "Objects/Card/CardType",
@@ -60,7 +60,7 @@ require.config({
         // Other
         "chat": "Objects/Chat"
 
-       
+
     },
     shim: {
         'pixi': {
@@ -147,16 +147,38 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         // Create the game engine
         this.gameEngine;
 
+
+        this.isTextureLoaded = false;
+        this.isSoundLoaded = false;
+
+        var that = this;
         // Preload all assets
-        Asset.PreLoad(function (percent) {
+        Asset.PreLoad(
+            function (percent) {
+                console.log("[AssetLoader]: Status " + percent * 100);
+            },
+            function () {
+                // OnComplete
+                that.isTextureLoaded = true;
 
-            console.log("[AssetLoader]: Status " + percent * 100);
-        },
-        function () {
-
-            gameEngine = new Game();
-            Conf.currentState = Gamestate.GAME;
+            });
+        // Load all sound into memory (Asset.soundList)
+        Asset.LoadSound(function () {
+            // OnComplete
+            that.isSoundLoaded = true;
         });
+
+        var loadChecker = setInterval(function () {
+
+            if (isTextureLoaded && isSoundLoaded) {
+                console.log("Everything is loaded...")
+                gameEngine = new Game();
+                Conf.currentState = Gamestate.GAME;
+
+                clearInterval(loadChecker);
+            }
+        }, 500);
+
 
         // Show stats
         var stats = new Stats();
@@ -194,9 +216,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
 
     function GameLoop() {
-    
-        if (Conf.currentState == Gamestate.LOADING)
-        {
+
+        if (Conf.currentState == Gamestate.LOADING) {
             this.renderer.render(this.stage);
         }
         else if (Conf.currentState == Gamestate.GAME) {

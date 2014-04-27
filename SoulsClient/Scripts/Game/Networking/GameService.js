@@ -1,4 +1,4 @@
-﻿define("gameService", ["messages"], function (Message) {
+﻿define("gameService", ["messages", "asset"], function (Message, Asset) {
 
     var that;
     GameService = function (engine, socket) {
@@ -281,6 +281,8 @@
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
+        Asset.GetSound(Asset.Sound.GAME_MUSIC).play({ loop: 9999, volume: 0.3});
+
         // Create the Player and Opponent
         that.engine.player = new Player(that.engine);
         that.engine.opponent = new Opponent(that.engine);

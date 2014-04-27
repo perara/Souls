@@ -5,10 +5,6 @@ http://buzz.jaysalvat.com/documentation/buzz/
 
         function Asset() {
             console.log("> Asset class")
-
-            // Load all sound into memory (Asset.soundList)
-            Asset.LoadSound();
-
         }
 
 
@@ -38,12 +34,26 @@ http://buzz.jaysalvat.com/documentation/buzz/
             loader.load();
         }
 
-        Asset.LoadSound = function () {
+        Asset.prototype.LoadSound = function (onCompleteCallBack) {
             createjs.Sound.alternateExtensions = ["mp3"];
 
             $.each(Asset.prototype.Sound, function (key, value) {
                 createjs.Sound.registerSound(value, value);
             });
+
+
+            var totalSounds = Object.keys(Asset.prototype.Sound).length;
+            var currentLoaded = 0
+            createjs.Sound.addEventListener("fileload", handleFileLoad);
+            function handleFileLoad(event) {
+                console.log("Preloaded:", event.id);
+
+                if(++currentLoaded / totalSounds == 1)
+                {
+                    onCompleteCallBack();
+                }
+                
+            }
             return true;
         }
 
@@ -109,8 +119,9 @@ http://buzz.jaysalvat.com/documentation/buzz/
                 CARD_MOUNT: Asset.Path.Sound + "card_mount.mp3",
                 END_TURN: Asset.Path.Sound + "scroll.mp3",
                 ATTACK_1: Asset.Path.Sound + "attack_1.mp3",
-                DEFEND_1: Asset.Path.Sound + "defend_1.mp3"
-
+                DEFEND_1: Asset.Path.Sound + "defend_1.mp3",
+                CHAT_MESSAGE: Asset.Path.Sound + "chat_message.mp3",
+                GAME_MUSIC: Asset.Path.Sound + "background-music.mp3"
             }
 
         Asset.prototype.GetTexture = function (texture) {

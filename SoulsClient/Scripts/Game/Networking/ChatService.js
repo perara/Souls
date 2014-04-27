@@ -1,4 +1,4 @@
-﻿define('chatService', ['jquery', 'jqueryUI', 'jquery.dialogExtend', "messages"], function ($, jQueryUI, dialogExtend, Message) {
+﻿define('chatService', ['jquery', 'jqueryUI', 'jquery.dialogExtend', "messages", "asset"], function ($, jQueryUI, dialogExtend, Message, Asset) {
 
     var that;
     ChatService = function (engine) {
@@ -45,6 +45,7 @@
 
     function Response_Message(json) {
         $(".chat-messages").append("[" + json.Payload.name + "]: " + json.Payload.message + "<br>");
+        Asset.GetSound(Asset.Sound.CHAT_MESSAGE).play();
     }
 
     function Response_ClientDisconnected(json) // 1095
