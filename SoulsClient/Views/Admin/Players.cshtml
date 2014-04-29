@@ -1,12 +1,126 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Players";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<Souls.Model.Player> players = ViewBag.players;
+
 }
 
 <h2>Players</h2>
-@foreach (var item in ViewBag.data)
-{
-    <p>@item</p><br />
-}
 
+<table class="table">
+    <thead>
+        <tr>
+            <td>id</td>
+            <td>name</td>
+            <td>money</td>
+            <td>rank</td>
+            <td>created</td>
+        </tr>
+
+
+    </thead>
+
+
+    @foreach (var item in players)
+    {
+        <tr id="_@item.id">
+            <td>@item.id</td>
+            <td>@item.name</td>
+            <td>@item.money</td>
+            <td>@item.rank</td>
+            <td>@item.created</td>
+            <td class="player-status" style="font-weight:bold;color:red;">Offline</td>
+        </tr>
+
+             
+
+    }
+
+</table>
+
+
+
+
+
+<script>
+
+
+    // var socket = new WebSocket('ws://tux.persoft.no:8140');
+    var socket = new WebSocket('ws://tux.persoft.no:8140/admin');
+
+    setTimeout(function () {
+
+        socket.send(
+        JSON.stringify({
+            Type: 1,
+            Payload: {
+                hash: '@Souls.Client.Classes.cSession.Current.login.hash'
+            }
+        }));
+
+    }, 1000);
+
+    setTimeout(function () {
+
+        socket.send(
+        JSON.stringify({
+            Type: 2,
+            Payload: {
+                
+            }
+        }));
+
+    }, 1500);
+
+
+    socket.onerror = function (error) {
+        console.log('WebSocket Error: ' + error);
+
+    };
+
+    socket.onopen = function (event) {
+
+
+    };
+
+    socket.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+        var payload = data.Payload;
+        var type = data.Type;
+
+     
+        if(type == 2)
+        {
+
+            $.each(payload, function (key,value) {
+
+               
+                var td = $("#_" + value + " td.player-status")
+                
+                td.css("font-weight", "bold");
+                td.css("color", "green");
+                td.html("Online");
+
+
+            });
+
+           
+
+
+        }
+
+
+    };
+
+
+    socket.onclose = function (event) {
+        console.log("Closed WebSocket");
+    };
+
+
+
+
+
+
+</script>

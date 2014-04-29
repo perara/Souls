@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using Souls.Model;
 
-namespace SoulsClient.Classes
+namespace Souls.Client.Classes
 {
     public class cSession
     {

@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using System.Web.Helpers;
 using Newtonsoft.Json;
 
-namespace SoulsClient.Classes
+namespace Souls.Client.Classes
 {
     public class JsonpResult : JsonResult
     {

@@ -53,7 +53,7 @@
 
                     <!-- Log In/Out-->
                     <li>
-                        @if (!SoulsClient.Classes.cSession.Current.isLogin())
+                        @if (!Souls.Client.Classes.cSession.Current.isLogin())
                         {
                             @Html.ActionLink("Login", "Login", "Player", new { area = "" }, null)
                         }

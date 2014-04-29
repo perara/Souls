@@ -1,4 +1,4 @@
-﻿using SoulsClient.Classes;
+﻿using Souls.Client.Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

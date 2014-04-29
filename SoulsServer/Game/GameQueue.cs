@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace Souls.Server.Game
 {
@@ -14,14 +15,20 @@ namespace Souls.Server.Game
     {
         private static GameQueue instance = null;
         public LinkedList<Player> queue { get; set; }
-        private GameQueue() 
+        private GameQueue()
         {
             queue = new LinkedList<Player>();
         }
         public bool MatchPlayers(Action<Pair<Player>> initGame)
         {
+
+            // Remove disconnected players
+            Player discP = queue.Where(x => x.gameContext.State == WebSocketState.Closed).FirstOrDefault();
+            if (discP != null) queue.Remove(discP);
+
+
             Pair<Player> matchedPlayers = null;
-			if(queue.Count() >= 2)
+            if (queue.Count() >= 2)
             {
                 while (queue.Count() > 1)
                 {
@@ -33,7 +40,7 @@ namespace Souls.Server.Game
                     removePlayer(p1);
                     removePlayer(p2);
 
-                    matchedPlayers = new Pair<Player>(p1,p2);
+                    matchedPlayers = new Pair<Player>(p1, p2);
 
                     // Callbacks to GameEngine's "initGame" and starts a game
                     initGame(matchedPlayers);
@@ -41,9 +48,9 @@ namespace Souls.Server.Game
                 }
 
                 return true; // Matchmaking was successful
-			}
+            }
             return false; // Matchmaking did not happen
-		}
+        }
         public void AddPlayer(Player player)
         {
             player.inQueue = true;
@@ -60,7 +67,7 @@ namespace Souls.Server.Game
         {
             if (GameQueue.instance == null) GameQueue.instance = new GameQueue();
             return instance;
-            
+
         }
     }
 }

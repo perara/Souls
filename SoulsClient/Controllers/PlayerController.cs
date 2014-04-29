@@ -13,7 +13,7 @@ using Souls.Model;
 using NHibernate.Criterion;
 using NHibernate;
 using NHibernate.Linq;
-using SoulsClient.Classes;
+using Souls.Client.Classes;
 using System.ComponentModel.DataAnnotations;
 using Souls.Model.Helpers;
 

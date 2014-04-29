@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Souls.Server.Tools;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
+using Souls.Server.Objects;
 
 namespace Souls.Server.Network
 {
@@ -57,6 +58,12 @@ namespace Souls.Server.Network
         protected override void OnClose(CloseEventArgs e)
         {
             Logging.Write(this.logType, "Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
+
+            Player chatPlayer;
+            Player gamePlayer;
+            Clients.GetInstance().chatList.TryRemove(this, out chatPlayer);
+            Clients.GetInstance().gameList.TryRemove(this, out gamePlayer);
+
         }
 
     }

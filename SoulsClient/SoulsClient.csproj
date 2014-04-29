@@ -371,9 +371,6 @@
     <Content Include="Views\Player\Login.cshtml" />
     <Content Include="Views\Game\Index.cshtml" />
     <Content Include="Scripts\jquery-1.11.0.min.map" />
-    <Content Include="Views\Admin\Players.cshtml" />
-    <Content Include="Views\Admin\CardEditor.cshtml" />
-    <Content Include="Views\Admin\Games.cshtml" />
     <Content Include="Views\Shop\Index.cshtml" />
     <Content Include="Views\Shared\Partials\Player.cshtml" />
     <Content Include="Views\Home\Old.cshtml" />
@@ -382,6 +379,9 @@
     <Content Include="Views\Shared\Partials\Services.cshtml" />
     <Content Include="Views\Shared\Partials\GameStats.cshtml" />
     <Content Include="Views\Shared\Partials\News.cshtml" />
+    <Content Include="Views\Admin\CardEditor.cshtml" />
+    <Content Include="Views\Admin\Games.cshtml" />
+    <Content Include="Views\Admin\Players.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

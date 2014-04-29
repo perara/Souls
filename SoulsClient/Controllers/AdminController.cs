@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Souls.Model.Helpers;
+using NHibernate.Linq;
+using Souls.Model;
 
 namespace SoulsClient.Controllers
 {
@@ -12,9 +15,17 @@ namespace SoulsClient.Controllers
         // GET: /Admin/
         public ActionResult Players()
         {
-            int[] array = { 1, 2, 3, 4 };
-            ViewBag.data = array;
 
+            List<Player> players;
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                players = session.Query<Player>().ToList();
+            }
+
+
+
+
+            ViewBag.players = players;
             return View();
         }
         public ActionResult Games()

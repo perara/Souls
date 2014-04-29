@@ -6,7 +6,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.Net.Sockets;
 
-namespace SoulsClient.Classes
+namespace Souls.Client.Classes
 {
     public class Toolkit
     {

@@ -6,7 +6,7 @@ using System.Net;
 using NHibernate.Linq;
 
 
-using SoulsClient.Classes;
+using Souls.Client.Classes;
 using System.Web.Mvc;
 using System.Web.Helpers;
 using System.Web.Http;
