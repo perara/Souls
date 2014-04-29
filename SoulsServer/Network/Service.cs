@@ -59,10 +59,7 @@ namespace Souls.Server.Network
         {
             Logging.Write(this.logType, "Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
 
-            Player chatPlayer;
-            Player gamePlayer;
-            Clients.GetInstance().chatList.TryRemove(this, out chatPlayer);
-            Clients.GetInstance().gameList.TryRemove(this, out gamePlayer);
+            this.loggedIn = false;
 
         }
 

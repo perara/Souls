@@ -57,7 +57,7 @@ namespace Souls.Server.Network
                 case AdminRequest.ONLINE_USERS:
 
 
-                    var pIds = from it in Clients.GetInstance().gameList select new JProperty("id",it.Value.id);
+                    var pIds = from it in Clients.GetInstance().gameList.Where(x => x.Key.loggedIn == true) select new JProperty("id",it.Value.id);
 
                    
 
