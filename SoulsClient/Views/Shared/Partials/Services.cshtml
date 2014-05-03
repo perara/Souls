@@ -9,6 +9,10 @@
 
     </thead>
 
+    <div class="loader">
+        <img width="32" height="32" src="http://www.mytreedb.com/uploads/mytreedb/loader/ajax_loader_blue_512.gif" />
+    </div>
+
     <tbody></tbody>
 </table>
 
@@ -19,7 +23,7 @@
 
 
     $.getJSON("/Home/ServiceStatus", function (json) {
-
+        $("#services-plugin").hide();
         $.each(json, function (key, value) {
 
             var table = document.getElementById("services-plugin");
@@ -28,8 +32,9 @@
             var cell2 = row.insertCell(1);
             cell1.innerHTML = key;
             cell2.innerHTML = (!!value) ? "<font color='green'><b>Online</b></font>" : "<font color='red'><b>Offline</b></font>";
-
         });
+        $("#services-plugin").fadeIn();
+        $(".loader").remove();
 
 
       

@@ -40,6 +40,35 @@ namespace SoulsClient.Controllers
             return Json(services, JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymousAttribute]
+        public ActionResult GetNews()
+        {
+            List<dynamic> objs;
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                objs = new List<dynamic>();
+
+                List<News> news = session.Query<News>()
+                 .ToList();
+
+                foreach (var newsitem in news)
+                {
+
+                    dynamic item = new
+                    {
+                        title = newsitem.title,
+                        text = newsitem.text,
+                        author = newsitem.author,
+                        date = newsitem.date.ToString()
+                    };
+                    objs.Add(item);
+                }
+
+            }
+
+            return Json(objs, JsonRequestBehavior.AllowGet);
+        }
+
 
         [AllowAnonymousAttribute]
         public ActionResult GetGames()

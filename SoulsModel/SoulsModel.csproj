@@ -68,6 +68,8 @@
     <Compile Include="GameLogTypeMap.cs" />
     <Compile Include="GameMap.cs" />
     <Compile Include="Migrations\Clean\CreateUsers.cs" />
+    <Compile Include="News.cs" />
+    <Compile Include="NewsMap.cs" />
     <Compile Include="NHibernateHelper.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerCards.cs" />

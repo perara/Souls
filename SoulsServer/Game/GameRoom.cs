@@ -12,6 +12,7 @@ using Souls.Server.Objects;
 using Souls.Server.Game;
 using Souls.Server.Network;
 using Souls.Model.Helpers;
+using System.Diagnostics;
 
 
 namespace Souls.Server.Game
@@ -37,6 +38,7 @@ namespace Souls.Server.Game
         public Player winner { get; set; }
 
         public GameLogger logger { get; set; }
+        public Stopwatch watch { get; set; }
 
 
         public GameRoom()
@@ -45,6 +47,8 @@ namespace Souls.Server.Game
             turn = 0;
             round = 1;
             isEnded = false;
+            watch = new Stopwatch();
+            watch.Start();
         }
 
         public void AddGamePlayers(Pair<Player> players)
@@ -148,11 +152,11 @@ namespace Souls.Server.Game
 
         public void SaveGameRoom()
         {
-            using(var session = NHibernateHelper.OpenSession())
+            using (var session = NHibernateHelper.OpenSession())
             {
 
 
-                using(var transaction = session.BeginTransaction())
+                using (var transaction = session.BeginTransaction())
                 {
                     Souls.Model.Game g = new Souls.Model.Game();
                     g.player1 = this.players.First;
