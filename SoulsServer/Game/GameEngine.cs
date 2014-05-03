@@ -707,7 +707,7 @@ namespace Souls.Server.Game
             if (player.gPlayer.handCards.Count() >= 10) return;
 
             // Create the new card
-            List<Card> newCard = player.gPlayer.AddCard(num);
+            List<Card> newCard = player.gPlayer.AddCard(player, num);
 
             player.gPlayer.gameRoom.logger.Add(
            GameLogger.logTypes[GameLogger.LogTypes.NEW_CARD],

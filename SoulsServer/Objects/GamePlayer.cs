@@ -108,9 +108,9 @@ namespace Souls.Server.Objects
             return (this.Equals(this.gameRoom.currentPlaying.gPlayer)) ? true : false;
         }
 
-        public List<Card> AddCard(int amount = 1)
+        public List<Card> AddCard(Player p, int amount = 1)
         {
-            return gameRoom.GetRandomCards(amount);
+            return gameRoom.GetRandomCards(p, amount);
         }
 
         public void AddCardToHand(List<Card> cards)

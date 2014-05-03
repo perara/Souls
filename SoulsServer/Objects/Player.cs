@@ -12,6 +12,7 @@ using NHibernate;
 using NHibernate.Linq;
 using Souls.Server.Network;
 using Souls.Model.Helpers;
+using Souls.Server.Game;
 
 namespace Souls.Server.Objects
 {
@@ -41,6 +42,8 @@ namespace Souls.Server.Objects
         /// Context (Connection) to the ChatServer
         /// </summary>
         public Client chatContext { get; set; }
+
+        public List<Card> owningCards { get; set; }
 
         public Player GetOpponent()
         {
@@ -110,15 +113,12 @@ namespace Souls.Server.Objects
 
                 PlayerLogin pLoginRecord2 = session.Query<PlayerLogin>()
                     .Where(x => x.hash == this.hash)
-
                     .Fetch(x => x.player)
                     .ThenFetch(x => x.playerType)
                     .ThenFetch(x => x.ability)
-
                     .Fetch(x => x.player)
                     .ThenFetch(x => x.playerType)
                     .ThenFetch(x => x.race)
-
                     .SingleOrDefault();
 
                 PlayerLogin pLoginRecord = session.CreateCriteria<PlayerLogin>()
@@ -134,6 +134,16 @@ namespace Souls.Server.Objects
                     this.name = pObj.name;
                     this.rank = pObj.rank;
                     this.playerType = pType;
+
+                    owningCards = new List<Card>();
+
+
+                    foreach (var item in session.Query<PlayerCards>().Where(x => x.player == this).Fetch(x => x.card).ToList())
+                    {
+                        owningCards.Add(GameEngine.cards.Where(x => x.id == item.card.id).FirstOrDefault());
+                    }
+
+
 
 
                     return true;

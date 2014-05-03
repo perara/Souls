@@ -57,8 +57,8 @@ namespace Souls.Server.Game
             players.Second.gPlayer.mana += this.round;
 
 
-            List<Card> p1Cards = GetRandomCards(3);
-            List<Card> p2Cards = GetRandomCards(3);
+            List<Card> p1Cards = GetRandomCards(players.First, 3);
+            List<Card> p2Cards = GetRandomCards(players.Second, 3);
             players.First.gPlayer.AddCardToHand(p1Cards);
             players.Second.gPlayer.AddCardToHand(p2Cards);
 
@@ -66,13 +66,13 @@ namespace Souls.Server.Game
         }
 
         // Gets a specific number of random cards from the card database
-        public List<Card> GetRandomCards(int amount = 1)
+        public List<Card> GetRandomCards(Player p, int amount = 1)
         {
             List<Card> getCard = new List<Card>();
 
             for (var i = 0; i < amount; i++)
             {
-                Card c = (Card)GameEngine.cards[rand.Next(GameEngine.cards.Count())].Clone();
+                Card c = (Card)p.owningCards[rand.Next(p.owningCards.Count())].Clone();
                 c.SetId();
                 getCard.Add(c);
             }
@@ -102,7 +102,7 @@ namespace Souls.Server.Game
             }
 
             // Add a new card to player
-            currentPlaying.gPlayer.AddCard();
+            currentPlaying.gPlayer.AddCard(currentPlaying);
 
             // Set mana equal to the round (unless +10)
             currentPlaying.gPlayer.mana = (this.round < 10) ? this.round : 10;
