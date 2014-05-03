@@ -166,6 +166,8 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Classes\Globals.cs" />
+    <Compile Include="Classes\PlayerClass.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\APIController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -195,6 +197,8 @@
     <Content Include="Content\CSS\Home.css" />
     <Content Include="Content\CSS\Login.css" />
     <Content Include="Content\CSS\Overrides.css" />
+    <Content Include="Content\CSS\Player.css" />
+    <Content Include="Content\CSS\Register.css" />
     <Content Include="Content\CSS\Shop.css" />
     <Content Include="Content\CSS\Vendor\perfect-scrollbar.min.css" />
     <Content Include="Content\Images\arena.jpg" />
@@ -382,6 +386,7 @@
     <Content Include="Views\Admin\CardEditor.cshtml" />
     <Content Include="Views\Admin\Games.cshtml" />
     <Content Include="Views\Admin\Players.cshtml" />
+    <Content Include="Views\Player\Register.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

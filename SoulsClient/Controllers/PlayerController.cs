@@ -16,6 +16,7 @@ using NHibernate.Linq;
 using Souls.Client.Classes;
 using System.ComponentModel.DataAnnotations;
 using Souls.Model.Helpers;
+using SoulsClient.Classes;
 
 namespace SoulsClient.Controllers
 {
@@ -33,6 +34,34 @@ namespace SoulsClient.Controllers
         {
             JsonpResult result = new JsonpResult(new { hash = cSession.Current.login.hash });
             return result;
+        }
+
+        public JsonpResult GetPlayer()
+        {
+
+            Souls.Model.Player p;
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                p = session.Query<Souls.Model.Player>()
+                    .Where(x => x.id == cSession.Current.player.id)
+                    .Fetch(x => x.playerType)
+                    .ThenFetch(x => x.race)
+                    .SingleOrDefault();
+            }
+
+
+            return new JsonpResult(
+                new
+                {
+                    name = p.name,
+                    money = p.money,
+                    rank = p.rank,
+                    type = p.playerType.name,
+                    health = p.playerType.health,
+                    bonusmana = p.playerType.mana,
+                    race = p.playerType.race.name
+                }
+            );
         }
 
         // GET: /Player/Login/
@@ -134,6 +163,168 @@ namespace SoulsClient.Controllers
 
             return View(player);
         }
+
+        // GET /Player/Register
+        [AllowAnonymousAttribute]
+        public ActionResult Register()
+        {
+            RegisterData();
+            ViewBag.ValidationLog = ModelState;
+            return View();
+        }
+
+        public void RegisterData()
+        {
+            Dictionary<int, PlayerClass> playerTypes = new Dictionary<int, PlayerClass>();
+            using (var session = NHibernateHelper.OpenSession())
+            {
+
+                /// STEP 2
+                //////////////////////////////////////////////////////////////////////////
+                /// Fetch and create a dictionary with all races
+                //////////////////////////////////////////////////////////////////////////
+                var playerRaces = session.Query<Race>().ToList();
+                foreach (var race in playerRaces)
+                {
+                    PlayerClass pClass = new PlayerClass(race);
+                    playerTypes.Add(race.id, pClass);
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                /// Fetch and add types to races
+                //////////////////////////////////////////////////////////////////////////
+                var types = session.Query<PlayerType>()
+                    .Fetch(x => x.race)
+                    .ToList();
+
+                foreach (var type in types)
+                {
+                    playerTypes[type.race.id].AddPlayerType(type);
+                }
+
+                ///STEP3
+                /// Fetch starter cards
+                var cards = session.Query<Card>()
+                    .Fetch(x => x.race)
+                    .Fetch(x => x.ability)
+                    .Where(x => x.level == 1).ToList();
+                ViewBag.starterCards = cards;
+
+                ViewBag.races = Globals.GetInstance().races;
+
+            }
+
+            ViewBag.types = playerTypes;
+        }
+
+
+        [HttpPost]
+        [AllowAnonymousAttribute]
+        public ActionResult Register(FormCollection formCollection)
+        {
+            bool success = true;
+
+            string username = formCollection["username"];
+            string password = formCollection["password"];
+            string confirm_password = formCollection["confirm-password"];
+            string email = formCollection["email"];
+            string cards = formCollection["cards"];
+            string type = formCollection["playerType"];
+
+            if (String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password) || String.IsNullOrEmpty(confirm_password) || String.IsNullOrEmpty(email) || cards == null || type == null)
+            {
+                if (String.IsNullOrEmpty(username)) ModelState.AddModelError("input-username", "You must input a username");
+                if (String.IsNullOrEmpty(password)) ModelState.AddModelError("input-password", "You must input a password");
+                if (String.IsNullOrEmpty(confirm_password)) ModelState.AddModelError("input-confirm-password", "You must input a confirmation password");
+                if (String.IsNullOrEmpty(email)) ModelState.AddModelError("input-email", "You must input an email");
+                if (cards == null) ModelState.AddModelError("input-cards", "You must select cards");
+                if (type == null) ModelState.AddModelError("input-race", "You must select a race");
+                success = false;
+                RegisterData();
+                ViewBag.ValidationLog = ModelState;
+                return View();
+            }
+
+            // Check that passwords match
+            if (password != confirm_password)
+            {
+                success = false;
+                ModelState.AddModelError("password-match", "Password does not match!");
+            }
+
+            // Check minimum size
+            if (password.Count() < 6)
+            {
+                success = false;
+                ModelState.AddModelError("password-length", "Password must be 6 characters or longer!");
+            }
+
+            // Check Email
+            if (!email.Contains("@"))
+            {
+                success = false;
+                ModelState.AddModelError("email", "Email format is not correct!");
+            }
+
+            if (cards.Split(',').Count() != 5)
+            {
+                success = false;
+                ModelState.AddModelError("cards", "You must select 5 cards!");
+            }
+
+
+            if (success)
+            {
+                using (var session = NHibernateHelper.OpenSession())
+                {
+                    if (session.Query<Player>().Where(x => x.name == username).FirstOrDefault() == null)
+                    {
+
+                        Player p = new Player();
+                        p.money = 0;
+                        p.name = username;
+                        p.password = Toolkit.sha256_hash(password);
+                        p.rank = 1;
+                        p.created = DateTime.Now;
+                        p.playerType = session.Query<PlayerType>().Where(x => x.id == int.Parse(type)).FirstOrDefault();
+                        session.Save(p);
+
+                        foreach (var index in cards.Split(','))
+                        {
+                            var card = session.Query<Card>().Where(x => x.id == int.Parse(index)).FirstOrDefault();
+                            PlayerCards pCards = new PlayerCards();
+                            pCards.card = card;
+                            pCards.player = p;
+                            pCards.obtainedat = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            session.Save(pCards);
+                        }
+
+
+                        using (var transaction = session.BeginTransaction())
+                        {
+                            transaction.Commit();
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("username-exists", "The username already exists");
+                        RegisterData();
+                        ViewBag.ValidationLog = ModelState;
+                        return View();
+                    }
+                }
+
+
+                return RedirectToAction("Login");
+            }
+
+            RegisterData();
+            ViewBag.ValidationLog = ModelState;
+            return View();
+        }
+
+
+
 
 
         public ActionResult Logout()

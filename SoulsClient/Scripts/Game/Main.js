@@ -117,6 +117,14 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         // Create a stage and the renderer
         this.stage = new Pixi.Stage(0x000000, true);
 
+
+        var textureLogo = Pixi.Texture.fromImage("/Content/Images/Page/Logo.png");
+        var logo = new Pixi.Sprite(textureLogo);
+        logo.anchor = { x: 0.5, y: 0 }
+        logo.x = (Conf.width / 2) - 50;
+        logo.y = 25;
+        this.stage.addChild(logo);
+
         // Create a loading message
         var txtLoading = new Pixi.Text("Loading...",
             {
@@ -133,6 +141,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         txtLoading.y = Conf.height / 2;
         this.stage.addChild(txtLoading);
 
+    
+
         this.renderer = new Pixi.autoDetectRenderer(Conf.width, Conf.height, null, false, true);
 
         var gameWindow = $("#game-window").clone();
@@ -148,14 +158,19 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         this.gameEngine;
 
 
-        this.isTextureLoaded = false;
-        this.isSoundLoaded = false;
+        this.isTextureLoaded = this.isSoundLoaded = false;
+        this.texturePercent = this.soundPercent =  0
 
         var that = this;
         // Preload all assets
         Asset.PreLoad(
             function (percent) {
                 console.log("[AssetLoader]: Status " + percent * 100);
+                that.texturePercent = percent * 100;
+                
+
+               
+
             },
             function () {
                 // OnComplete
@@ -163,12 +178,17 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
             });
         // Load all sound into memory (Asset.soundList)
-        Asset.LoadSound(function () {
+        Asset.LoadSound(function(percent){ // On progress
+            that.soundPercent = percent;
+        },
+        function () {
             // OnComplete
             that.isSoundLoaded = true;
         });
 
         var loadChecker = setInterval(function () {
+            txtLoading.setText("Loading... (" + ((that.texturePercent + that.soundPercent) / 2).toFixed(0) + "%)");
+
 
             if (isTextureLoaded && isSoundLoaded) {
                 console.log("Everything is loaded...")
@@ -177,7 +197,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
                 clearInterval(loadChecker);
             }
-        }, 500);
+        }, 50);
 
 
         // Show stats

@@ -15,7 +15,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             Sound: "Content/Sound/"
         }
 
-        Asset.prototype.PreLoad = function (onProgressCallback,  onCompleteCallBack) {
+        Asset.prototype.PreLoad = function (onProgressCallback, onCompleteCallBack) {
 
             var contentArray = new Array()
             for (var key in Asset.prototype.Textures) {
@@ -34,7 +34,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             loader.load();
         }
 
-        Asset.prototype.LoadSound = function (onCompleteCallBack) {
+        Asset.prototype.LoadSound = function (onProgressCallback, onCompleteCallBack) {
             createjs.Sound.alternateExtensions = ["mp3"];
 
             $.each(Asset.prototype.Sound, function (key, value) {
@@ -47,12 +47,15 @@ http://buzz.jaysalvat.com/documentation/buzz/
             createjs.Sound.addEventListener("fileload", handleFileLoad);
             function handleFileLoad(event) {
                 console.log("Preloaded:", event.id);
+                var percent = ++currentLoaded / totalSounds;
 
-                if(++currentLoaded / totalSounds == 1)
-                {
+                if (percent == 1) {
                     onCompleteCallBack();
                 }
-                
+                else {
+                    onProgressCallback(percent * 100);
+                }
+
             }
             return true;
         }
@@ -83,7 +86,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             CARD_ERROR: Asset.Path.Textures + "Card/Texture/card_error.png",
 
             // Target arrow
-            ARROW_CORSHAIR : Asset.Path.Textures + "target.png",
+            ARROW_CORSHAIR: Asset.Path.Textures + "target.png",
 
             // Player Frame
             PLAYER_NONE: Asset.Path.Textures + "Player/player_none.png",
@@ -91,7 +94,7 @@ http://buzz.jaysalvat.com/documentation/buzz/
             PLAYER_MANA: Asset.Path.Textures + "Player/player_mana.png",
 
             // Opponent Frame
-            OPPONENT_NONE: Asset.Path.Textures + "Player/player_none.png", 
+            OPPONENT_NONE: Asset.Path.Textures + "Player/player_none.png",
             OPPONENT_FRAME: Asset.Path.Textures + "Player/opponent_frame.png",
 
             // Card Portraits

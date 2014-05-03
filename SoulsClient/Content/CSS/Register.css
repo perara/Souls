@@ -1,0 +1,28 @@
+﻿
+td.field{
+    padding: 5px;
+}
+
+td.bold{
+        font-weight: bold;
+}
+
+.race-name
+{
+    border-bottom: 1px solid black;
+}
+
+.class-race{
+    margin-bottom: 20px;
+}
+
+.class-portrait{
+    background-image: url(/Content/Images/Player/Portraits/0.png);
+    background-repeat: no-repeat;
+    background-size: 250px 250px;
+
+    border: 1px solid black;
+
+    width: 250px;
+    height: 250px;
+}

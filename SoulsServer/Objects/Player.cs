@@ -184,5 +184,24 @@ namespace Souls.Server.Objects
             }
 
         }
+
+        public void GiveWinnerPoints(int num)
+        {
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                using (ITransaction transaction = session.BeginTransaction())
+                {
+
+                    Souls.Model.Player p = session.Query<Souls.Model.Player>()
+                        .Where(x => x.id == this.id)
+                        .SingleOrDefault();
+                    p.money += num;
+
+
+                    session.Update(p);
+                    transaction.Commit();
+                }
+            }
+        }
     }
 }

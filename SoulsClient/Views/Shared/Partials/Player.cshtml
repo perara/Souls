@@ -1,33 +1,53 @@
 ﻿
+<div class="col-lg-12 player-wrapper">
+    <!-- Name -->
+    <div id="name">Name: </div>
 
-<div>
-    <table>
+    <!-- Race -->
+    <div id="race">Race: </div>
 
-        <tr>
-            <td>Name: </td>
-            <td>@Souls.Client.Classes.cSession.Current.player.name</td>
-        </tr>
+    <!-- Money -->
+    <div id="money">Soul Coins: </div>
 
-        <tr>
-            <td>Race: </td>
-            <td>@Souls.Client.Classes.cSession.Current.player.playerType.race.name</td>
-        </tr>
+    <!-- Rank -->
+    <div id="rank">Rank: </div>
 
-        <tr>
-            <td>Rank: </td>
-            <td>@Souls.Client.Classes.cSession.Current.player.rank</td>
-        </tr>
+    <!-- Faction -->
+    <div id="type">Faction: </div>
 
-        <tr>
-            <td>Money: </td>
-            <td>@Souls.Client.Classes.cSession.Current.player.money</td>
-        </tr>
+    <!-- Health -->
+    <div id="health">Health:</div>
 
-       
-
-    </table>
-
-
-
+    <!-- Bonus Mana -->
+    <div id="bonusmana">Bonus Mana: </div>
 
 </div>
+
+
+
+<script>
+    $.ajax({
+        type: 'GET',
+        url: '/Player/GetPlayer',
+        async: false,
+        jsonpCallback: 'jsonCallback',
+        contentType: "application/json",
+        dataType: 'jsonp',
+        success: function (json) {
+
+            $.each(json, function (key, value) {
+                $("#" + key).append(value);
+            });
+
+        },
+        error: function (e) {
+            console.log(e.message);
+        }
+    });
+
+    /*$(function () {
+        $(".player-wrapper").draggable();
+    });*/
+
+
+</script>

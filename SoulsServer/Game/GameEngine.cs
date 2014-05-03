@@ -338,6 +338,15 @@ namespace Souls.Server.Game
             // Validate player turn
             if (!requestPlayer.IsPlayerTurn()) return;
 
+            requestPlayer.gameRoom.logger.Add(
+            GameLogger.logTypes[GameLogger.LogTypes.NEXT_TURN],
+            player.id,
+            player.GetOpponent().id,
+            "Player",
+            "Player"
+            );
+
+
             // Run next round
             requestPlayer.gameRoom.NextTurn();
 
@@ -363,13 +372,6 @@ namespace Souls.Server.Game
                  )
             ));
 
-            requestPlayer.gameRoom.logger.Add(
-               GameLogger.logTypes[GameLogger.LogTypes.NEXT_TURN],
-               player.id,
-               player.GetOpponent().id,
-               "Player",
-               "Player"
-               );
 
         }
 
@@ -707,6 +709,14 @@ namespace Souls.Server.Game
             // Create the new card
             List<Card> newCard = player.gPlayer.AddCard(num);
 
+            player.gPlayer.gameRoom.logger.Add(
+           GameLogger.logTypes[GameLogger.LogTypes.NEW_CARD],
+           player.id,
+           newCard[0].id,
+           "Player",
+           "Card"
+           );
+
             player.gPlayer.AddCardToHand(newCard);
 
             // Create a response with the new card
@@ -731,13 +741,6 @@ namespace Souls.Server.Game
             // Send to the opponent
             player.GetOpponent().gameContext.SendTo(retOpponent);
 
-            player.gPlayer.gameRoom.logger.Add(
-               GameLogger.logTypes[GameLogger.LogTypes.NEW_CARD],
-                player.GetOpponent().id, //TODO?
-               newCard[0].id,
-               "Player",
-               "Card"
-               );
 
         }
 
@@ -755,6 +758,12 @@ namespace Souls.Server.Game
             // Publish to DB
             player.gPlayer.gameRoom.SaveGameRoom();
             player.gPlayer.gameRoom.logger.Publish();
+
+            // Add Winner Points
+            if (!isDraw)
+            {
+                player.gPlayer.gameRoom.winner.GiveWinnerPoints(1);
+            }
 
 
             // Create Responses
