@@ -38,7 +38,6 @@
     overflow-y: hidden;
     overflow-x: hidden;
     border: 1px solid black;
-    width: 40.988% !important;
 }
 
 .image-slider-image {
@@ -53,7 +52,6 @@
     overflow-y: hidden;
     border: 1px solid black;
     height: 150px;
-    margin-left: 10px !important;
 }
 
 .game-stats-feed-title {
@@ -86,8 +84,6 @@
 }
 
 .play-now-button {
-    margin-left: 10px !important;
-    width: 32.13% !important;
     background: url(http://www.romecasino.com/mailers/ladyluck/images/playNow_button.png);
     height: 150px;
     background-size: 100% 150px;
