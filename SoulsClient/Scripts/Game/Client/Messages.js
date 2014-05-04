@@ -16,7 +16,8 @@
                 HEARTBEAT: 2
             },
             Game: {
-                QUEUE: 100,
+                NORMAL_QUEUE: 100,
+                PRACTICE_QUEUE: 101,
                 ATTACK: 200, // CARD CARD attack
                 USECARD: 201,
                 NEXT_TURN: 226,
@@ -83,8 +84,14 @@
                 "Payload": {
                 }
             },
-            QUEUE: {
-                "Type": Messages.prototype.Type.Game.QUEUE,
+            NORMAL_QUEUE: {
+                "Type": Messages.prototype.Type.Game.NORMAL_QUEUE,
+                "Payload": {
+                    "hash": Conf.hash
+                }
+            },
+            PRACTICE_QUEUE: {
+                "Type": Messages.prototype.Type.Game.PRACTICE_QUEUE,
                 "Payload": {
                     "hash": Conf.hash
                 }

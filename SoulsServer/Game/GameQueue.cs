@@ -79,6 +79,7 @@ namespace Souls.Server.Game
                         botName = "[BOT] " + botName;
                        
                         p2 = bot;
+                        p2.isBot = true;
                         p2.name = botName;
                         p2.chatContext = p2.gameContext; // Same context for both! 
                         p2.chPlayer = new ChatPlayer(botName);

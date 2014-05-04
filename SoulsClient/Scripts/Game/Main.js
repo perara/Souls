@@ -141,7 +141,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         txtLoading.y = Conf.height / 2;
         this.stage.addChild(txtLoading);
 
-    
+
 
         this.renderer = new Pixi.autoDetectRenderer(Conf.width, Conf.height, null, false, true);
 
@@ -159,7 +159,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
 
         this.isTextureLoaded = this.isSoundLoaded = false;
-        this.texturePercent = this.soundPercent =  0
+        this.texturePercent = this.soundPercent = 0
 
         var that = this;
         // Preload all assets
@@ -167,9 +167,9 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
             function (percent) {
                 console.log("[AssetLoader]: Status " + percent * 100);
                 that.texturePercent = percent * 100;
-                
 
-               
+
+
 
             },
             function () {
@@ -178,7 +178,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
             });
         // Load all sound into memory (Asset.soundList)
-        Asset.LoadSound(function(percent){ // On progress
+        Asset.LoadSound(function (percent) { // On progress
             that.soundPercent = percent;
         },
         function () {
@@ -192,8 +192,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
             if (isTextureLoaded && isSoundLoaded) {
                 console.log("Everything is loaded...")
-                gameEngine = new Game();
-                Conf.currentState = Gamestate.GAME;
+                Conf.currentState = Gamestate.MENU;
+                ShowGameSelect(); // Show the MENU
 
                 clearInterval(loadChecker);
             }
@@ -225,6 +225,74 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
     }
 
+    function ShowGameSelect() {
+        this.stage = new Pixi.Stage(0x000000, true);
+
+        var textureLogo = Pixi.Texture.fromImage("/Content/Images/Page/Logo.png");
+        var logo = new Pixi.Sprite(textureLogo);
+        logo.anchor = { x: 0.5, y: 0 }
+        logo.x = (Conf.width / 2) - 50;
+        logo.y = 25;
+        this.stage.addChild(logo);
+
+        var practiceTexture = Pixi.Texture.fromImage("/Content/Images/practice_game.png");
+        practiceTexture.width = 200;
+        practiceTexture.height = 150;
+        var practiceGame = new Pixi.Sprite(practiceTexture);
+        practiceGame.interactive = true;
+        practiceGame.width = 200;
+        practiceGame.height = 150;
+        practiceGame.anchor = { x: 0.5, y: 0.5 }
+        practiceGame.x = (Conf.width / 3);
+        practiceGame.y = (Conf.height / 2);
+        this.stage.addChild(practiceGame);
+
+        practiceGame.click = practiceGame.tap = function (mouseData) {
+            gameEngine = new Game(false);
+            Conf.currentState = Gamestate.GAME;
+        }
+
+        practiceGame.mouseover = function (mouseData) {
+            practiceGame.scale.x = 0.8;
+            practiceGame.scale.y = 0.8;
+
+        }
+        practiceGame.mouseout = function (mouseData) {
+            practiceGame.scale.x = 0.5;
+            practiceGame.scale.y = 0.5;
+        }
+ 
+        var normalTexture = Pixi.Texture.fromImage("/Content/Images/normal_game.png");
+        normalTexture.width = 200;
+        normalTexture.height = 150;
+        var normalGame = new Pixi.Sprite(normalTexture);
+        normalGame.interactive = true;
+        normalGame.width = 200;
+        normalGame.height = 150;
+        normalGame.anchor = { x: 0.5, y: 0.5 }
+        normalGame.x = (Conf.width / 2) + normalGame.width + 50;
+        normalGame.y = (Conf.height / 2);
+        this.stage.addChild(normalGame);
+
+        normalGame.click = normalGame.tap = function (mouseData) {
+            gameEngine = new Game(true);
+            Conf.currentState = Gamestate.GAME;
+        }
+
+        normalGame.mouseover = function (mouseData) {
+            normalGame.scale.x = 0.8;
+            normalGame.scale.y = 0.8;
+
+        }
+        normalGame.mouseout = function (mouseData) {
+            normalGame.scale.x = 0.5;
+            normalGame.scale.y = 0.5;
+        }
+
+
+
+    }
+
     function OnResize() {
         var width = $(window).width();
         var height = $(window).height();
@@ -238,6 +306,9 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
     function GameLoop() {
 
         if (Conf.currentState == Gamestate.LOADING) {
+            this.renderer.render(this.stage);
+        }
+        else if (Conf.currentState == Gamestate.MENU) {
             this.renderer.render(this.stage);
         }
         else if (Conf.currentState == Gamestate.GAME) {

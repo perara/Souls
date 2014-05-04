@@ -86,8 +86,8 @@ namespace SoulsServer.Objects
             var payload = pl["Payload"];
             var type = int.Parse(pl.GetValue("Type").ToString());
 
-            Console.WriteLine("RESPONSE TYPE: " + type);
-            Console.WriteLine(payload.ToString());
+            //Console.WriteLine("RESPONSE TYPE: " + type);
+            //Console.WriteLine(payload.ToString());
 
             if (type == (int)GameService.GameResponseType.GAME_CREATE) // Create Game
             {
@@ -112,6 +112,10 @@ namespace SoulsServer.Objects
             else if (type == (int)GameService.GameResponseType.GAME_OPPONENT_USECARD_OK) // Attack
             {
                 Request_OppUseCard(payload);
+            }
+            else if (type == (int)GameService.GameResponseType.GAME_BOT_DISCONNECT) // Attack
+            {
+                ws.Close(CloseStatusCode.Away);
             }
 
 

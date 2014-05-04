@@ -17,7 +17,8 @@
     'queue'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox, CreateJS, _, Queue) {
 
         var that;
-        Engine = function () {
+        Engine = function (normalGame) {
+            this.normalGame = normalGame;
             that = this;
             State.call(this, "0xCAECAE");
             console.log("> Game Class");

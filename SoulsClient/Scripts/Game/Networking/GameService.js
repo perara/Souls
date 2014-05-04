@@ -389,7 +389,19 @@
 
     GameService.prototype.Login = function () {
         this.socket.send(this.message.GENERAL.LOGIN);
-        this.socket.send(this.message.GAME.QUEUE); // TODO, this should not be called here.
+
+        var queueType = null;
+        // Check if NormalGame or Practice game was selected
+        if (this.engine.normalGame)
+        {
+            queueType = this.message.GAME.NORMAL_QUEUE;
+        }
+        else
+        {
+            queueType = this.message.GAME.PRACTICE_QUEUE;
+        }
+
+        this.socket.send(queueType); 
     }
 
     GameService.prototype.Request_UseCard = function (card) {

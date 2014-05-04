@@ -45,6 +45,13 @@ namespace Souls.Server.Objects
 
         public List<Card> owningCards { get; set; }
 
+        public bool isBot { get; set; }
+
+        public Player()
+        {
+            isBot = false;
+        }
+
         public Player GetOpponent()
         {
             if (this.gPlayer.gameRoom.players.First.Equals(this))

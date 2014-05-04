@@ -58,6 +58,11 @@ namespace Souls.Server.Network
             GAME_OPPONENT_MOVE = 209,
             GAME_OPPONENT_RELEASE = 210,
             GAME_OPPONENT_ATTACK = 214,
+
+
+            // BOT
+            GAME_BOT_DISCONNECT = 500,
+
             // GAME_OPPONENT_CARD_DIE = 215,
             // GAME_OPPONENT_HERO_ATTACK = 216,
             // GAME_OPPONENT_HERO_DIE = 217, // Game Won
@@ -102,7 +107,7 @@ namespace Souls.Server.Network
                 {
                     // GAME LOGIC REQUESTS
                     case GameType.QUEUE_NORMAL:
-                        engine.Request_Queue(Clients.GetInstance().gameList[this], false);
+                        engine.Request_Queue(Clients.GetInstance().gameList[this], true);
                         break;
                     case GameType.QUEUE_PRACTICE:
                         engine.Request_Queue(Clients.GetInstance().gameList[this], false);
@@ -252,6 +257,28 @@ namespace Souls.Server.Network
 
 
             Logging.Write(Logging.Type.GENERAL, "Swapped Clients!");
+        }
+
+        public override void CloseConnection()
+        {
+            Player p;
+            Clients.GetInstance().gameList.TryGetValue(this, out p);
+            if (p == null) return; // Should not happen tho
+
+            if (p.gPlayer != null) // Must have a gameplayer
+            {
+                if (p.gPlayer.gameRoom != null) // Must be in a game
+                {
+                    if ((p.isBot || p.GetOpponent().isBot) || (p.gPlayer.gameRoom.watch.Elapsed.Minutes > 60)) // One of the players must be a bot OR the game has expired (1 hour)
+                    {
+                        this.engine.EndGame(p.gPlayer.gameRoom.players, true);
+                    }
+                }
+
+
+            }
+
+
         }
 
     }

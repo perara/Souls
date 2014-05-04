@@ -58,8 +58,14 @@ namespace Souls.Server.Network
         protected override void OnClose(CloseEventArgs e)
         {
             Logging.Write(this.logType, "Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
+            CloseConnection();
 
             this.loggedIn = false;
+
+        }
+
+        virtual public void CloseConnection()
+        {
 
         }
 

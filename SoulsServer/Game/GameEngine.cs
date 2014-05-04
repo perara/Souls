@@ -29,7 +29,6 @@ namespace Souls.Server.Game
 
         public GameEngine()
         {
-
             SetupEngine();
 
             // Start Game Queue;
@@ -843,10 +842,25 @@ namespace Souls.Server.Game
                 oppResponse
             );
 
+            if (opponent.isBot) opponent.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_BOT_DISCONNECT, "xD Bot disconnect"));
+            if (player.isBot) player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_BOT_DISCONNECT, "xD Bot disconnect"));
+
+
             player.gPlayer.gameRoom.isEnded = true;
             player.gPlayer = null;
             opponent.gPlayer = null;
 
+            // Cleanup LIST etc
+            Player trash;
+            Clients.GetInstance().chatList.TryRemove(player.chatContext, out trash);
+            Clients.GetInstance().chatList.TryRemove(opponent.chatContext, out trash);
+            Clients.GetInstance().gameList.TryRemove(player.gameContext, out trash);
+            Clients.GetInstance().gameList.TryRemove(opponent.gameContext, out trash);
+
+            Console.WriteLine("----------SUMMARY---------");
+            Console.WriteLine("Game Rooms: " + rooms.Count);
+            Console.WriteLine("Chat Clients:" + Clients.GetInstance().chatList.Count);
+            Console.WriteLine("Game Clients: " + Clients.GetInstance().gameList.Count);
         }
 
         public void CannotAttackTwice(Player p)

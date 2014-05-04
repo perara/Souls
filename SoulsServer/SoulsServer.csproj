@@ -64,8 +64,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp">
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc3\lib\websocket-sharp.dll</HintPath>
+    <Reference Include="websocket-sharp, Version=1.0.2.3795, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
