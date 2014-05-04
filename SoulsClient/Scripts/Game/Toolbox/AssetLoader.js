@@ -34,6 +34,10 @@ http://buzz.jaysalvat.com/documentation/buzz/
             loader.load();
         }
 
+        Asset.prototype.SetVolume = function (val) {
+            createjs.Sound.setVolume(val);
+        }
+
         Asset.prototype.LoadSound = function (onProgressCallback, onCompleteCallBack) {
             createjs.Sound.alternateExtensions = ["mp3"];
 
@@ -70,6 +74,8 @@ http://buzz.jaysalvat.com/documentation/buzz/
             // Game apperance
             GAME_BG: (Asset.Path.Textures + "arena.jpg"),
             GAME_QUEUE: Asset.Path.Textures + "queue.jpg",
+            GAME_VOLUME_ON: (Asset.Path.Textures + "audio_on.png"),
+            GAME_VOLUME_OFF: Asset.Path.Textures + "audio_off.png",
 
             // End turn
             END_TURN: Asset.Path.Textures + "endturn.png",

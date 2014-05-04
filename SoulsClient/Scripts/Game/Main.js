@@ -52,6 +52,7 @@ require.config({
         "background": "Objects/Environment/Background",
         "endturnbutton": "Objects/Environment/EndTurnButton",
         "queue": "Objects/Environment/Queue",
+        "audio": "Objects/Environment/AudioButton",
         //// Player
         "player": "Objects/Player/Player",
         "playerbase": "Objects/Player/PlayerBase",

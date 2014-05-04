@@ -265,6 +265,7 @@ namespace Souls.Server.Network
             Clients.GetInstance().gameList.TryGetValue(this, out p);
             if (p == null) return; // Should not happen tho
 
+            p.inQueue = false;
             if (p.gPlayer != null) // Must have a gameplayer
             {
                 if (p.gPlayer.gameRoom != null) // Must be in a game

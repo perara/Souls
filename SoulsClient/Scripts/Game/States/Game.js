@@ -14,7 +14,8 @@
     "toolbox",
     'easeljs',
     'tweenjs',
-    'queue'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox, CreateJS, _, Queue) {
+    'queue',
+    'audio'], function ($, stopwatch, State, Player, Opponent, Conf, GameService, Background, CardSlots, ChatService, Socket, Pixi, ToolBox, CreateJS, _, Queue, Audio) {
 
         var that;
         Engine = function (normalGame) {
@@ -40,7 +41,7 @@
             this.addGroup("Player-Particles")
             this.addGroup("Queue");
             this.addGroup("Text");
-
+            this.addGroup("Audio");
 
             // Set Default group Visibility to false (Is set to true on Response_GameCreate in GameService.js
             this.getGroup("Player").visible = false;
@@ -71,6 +72,7 @@
             this.player = null//new Player(this);
             this.opponent = null//new Opponent(this);
             this.background = new Background(this);
+            this.audio = new Audio(this);
             this.queue = new Queue(this);
 
             // Connect to the chat service
@@ -108,6 +110,11 @@
         }
 
         Engine.prototype.OnPause = function () {
+
+
+        }
+
+        Engine.prototype.AudioButton = function () {
 
 
         }

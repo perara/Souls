@@ -38,11 +38,12 @@
 /// <reference path="game/objects/environment/endturnbutton.js" />
 /// <reference path="game/objects/environment/background.js" />
 /// <reference path="game/objects/animation/animation.js" />
+/// <reference path="jssor.slider.mini.js" />
 /// <reference path="easeljs-0.7.1.js" />
 /// <reference path="jquery.dialogextend.js" />
 /// <reference path="soundjs-0.5.2.js" />
 /// <reference path="stats.js" />
 /// <reference path="tweenjs-0.5.1.js" />
 /// <reference path="page/perfect-scrollbar.js" />
-/// <reference path="jssor.slider.mini.js" />
+/// <reference path="game/objects/environment/audiobutton.js" />
 
