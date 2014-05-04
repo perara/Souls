@@ -59,6 +59,8 @@
   <ItemGroup>
     <Compile Include="Ability.cs" />
     <Compile Include="AbilityMap.cs" />
+    <Compile Include="BotNames.cs" />
+    <Compile Include="BotNamesMap.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="CardMap.cs" />
     <Compile Include="Game.cs" />

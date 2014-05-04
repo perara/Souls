@@ -25,6 +25,7 @@ namespace Souls.Server.Game
 
         public static Dictionary<int, GameRoom> rooms { get; set; }
         public static List<Card> cards { get; set; }
+        public static List<String> botNames { get; set; }
 
         public GameEngine()
         {
@@ -41,9 +42,28 @@ namespace Souls.Server.Game
             GameEngine.rooms = new Dictionary<int, GameRoom>();
             GameLogger.GenerateLogTypes();
             GameEngine.cards = LoadCards();
+            GameEngine.botNames = LoadBotNames();
 
         }
 
+        public List<String> LoadBotNames()
+        {
+            Stopwatch w = new Stopwatch();
+            w.Start();
+
+            List<String> botNames;
+            using (var session = NHibernateHelper.OpenSession())
+            {
+
+                botNames = session.Query<Souls.Model.BotNames>()
+                .Select(x => x.name)
+                .ToList<String>();
+
+            }
+            w.Stop();
+            Logging.Write(Logging.Type.GAME, "Loaded " + botNames.Count() + " bot names, Took: " + w.ElapsedMilliseconds);
+            return botNames;
+        }
 
         public List<Card> LoadCards()
         {
@@ -91,8 +111,9 @@ namespace Souls.Server.Game
             {
                 while (true)
                 {
-                    bool matchMaked = GameQueue.GetInstance().MatchPlayers(Callback_CreateGame);
-                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().queue.Count());
+                    bool matchMaked = GameQueue.GetInstance().MatchPlayersNormal(Callback_CreateGame);
+                    bool matchMaked2 = GameQueue.GetInstance().MatchPlayersPractice(Callback_CreateGame);
+                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().normalQueue.Count());
 
                     Thread.Sleep(5000);
                 }
@@ -175,23 +196,45 @@ namespace Souls.Server.Game
 
         }
 
-        public void Request_QueuePlayer(Player player)
+        public void Request_Queue(Player player, bool normal = true)
         {
 
             // Check if the player already have a game player
             if (player.gPlayer == null)
             {
 
-                if (!player.inQueue)
+                if (normal)
                 {
-                    GameQueue.GetInstance().AddPlayer(player);
-                    Logging.Write(Logging.Type.GAMEQUEUE, player.name + " queued!");
-                    player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+
+                    if (!player.inQueue)
+                    {
+                        GameQueue.GetInstance().AddPlayerNormal(player);
+                        Logging.Write(Logging.Type.GAMEQUEUE, player.name + " queued!");
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+                    }
+                    else
+                    {
+                        Logging.Write(Logging.Type.GAMEQUEUE, player.name + " tried to queue twice!");
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+                    }
+
                 }
                 else
                 {
-                    Logging.Write(Logging.Type.GAMEQUEUE, player.name + " tried to queue twice!");
-                    player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+
+                    if (!player.inQueue)
+                    {
+                        GameQueue.GetInstance().AddPlayerPractice(player);
+                        Logging.Write(Logging.Type.GAMEQUEUE, player.name + " queued!");
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_OK, "You are now in queue!"));
+                    }
+                    else
+                    {
+                        Logging.Write(Logging.Type.GAMEQUEUE, player.name + " tried to queue twice!");
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.QUEUE_ALREADY_IN, "You are already in queue!")); //todo better response type
+                    }
+
+
                 }
 
             }

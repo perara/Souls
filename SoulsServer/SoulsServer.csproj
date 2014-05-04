@@ -75,6 +75,7 @@
     <Compile Include="Network\ChatService.cs" />
     <Compile Include="Network\GameService.cs" />
     <Compile Include="Network\Service.cs" />
+    <Compile Include="Objects\AI.cs" />
     <Compile Include="Objects\ChatPlayer.cs" />
     <Compile Include="Network\Response.cs" />
     <Compile Include="Chat\ChatEngine.cs" />

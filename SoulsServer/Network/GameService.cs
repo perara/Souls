@@ -75,7 +75,8 @@ namespace Souls.Server.Network
         /// </summary>
         public enum GameType
         {
-            QUEUE = 100,
+            QUEUE_NORMAL = 100,
+            QUEUE_PRACTICE = 101, //BOT GAME
             ATTACK = 200, // subtypes: 0 = Card on Card | 1 = Card on opponent | 2 = Player on Card | 3 = Player on Opponent
             USECARD = 201,
             NEXT_TURN = 226,
@@ -100,8 +101,11 @@ namespace Souls.Server.Network
                 switch ((GameType)type)
                 {
                     // GAME LOGIC REQUESTS
-                    case GameType.QUEUE:
-                        engine.Request_QueuePlayer(Clients.GetInstance().gameList[this]);
+                    case GameType.QUEUE_NORMAL:
+                        engine.Request_Queue(Clients.GetInstance().gameList[this], false);
+                        break;
+                    case GameType.QUEUE_PRACTICE:
+                        engine.Request_Queue(Clients.GetInstance().gameList[this], false);
                         break;
                     case GameType.ATTACK:
                         engine.Request_Attack(Clients.GetInstance().gameList[this]);
@@ -161,7 +165,11 @@ namespace Souls.Server.Network
             //////////////////////////////////////////////////////////////////////////
             // Check if the client is already logged in (Recover from disconnect)
             //////////////////////////////////////////////////////////////////////////
-            Client searchClient = Clients.GetInstance().gameList.Where(x => x.Value.UpdateHash() == hash).FirstOrDefault().Key;
+            Client searchClient = null;
+            if (hash != "BOT") // IF its the bot account, we wont check if he is already online
+            {
+                searchClient = Clients.GetInstance().gameList.Where(x => x.Value.UpdateHash() == hash).FirstOrDefault().Key;
+            }
 
             if (searchClient != null)
             {
@@ -205,7 +213,7 @@ namespace Souls.Server.Network
             try
             {
 
-                GameQueue.GetInstance().removePlayer(Clients.GetInstance().gameList[this]);
+                GameQueue.GetInstance().RemovePlayerNormal(Clients.GetInstance().gameList[this]);
 
                 Player trash;
                 success = Clients.GetInstance().gameList.TryRemove(this, out trash);

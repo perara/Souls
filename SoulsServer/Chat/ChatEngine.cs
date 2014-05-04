@@ -60,6 +60,7 @@ namespace Souls.Server.Chat
         /// <returns></returns>
         public bool Request_NewGameRoom(Pair<ChatPlayer> clients)
         {
+
             ChatRoom chatRoom = new ChatRoom(clients);
             chatRooms.Add(roomCounter, chatRoom);
 

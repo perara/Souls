@@ -15,6 +15,7 @@ namespace SoulsServer.Objects
     public class AI
     {
         private WebSocket ws { get; set; }
+        private WebSocket wschat { get; set; }
 
         public string name { get; set; }
 
@@ -53,6 +54,11 @@ namespace SoulsServer.Objects
                 this.Progress(e);
             ws.Connect();
 
+            wschat = new WebSocket("ws://localhost:8140/chat");
+
+            wschat.OnMessage += (sender, e) =>
+                this.Progress(e);
+            wschat.Connect();
 
             this.SendTo(
                new Response(
@@ -62,7 +68,7 @@ namespace SoulsServer.Objects
 
             this.SendTo(
                 new Response(
-                    GameService.GameType.QUEUE,
+                    GameService.GameType.QUEUE_PRACTICE,
                     new JObject(
                         new JProperty("Type", 200),
                         new JProperty("Payload",
