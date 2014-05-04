@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using NHibernate.Linq;
 using Souls.Server.Network;
 using Souls.Model.Helpers;
+using Souls.Server.Chat;
 
 
 namespace Souls.Server.Game
@@ -846,19 +847,34 @@ namespace Souls.Server.Game
             if (player.isBot) player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_BOT_DISCONNECT, "xD Bot disconnect"));
 
 
+
+            //////////////////////////////////////////////////////////////////////////
+            // CLEANUP 
+            //////////////////////////////////////////////////////////////////////////
             player.gPlayer.gameRoom.isEnded = true;
             player.gPlayer = null;
             opponent.gPlayer = null;
 
-            // Cleanup LIST etc
+            foreach(var room in player.chPlayer.memberRooms)
+            {
+                ChatEngine.chatRooms.Remove(room.Key);
+            }
+            player.chPlayer.memberRooms.Clear();
+            opponent.chPlayer.memberRooms.Clear();
+            player.chPlayer = null;
+            opponent.chPlayer = null;
+
+          
             Player trash;
             Clients.GetInstance().chatList.TryRemove(player.chatContext, out trash);
             Clients.GetInstance().chatList.TryRemove(opponent.chatContext, out trash);
             Clients.GetInstance().gameList.TryRemove(player.gameContext, out trash);
             Clients.GetInstance().gameList.TryRemove(opponent.gameContext, out trash);
-
+          
+            
             Console.WriteLine("----------SUMMARY---------");
             Console.WriteLine("Game Rooms: " + rooms.Count);
+            Console.WriteLine("Chat Rooms: " + ChatEngine.chatRooms.Count);
             Console.WriteLine("Chat Clients:" + Clients.GetInstance().chatList.Count);
             Console.WriteLine("Game Clients: " + Clients.GetInstance().gameList.Count);
         }

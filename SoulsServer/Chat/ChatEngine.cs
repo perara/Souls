@@ -18,7 +18,7 @@ namespace Souls.Server.Chat
         /// <summary>
         /// A dictionary containing all chat rooms
         /// </summary>
-        public Dictionary<int, ChatRoom> chatRooms { get; set; }
+        public static Dictionary<int, ChatRoom> chatRooms { get; set; }
 
         /// <summary>
         /// Counts up 1 for each room created
