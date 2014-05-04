@@ -37,7 +37,7 @@
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     function Response_NewGameRoom(json) {
-        $(".chat-messages").append("[" + json.Payload.name + "]: " + json.Payload.message + "\n");
+        $(".chat-messages").append("[" + json.Payload.name + "]: " + json.Payload.message + " \n<br>");
 
         $(".chat-input").attr("chRoomId", json.Payload.chRoomId);
 

@@ -36,22 +36,6 @@ namespace Souls.Server.Chat
         }
 
 
-        /// <summary>
-        /// Adds a chat room with a gameList of players, the first player in the gameList is leader. Room is dynamic by default. Leader may invite and kick.
-        /// </summary>
-        /// <param name="clients"></param>
-        /// <returns></returns>
-        public bool Request_NewGameRoom(LinkedList<ChatPlayer> clients)
-        {
-            ChatRoom chatRoom = new ChatRoom(clients);
-            chatRooms.Add(roomCounter, chatRoom);
-
-            foreach (ChatPlayer client in clients)
-                client.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "Someone created a new chat with you with room id " + roomCounter));
-
-            return (chatRooms[roomCounter++].Equals(chatRoom)) ? true : false;
-        }
-
 
         /// <summary>
         /// Adds a chat room with only two players. Intended for chat when in a game. This room is static by default. No one can be invited or kicked.
@@ -62,7 +46,10 @@ namespace Souls.Server.Chat
         {
 
             ChatRoom chatRoom = new ChatRoom(clients);
+            chatRoom.id = roomCounter;
             chatRooms.Add(roomCounter, chatRoom);
+
+
 
             clients.First.addRoom(chatRoom);
             clients.Second.addRoom(chatRoom);
@@ -91,6 +78,8 @@ namespace Souls.Server.Chat
         {
             ChatRoom chatRoom = new ChatRoom(client);
             chatRooms.Add(roomCounter, chatRoom);
+
+            client.addRoom(chatRoom);
 
             client.chatContext.SendTo(new Response(ChatService.ResponseType.CHAT_ROOM_MADE, "You made a new chat room with id " + roomCounter));
             Logging.Write(Logging.Type.CHAT, client.name + " created room with id: " + roomCounter);
