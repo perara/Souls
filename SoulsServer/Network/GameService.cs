@@ -73,19 +73,15 @@ namespace Souls.Server.Network
         /// <summary>
         /// Defines a type of command that the client sends to the server
         /// </summary>
-        private enum GameType
+        public enum GameType
         {
-            // Queue 
             QUEUE = 100,
-
-            // Game
             ATTACK = 200, // subtypes: 0 = Card on Card | 1 = Card on opponent | 2 = Player on Card | 3 = Player on Opponent
             USECARD = 201,
-
             NEXT_TURN = 226,
+            NOT_YOUR_TURN = 202,
             MOVE_CARD = 203,
             RELEASE_CARD = 204
-
         }
 
         public GameEngine engine;
@@ -187,7 +183,7 @@ namespace Souls.Server.Network
             player.gameContext = this;
             bool success = player.FetchPlayerInfo();
 
-           
+
 
             if (success)
             {
