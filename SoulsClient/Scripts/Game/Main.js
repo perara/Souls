@@ -95,7 +95,9 @@ require.config({
 
 //This defines a global class "EngineConf" for the whole application. This is specifically targetet to the Engine.X namespace.
 var Engine = {};
-define('conf', ['/Player/hash?callback=define'], function (define) {
+define('conf', ['/Player/hash?callback=define', '/Card/CardTextures?callback=define', 'cardtype', 'asset'], function (define, cards, CardType, Asset) {
+
+
 
     function Conf() {
         this.mouse = { x: -10000, y: -10000 };
@@ -104,6 +106,19 @@ define('conf', ['/Player/hash?callback=define'], function (define) {
         this.Frame = 0;
         this.FPS = 60;
         this.hash = define.hash;
+
+        console.log(CardType);
+        $.each(cards.data, function (key, value) {
+
+            CardType.Portrait[value.id] = value.portrait;
+            Asset.Textures[value.id] = value.portrait;
+        });
+        console.log(CardType.Portrait);
+
+
+        /*$.each(cards, function () {
+            console.log(cards);
+        });*/
     }
 
     return new Conf();
@@ -262,7 +277,7 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
             practiceGame.scale.x = 0.5;
             practiceGame.scale.y = 0.5;
         }
- 
+
         var normalTexture = Pixi.Texture.fromImage("/Content/Images/normal_game.png");
         normalTexture.width = 200;
         normalTexture.height = 150;

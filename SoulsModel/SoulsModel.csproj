@@ -74,6 +74,8 @@
     <Compile Include="NewsMap.cs" />
     <Compile Include="NHibernateHelper.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="PlayerBans.cs" />
+    <Compile Include="PlayerBansMap.cs" />
     <Compile Include="PlayerCards.cs" />
     <Compile Include="PlayerCardsMap.cs" />
     <Compile Include="PlayerLogin.cs" />

@@ -7,14 +7,14 @@ using Souls.Model;
 namespace Souls.Model.Maps {
     
     
-    public class RaceMap : ClassMap<Race> {
+    public class PlayerBansMap : ClassMap<PlayerBans> {
         
-        public RaceMap() {
-			Table("race");
+        public PlayerBansMap() {
+			Table("player_bans");
 			LazyLoad();
 			Id(x => x.id).GeneratedBy.Identity().Column("id");
-			Map(x => x.name).Column("name");
-            Map(x => x.cardUrl).Column("card_url");
+			References(x => x.player).Column("fk_user");
+			Map(x => x.until).Column("until");
         }
     }
 }

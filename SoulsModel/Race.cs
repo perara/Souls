@@ -9,5 +9,6 @@ namespace Souls.Model {
         public Race() { }
         public virtual int id { get; set; }
         public virtual string name { get; set; }
+        public virtual string cardUrl { get; set; }
     }
 }

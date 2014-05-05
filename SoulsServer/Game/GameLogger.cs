@@ -47,7 +47,8 @@ namespace Souls.Server.Game
             GAME_CREATED,
             USE_CARD,
             NEXT_TURN,
-            NEW_CARD
+            NEW_CARD,
+            KICKED,
         }
 
 
@@ -145,6 +146,13 @@ namespace Souls.Server.Game
                 text = "{0} draws a card. The card was {1}"
             });
 
+            logTypes.Add(LogTypes.KICKED, new GameLogType()
+            {
+                id = (int)LogTypes.KICKED,
+                title = "KICKED",
+                description = "a player is kicked",
+                text = "{0} was kicked from the game by [ADMIN]"
+            });
 
 
             GameLogger.logTypes = logTypes;

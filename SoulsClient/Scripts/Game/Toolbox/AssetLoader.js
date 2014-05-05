@@ -1,6 +1,3 @@
-http://buzz.jaysalvat.com/documentation/buzz/
-
-
     define("asset", ["pixi", "soundjs"], function (Pixi, SoundJS) {
 
         function Asset() {
@@ -105,12 +102,12 @@ http://buzz.jaysalvat.com/documentation/buzz/
 
             // Card Portraits
             CARD_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Card/Portraits/0.png",
-            CARD_PORTRAIT_ONE: Asset.Path.Textures + "Card/Portraits/1.png",
+            /*CARD_PORTRAIT_ONE: Asset.Path.Textures + "Card/Portraits/1.png",
             CARD_PORTRAIT_TWO: Asset.Path.Textures + "Card/Portraits/2.png",
             CARD_PORTRAIT_THREE: Asset.Path.Textures + "Card/Portraits/3.png",
             CARD_PORTRAIT_FOUR: Asset.Path.Textures + "Card/Portraits/4.png",
             CARD_PORTRAIT_FIVE: Asset.Path.Textures + "Card/Portraits/5.png",
-            CARD_PORTRAIT_SIX: Asset.Path.Textures + "Card/Portraits/6.png",
+            CARD_PORTRAIT_SIX: Asset.Path.Textures + "Card/Portraits/6.png",*/
 
             // Player Portraits
             PLAYER_PORTRAIT_UNKNOWN: Asset.Path.Textures + "Player/Portraits/0.png",

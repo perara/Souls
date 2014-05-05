@@ -31,9 +31,10 @@
             <td>@item.rank</td>
             <td>@item.created</td>
             <td class="player-status" style="font-weight:bold;color:red;">Offline</td>
+            <td><button class="btn btn-default btn-sm kick" value="@item.id">Kick</button> <button class="btn btn-default btn-sm ban" value="@item.id">Ban</button> <button class="btn btn-default btn-sm reset" value="@item.id">Reset</button><div id="datepicker-@item.id" style="display:none;"></div></td>
         </tr>
 
-             
+
 
     }
 
@@ -45,35 +46,150 @@
 
 <script>
 
-
-    // var socket = new WebSocket('ws://tux.persoft.no:8140');
+    ///////////////////////////////////////////////////////////////////
+    /// Code Implementation // Socket /////////////////////////////////
+    //////////////////////////////////////////////////////////////////
     var socket = new WebSocket('ws://tux.persoft.no:8140/admin');
 
-    setTimeout(function () {
+    var messageQueue = new Array();
+    QueueProcessor();
 
-        socket.send(
-        JSON.stringify({
+    // Input Takes in a message, strigifies it and sends it to socket.
+    function Send(message) {
+        socket.send(JSON.stringify(message));
+    }
+
+    // Processes the socket queue
+    function QueueProcessor() {
+        setInterval(function () {
+            if (messageQueue.length > 0 && socket.readyState == socket.OPEN) {
+                var message = messageQueue.shift();
+                Send(message);
+                console.log("Sent: " + message)
+            }
+        }, 50);
+    }
+
+    function AddMessageQueue(message) {
+        messageQueue.push(message);
+    }
+
+    ///////////////////////////////////////////////////////////////
+    /// Code Start
+    ///////////////////////////////////////////////////////////////
+    function Request_Login() {
+        AddMessageQueue({
             Type: 1,
             Payload: {
                 hash: '@Souls.Client.Classes.cSession.Current.login.hash'
             }
-        }));
+        });
+    }
 
-    }, 1000);
-
-    setTimeout(function () {
-
-        socket.send(
-        JSON.stringify({
+    function Request_OnlineUsers() {
+        AddMessageQueue({
             Type: 2,
+            Payload: {}
+        });
+
+    }
+
+    function Request_Kick(pId) {
+        AddMessageQueue({
+            Type: 6,
             Payload: {
-                
+                pId: pId
             }
-        }));
+        });
+    }
 
-    }, 1500);
+    function Request_Ban(pId, until) {
+        AddMessageQueue({
+            Type: 5,
+            Payload: {
+                pId: pId,
+                until: until
+            }
+        });
+    }
+
+    function Request_Reset(pId) {
+        AddMessageQueue({
+            Type: 7,
+            Payload: {
+                pId: pId
+            }
+        });
+    }
+
+    Request_Login();
+    Request_OnlineUsers();
 
 
+    ///////////////////////////////////////////
+    /// Bind Kick/Ban/Reset events
+    ////////////////////////////////////////////
+
+    $(".kick").on("click", function () {
+        var pId = $(this).val();
+        Request_Kick(pId);
+        location.reload();
+    })
+
+    // Show Datepicker
+    $(".ban").on("click", function () {
+        var pid = $(this).val();
+        var datePicker = $("#datepicker-" + $(this).val());
+        datePicker.css("display", "block");
+
+        datePicker.dialog(
+            {
+                buttons: {
+                    Select: function () {
+                        var banDate = datePicker.datepicker('getDate');
+                        Request_Ban(pid, banDate);
+                        $(this).dialog("close");
+                        location.reload();
+                    }
+                }
+            });
+
+        $("#datepicker-" + $(this).val()).datepicker({ minDate: new Date()});
+
+        $(".ui-dialog-titlebar").hide(); // Hide titlebar
+    })
+
+    $(".reset").on("click", function () {
+        var pid = $(this).val();
+        Request_Reset(pid)
+        location.reload();
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    setInterval(function () {
+        Request_OnlineUsers();
+    }, 5000);
+
+
+
+    ////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////
     socket.onerror = function (error) {
         console.log('WebSocket Error: ' + error);
 
@@ -89,28 +205,26 @@
         var payload = data.Payload;
         var type = data.Type;
 
-     
-        if(type == 2)
-        {
 
-            $.each(payload, function (key,value) {
+        if (type == 2) { // Response Online Players
 
-               
+            // Reset all to offline
+            $("td.player-status").each(function (value) {
                 var td = $("#_" + value + " td.player-status")
-                
+                td.css("font-weight", "bold");
+                td.css("color", "red");
+                td.html("Offline");
+            });
+
+            // Turn those which is online to online
+            $.each(payload, function (key, value) {
+                var td = $("#_" + value + " td.player-status")
                 td.css("font-weight", "bold");
                 td.css("color", "green");
                 td.html("Online");
-
-
             });
 
-           
-
-
-        }
-
-
+        } // Type 2 end
     };
 
 

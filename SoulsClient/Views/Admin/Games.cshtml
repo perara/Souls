@@ -4,36 +4,14 @@
 }
 
 <h2>Games</h2>
+<div class="col-lg-12">
+    @Html.Partial("~/Views/Shared/Partials/GameStats.cshtml")
+</div>
 
 
 
 
 <script>
-
-
-    // var socket = new WebSocket('ws://tux.persoft.no:8140');
-    var socket = new WebSocket('ws://tux.persoft.no:8140/admin');
-
-
-    socket.onerror = function (error) {
-        console.log('WebSocket Error: ' + error);
-        callback(error);
-    };
-
-    socket.onopen = function (event) {
-        //console.log("Connection OPEN");
-        callback(event);
-    };
-
-    socket.onmessage = function (event) {
-        callback(event);
-    };
-
-
-    socket.onclose = function (event) {
-        console.log("Closed WebSocket");
-    };
-
 
 
 

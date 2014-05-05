@@ -13,6 +13,7 @@ using Souls.Server.Game;
 using Souls.Server.Network;
 using Souls.Model.Helpers;
 using System.Diagnostics;
+using Souls.Server.Chat;
 
 
 namespace Souls.Server.Game
@@ -167,9 +168,107 @@ namespace Souls.Server.Game
                 }
 
             }
+        }
+
+        /// <summary>
+        /// Determines weither the game is running or not. If its not running, a Message will be sent to the requester with Victory or Defeat
+        /// </summary>
+        /// <param name="gPlayer"> The gme player</param>
+        /// <returns></returns>
+        public void EndGame(bool isDraw)
+        {
+            Player player = players.First;
+            Player opponent = players.Second;
+
+            // Log winner
+            GameLogger.LogTypes gameEndType = (isDraw) ? GameLogger.LogTypes.DRAW : GameLogger.LogTypes.WON;
+            player.gPlayer.gameRoom.logger.Add(
+                GameLogger.logTypes[gameEndType],
+                player.gPlayer.gameRoom.winner.id,
+                player.gPlayer.gameRoom.winner.GetOpponent().id,
+                "Player",
+                "Player"
+                );
+
+            // Publish to DB
+            player.gPlayer.gameRoom.SaveGameRoom();
+            player.gPlayer.gameRoom.logger.Publish();
+
+            // Add Winner Points
+            if (!isDraw)
+            {
+                player.gPlayer.gameRoom.winner.GiveWinnerPoints(1);
+            }
+
+
+            // Create Responses
+            Response pResponse = new Response((player.gPlayer.gameRoom.winner == player) ?
+                    GameService.GameResponseType.GAME_VICTORY :
+                    GameService.GameResponseType.GAME_DEFEAT,
+                    new JObject(
+                        new JProperty("statistics", player.gPlayer.gameRoom.gameId)
+                    )
+                );
+
+            Response oppResponse = new Response((opponent.gPlayer.gameRoom.winner == opponent) ?
+                    GameService.GameResponseType.GAME_VICTORY :
+                    GameService.GameResponseType.GAME_DEFEAT,
+                    new JObject(
+                        new JProperty("statistics", opponent.gPlayer.gameRoom.gameId)
+                    )
+                );
+
+            // Check if draw
+            if (isDraw)
+            {
+                pResponse.Type = GameService.GameResponseType.GAME_DRAW;
+                oppResponse.Type = GameService.GameResponseType.GAME_DRAW;
+            }
+
+
+            // Send Responses
+            player.gameContext.SendTo(
+                pResponse
+            );
+
+            opponent.gameContext.SendTo(
+                oppResponse
+            );
+
+            if (opponent.isBot) opponent.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_BOT_DISCONNECT, "xD Bot disconnect"));
+            if (player.isBot) player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_BOT_DISCONNECT, "xD Bot disconnect"));
 
 
 
+            //////////////////////////////////////////////////////////////////////////
+            // CLEANUP 
+            //////////////////////////////////////////////////////////////////////////
+            player.gPlayer.gameRoom.isEnded = true;
+            player.gPlayer = null;
+            opponent.gPlayer = null;
+
+            foreach (var room in player.chPlayer.memberRooms)
+            {
+                ChatEngine.chatRooms.Remove(room.Key);
+            }
+            player.chPlayer.memberRooms.Clear();
+            opponent.chPlayer.memberRooms.Clear();
+            player.chPlayer = null;
+            opponent.chPlayer = null;
+
+
+            Player trash;
+            Clients.GetInstance().chatList.TryRemove(player.chatContext, out trash);
+            Clients.GetInstance().chatList.TryRemove(opponent.chatContext, out trash);
+            Clients.GetInstance().gameList.TryRemove(player.gameContext, out trash);
+            Clients.GetInstance().gameList.TryRemove(opponent.gameContext, out trash);
+
+
+            Console.WriteLine("----------SUMMARY---------");
+            Console.WriteLine("Game Rooms: " + GameEngine.rooms.Count);
+            Console.WriteLine("Chat Rooms: " + ChatEngine.chatRooms.Count);
+            Console.WriteLine("Chat Clients:" + Clients.GetInstance().chatList.Count);
+            Console.WriteLine("Game Clients: " + Clients.GetInstance().gameList.Count);
         }
 
 

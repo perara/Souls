@@ -121,6 +121,11 @@
             players.Where(x => x.id == logItem.obj1id).First().name,
             players.Where(x => x.id == logItem.obj2id).First().name);
             }
+            else if (logItem.gameLogType.title == "KICKED")
+            {
+                @String.Format(logItem.gameLogType.text, players.Where(x => x.id == logItem.obj1id).First().name);
+            }
+
 
 
 

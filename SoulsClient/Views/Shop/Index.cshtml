@@ -83,7 +83,7 @@
 
         <td>
             <div class="card-container @((card.vendor_price == 1000000) ? "card-deactivated" : "card-active")" id="card_@card.id" style="background-image: url('@ViewBag.races[card.race.id]');">
-                <div class="card-portrait card-noselect" style="background-image: url('/Content/Images/Card/Portraits/@(card.id).png');"></div>
+                <div class="card-portrait card-noselect" style="background-image: url('@(card.portrait)');"></div>
                 <div class="card-cost card-noselect">@card.cost</div>
                 <div class="card-name card-noselect">@card.name</div>
                 <div class="card-ability card-noselect">@card.ability.name</div>

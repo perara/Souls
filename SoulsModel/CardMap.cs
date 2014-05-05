@@ -22,6 +22,7 @@ namespace Souls.Model.Maps {
 			Map(x => x.cost).Column("cost").Not.Nullable();
             Map(x => x.vendor_price).Column("vendor_price").Not.Nullable();
             Map(x => x.level).Column("level").Not.Nullable();
+            Map(x => x.portrait).Column("portrait");
         }
     }
 }

@@ -86,6 +86,7 @@ namespace Souls.Server.Network
             LOGIN_NO_HASH = 11,
             LOGIN_WRONG_HASH = 12,
             LOGIN_NOT_LOGGED_IN = 13,
+            LOGIN_BANNED = 14,
         }
 
 

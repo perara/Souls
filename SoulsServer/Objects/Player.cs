@@ -166,6 +166,28 @@ namespace Souls.Server.Objects
 
         }
 
+        public bool isBanned()
+        {
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                var banRecords = session.Query<PlayerBans>()
+                    .Where(x => x.player == this)
+                    .ToList();
+
+                foreach(var ban in banRecords)
+                {
+                    // IF the ban expired
+                    if(ban.until > DateTime.Now)
+                    {
+                        return true;
+                    }
+                    
+
+                }
+            }
+            return false;
+
+        }
 
         /// <summary>
         /// Fetches new hash from the Database

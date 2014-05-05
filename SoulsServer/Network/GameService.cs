@@ -195,10 +195,10 @@ namespace Souls.Server.Network
             player.hash = hash;
             player.gameContext = this;
             bool success = player.FetchPlayerInfo();
+            bool isBanned = player.isBanned();
 
 
-
-            if (success)
+            if (success && !isBanned)
             {
                 Clients.GetInstance().gameList.TryAdd(this, player);
 
@@ -208,6 +208,12 @@ namespace Souls.Server.Network
 
                 this.loggedIn = true;
 
+            }
+            else // Did not successfully login, Closing (May be banned or it failed to fetch player)
+            {
+                if (isBanned) Logging.Write(Logging.Type.ERROR, "Client: " + Context.UserEndPoint + " is [BANNED].");
+                SendTo(new Response(SERVICE_RESPONSE.LOGIN_BANNED, "You are banned!"));
+                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "No Hash");
             }
 
         }
@@ -272,7 +278,8 @@ namespace Souls.Server.Network
                 {
                     if ((p.isBot || p.GetOpponent().isBot) || (p.gPlayer.gameRoom.watch.Elapsed.Minutes > 60)) // One of the players must be a bot OR the game has expired (1 hour)
                     {
-                        this.engine.EndGame(p.gPlayer.gameRoom.players, true);
+                        p.gPlayer.gameRoom.winner = p.GetOpponent();
+                        p.gPlayer.gameRoom.EndGame(true);
                     }
                 }
 

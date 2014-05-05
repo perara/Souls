@@ -15,7 +15,7 @@
         this.message = Message;
 
         /// Game 
-        this.RegisterResponseAction(["11", "12", "13"], Response_NotLoggedIn);
+        this.RegisterResponseAction(["11", "12", "13","14"], Response_NotLoggedIn);
         this.RegisterResponseAction(["10"], Response_LoggedIn);
         this.RegisterResponseAction(["100"], Response_QueueOK);
         this.RegisterResponseAction(["206", "220"], Response_GameCreate);
@@ -190,7 +190,16 @@
     } // -- Function end
 
     function Response_NotLoggedIn(json) {
-        console.log((arguments.callee.name) + ": NOT LOGGED IN resp : ");
+        
+        var type = json.Type;
+        var payload = json.Payload;
+
+        //"11", "12", "13", "14"
+
+        if(type == 14) // LOGIN_BANNED 
+        {
+            that.engine.queue.SetText("You are banned!");
+        }
 
     }
 

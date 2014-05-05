@@ -18,5 +18,6 @@ namespace Souls.Model {
         public virtual int cost { get; set; }
         public virtual int vendor_price { get; set; }
         public virtual int level { get; set; }
+        public virtual string portrait { get; set; }
     }
 }
