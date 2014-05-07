@@ -107,13 +107,13 @@ define('conf', ['/Player/hash?callback=define', '/Card/CardTextures?callback=def
         this.FPS = 60;
         this.hash = define.hash;
 
-        console.log(CardType);
+       // console.log(CardType);
         $.each(cards.data, function (key, value) {
 
             CardType.Portrait[value.id] = value.portrait;
             Asset.Textures[value.id] = value.portrait;
         });
-        console.log(CardType.Portrait);
+       // console.log(CardType.Portrait);
 
 
         /*$.each(cards, function () {
@@ -166,6 +166,15 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
 
         $(".page-wrapper").remove();
         $("body").append(gameWindow);
+
+        // Deactivate right click menu
+        var blockContextMenu = function (evt) {
+            evt.preventDefault();
+        };
+
+        // window = document.querySelector('#game-window');
+        window.addEventListener('contextmenu', blockContextMenu);
+
 
         // Set current state to LOAD
         Conf.currentState = Gamestate.LOADING;
@@ -263,21 +272,6 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         practiceGame.y = (Conf.height / 2);
         this.stage.addChild(practiceGame);
 
-        practiceGame.click = practiceGame.tap = function (mouseData) {
-            gameEngine = new Game(false);
-            Conf.currentState = Gamestate.GAME;
-        }
-
-        practiceGame.mouseover = function (mouseData) {
-            practiceGame.scale.x = 0.8;
-            practiceGame.scale.y = 0.8;
-
-        }
-        practiceGame.mouseout = function (mouseData) {
-            practiceGame.scale.x = 0.5;
-            practiceGame.scale.y = 0.5;
-        }
-
         var normalTexture = Pixi.Texture.fromImage("/Content/Images/normal_game.png");
         normalTexture.width = 200;
         normalTexture.height = 150;
@@ -290,7 +284,43 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         normalGame.y = (Conf.height / 2);
         this.stage.addChild(normalGame);
 
+        // Workaround since interactive = false dont work properly?
+        function clearInteractive()
+        {
+            practiceGame.interactive = false; // Should work (Doesnt)
+            that.stage.removeChild(practiceGame); // Should ALSO work (Doesnt)
+            practiceGame.click = practiceGame.tap = undefined; // Holy Fuck, i give up
+
+            normalGame.interactive = false; // Should work (Doesnt)
+            that.stage.removeChild(normalGame); // Should ALSO work (Doesnt)
+            normalGame.click = normalGame.tap = undefined; // Holy Fuck, i give up
+
+        }
+
+
+        var that = this;
+        practiceGame.click = practiceGame.tap = function (mouseData) {
+            clearInteractive();
+
+            gameEngine = new Game(false);
+            Conf.currentState = Gamestate.GAME;
+
+        }
+
+        practiceGame.mouseover = function (mouseData) {
+            practiceGame.scale.x = 0.8;
+            practiceGame.scale.y = 0.8;
+
+        }
+        practiceGame.mouseout = function (mouseData) {
+            practiceGame.scale.x = 0.5;
+            practiceGame.scale.y = 0.5;
+        }
+
         normalGame.click = normalGame.tap = function (mouseData) {
+            clearInteractive();
+
+
             gameEngine = new Game(true);
             Conf.currentState = Gamestate.GAME;
         }
