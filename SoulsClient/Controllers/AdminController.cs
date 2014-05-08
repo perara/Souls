@@ -65,7 +65,7 @@ namespace SoulsClient.Controllers
 
 
                     if (id == 0)
-                        return RedirectToAction("Users");
+                        return RedirectToAction("Players");
 
 
                     for (int i = 0; i < 50; i++)
