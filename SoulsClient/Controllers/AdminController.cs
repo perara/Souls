@@ -54,20 +54,20 @@ namespace SoulsClient.Controllers
                     List<Card> cards = session.Query<Card>().ToList();
 
                     List<Player> examplePlayersOld = session.Query<Player>().Where(x => x.name.Contains("Example")).ToList();
-         
-                        foreach(var item in examplePlayersOld)
-                        {
-                            session.Delete(item);
-                        }
 
-                    if(examplePlayersOld.Count > 0)
+                    foreach (var item in examplePlayersOld)
+                    {
+                        session.Delete(item);
+                    }
+
+                    if (examplePlayersOld.Count > 0)
                         transaction.Commit();
 
 
-                    if(!fullBodyWash)
+                    if (!fullBodyWash)
                         return RedirectToAction("Users");
-      
-               
+
+
                     for (int i = 0; i < 50; i++)
                     {
                         Player p = new Player();
@@ -368,6 +368,7 @@ namespace SoulsClient.Controllers
             }
             catch (OutOfMemoryException ex)
             {
+                ex.ToString();
                 // Image.FromFile will throw this if file is invalid.
                 // Don't ask me why.
                 return false;

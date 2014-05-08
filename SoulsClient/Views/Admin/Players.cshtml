@@ -38,7 +38,7 @@
                 @item.playerPermission.name
 
                 <!-- Combo box-->
-                <form method="post" , action="/Admin/ChangePermission">
+                <form method="post" action="/Admin/ChangePermission">
                     <select name="select" id="select-permission-@item.id" class="select-permission">
                         <option selected disabled>Please Choose</option>
                         @foreach (var permission in ViewBag.permissions)

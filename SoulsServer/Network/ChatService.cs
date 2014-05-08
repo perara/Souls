@@ -132,7 +132,7 @@ namespace Souls.Server.Network
             }
         }
 
-        public void Login()
+        public override void Login()
         {
             string hash = this.payload["hash"].ToString();
 
