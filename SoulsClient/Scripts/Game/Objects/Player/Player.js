@@ -12,10 +12,21 @@
         this.isClicked = false;
         var that = this;
         this.mousedown = function (mouseData) {
-            that.isClicked = true;
+            var event = mouseData.originalEvent;
+            var leftClick = (event.which == 1) ? true : false;
+            var rightClick = (event.which == 3) ? true : false;
+            this.rightClick = rightClick;
+
+            if(!rightClick)
+                that.isClicked = true;
         }
 
         this.mouseup = this.mouseupoutside = function (mouseData) {
+            var event = mouseData.originalEvent;
+            var leftClick = (event.which == 1) ? true : false;
+            var rightClick = (event.which == 3) ? true : false;
+            this.rightClick = rightClick;
+
             that.isClicked = false;
 
             // Reset arrow.
@@ -53,7 +64,12 @@
 
             // if no card attack found - do opponent attack
             if (isArrowAction && !isAttackingC)
-                var isAttackingP = this.arrow.PlayerAttackCheck(this.holdingCard);
+                var isAttackingOpp = this.arrow.PlayerAttackCheck(this.holdingCard, this.engine.opponent);
+
+            // Check if hovering Player WITH right CLICK
+            if (isArrowAction && !isAttackingC && !isAttackingOpp && !!this.holdingCard.rightClick)
+                var isAttackingP = this.arrow.PlayerAttackCheck(this.holdingCard, this.engine.player);
+           
 
         }
 
@@ -67,7 +83,7 @@
 
             // if no card attack found - do opponent attack
             if (isArrowAction && !isAttackingC)
-                var isAttackingP = this.arrow.PlayerAttackCheck(this);
+                var isAttackingOpp = this.arrow.PlayerAttackCheck(this, this.engine.opponent);
 
         }
 
@@ -118,7 +134,7 @@
     /// </summary>
     Player.prototype.CheckAttack = function () {
         // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
-        if (!!this.target) {
+        if (!!this.target && !this.rightClick) {
 
             if (this.target == this.engine.opponent) {
                 this.engine.gameService.Request_Attack(this, this.target, 3);

@@ -9,9 +9,12 @@ using Souls.Model;
 using System.IO;
 using Microsoft.Ajax.Utilities;
 using System.Drawing;
+using SoulsClient.Classes;
 
 namespace SoulsClient.Controllers
 {
+
+    [AuthorizeUserAttribute(AccessLevel = 4)]
     public class AdminController : Controller
     {
         //
@@ -19,22 +22,59 @@ namespace SoulsClient.Controllers
         public ActionResult Players()
         {
 
-            List<Player> players;
             using (var session = NHibernateHelper.OpenSession())
             {
-                players = session.Query<Player>().ToList();
+
+                // Fetch Players
+                List<Player> players = session.Query<Player>()
+                     .Fetch(x => x.playerPermission)
+                     .ToList();
+                ViewBag.players = players;
+
+                List<PlayerPermission> permissions = session.Query<PlayerPermission>().ToList();
+                ViewBag.permissions = permissions;
+            }
+
+
+            return View();
+        }
+
+        public ActionResult ChangePermission(FormCollection form)
+        {
+
+            int userId = int.Parse(form["userid"]);
+            int permission = int.Parse(form["select"]);
+
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                using (var transaction = session.BeginTransaction())
+                {
+
+                    var user = session.Query<Player>().Where(x => x.id == userId).FirstOrDefault();
+                    if (user == null) return RedirectToAction("Players"); // Nothhing happens
+
+                    user.playerPermission = session.Query<PlayerPermission>().Where(x => x.id == permission).FirstOrDefault();
+
+                    session.Update(user);
+
+                    transaction.Commit();
+
+
+                }
             }
 
 
 
 
-            ViewBag.players = players;
-            return View();
+            return RedirectToAction("Players");
         }
+
+
         public ActionResult Games()
         {
             return View();
         }
+
         public ActionResult CardEditor(int? id)
         {
             Card c = null;
@@ -74,10 +114,15 @@ namespace SoulsClient.Controllers
             return View(c);
         }
 
+        public ActionResult News()
+        {
+            return View();
+        }
+
         [HttpPost]
         public ActionResult CardEditor(Card c, FormCollection form)
         {
-            
+
 
             using (var session = NHibernateHelper.OpenSession())
             {
@@ -109,26 +154,26 @@ namespace SoulsClient.Controllers
         public JsonResult Upload()
         {
             if (Request.Files.Count == 0) return Json(new { data = "x" });
-            
+
 
             var file = Request.Files[0];
             string retData = "NULL";
             var extension = Path.GetExtension(file.FileName);
 
-            
+
             // extract only the fielname
             var fileName = Path.GetFileName(file.FileName);
             // store the file inside ~/App_Data/uploads folder
 
             string date = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-            var path = Path.Combine(Server.MapPath("~/Content/Uploads"), date + "_" + fileName);    
+            var path = Path.Combine(Server.MapPath("~/Content/Uploads"), date + "_" + fileName);
             file.SaveAs(path);
             if (!IsValidImage(path))
             {
                 System.IO.File.Delete(path);
                 return Json(new { data = "xx" });
             }
-           
+
 
             retData = "/Content/Uploads/" + date + "_" + fileName;
 

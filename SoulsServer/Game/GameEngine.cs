@@ -15,6 +15,7 @@ using NHibernate.Linq;
 using Souls.Server.Network;
 using Souls.Model.Helpers;
 using Souls.Server.Chat;
+using SoulsServer.Objects.Abilities;
 
 
 namespace Souls.Server.Game
@@ -723,7 +724,7 @@ namespace Souls.Server.Game
 
 
                 bool isDraw = (requestPlayer.isDead && opponent.isDead);
-               
+
 
                 player.gPlayer.gameRoom.EndGame(isDraw);
             }
@@ -731,6 +732,175 @@ namespace Souls.Server.Game
 
 
         }
+
+        /// <summary>
+        /// Requests a ability usage
+        /// </summary>
+        /// <param name="player">The Request Player</param>
+        public void Request_UseAbility(Player player)
+        {
+
+            //////////////////////////////////////////////////////////////////////////
+            // Check players turn
+            //////////////////////////////////////////////////////////////////////////
+            if (!player.gPlayer.IsPlayerTurn())
+            {
+                // Send a error message, that its not players turn
+                player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_NOT_YOUR_TURN,
+                new JObject(
+                    new JProperty("error", "Not your turn!")
+                    )));
+
+                return;
+            }
+
+            // Card on Card = 0
+            // Card on Player = 1 (Friendly Player)
+            // Card on Opponent = 2 (Opponent)
+            int source = int.Parse(player.gameContext.payload["source"].ToString());
+            int target = int.Parse(player.gameContext.payload["target"].ToString());
+            int type = int.Parse(player.gameContext.payload["type"].ToString());
+            int abilityId = int.Parse(player.gameContext.payload["abilityId"].ToString());
+
+            Heal heal = new Heal(player);
+            Sacrifice sacrifice = new Sacrifice(player);
+            Consume consume = new Consume(player);
+
+            Card card = player.gPlayer.boardCards.Where(x => x.Value.cid == source).FirstOrDefault().Value;
+
+
+
+            // Ensure that the entity has not attacked this round
+            if (card.hasAttacked)
+            {
+                this.CannotAttackTwice(player);
+                return;
+            }
+
+
+
+            if (abilityId == 1) // Heal
+            {
+
+                if (type == 0)
+                {
+                    Card tar = player.gPlayer.boardCards.Where(x => x.Value.cid == target).FirstOrDefault().Value;
+
+                    if (tar == null)
+                    {
+                        // Error, cannot heal Opponent
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Cannot heal opponent!"));
+                        return;
+                    }
+
+                    heal.Use(card, tar);
+                }
+
+                else if (type == 1)
+                {
+                    heal.Use(card, player);
+
+
+                }
+                else if (type == 2)
+                {
+                    // Error, Cannot heal Opponent
+                    player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Cannot heal opponent!"));
+                    return;
+                }
+
+
+            }
+            else if (abilityId == 2) // Sacrifice - Sacrifices "this" and gives stats to "other"
+            {
+
+                if (type == 0)
+                {
+                    Card tar = player.gPlayer.boardCards.Where(x => x.Value.cid == target).FirstOrDefault().Value;
+                    if (tar == null)
+                    {
+                        // Error, cannot heal Opponent
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Can only target friendly!"));
+                        return;
+                    }
+
+                    if (card.Equals(tar))
+                    {
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Cannot cast on itself!"));
+                        return;
+                    }
+
+
+                    sacrifice.Use(card, tar);
+                }
+
+                else if (type == 1)
+                {
+                    sacrifice.Use(card, player);
+                }
+                else if (type == 2)
+                {
+                    // Error, Cannot heal Opponent
+                    player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Can only target friendly!"));
+                    return;
+                }
+
+            }
+            else if (abilityId == 3) // Consume 
+            {
+
+
+                if (type == 0)
+                {
+                    // Only one of these should be set
+                    Card tar1 = player.gPlayer.boardCards.Where(x => x.Value.cid == target).FirstOrDefault().Value;
+                    Card tar2 = player.gPlayer.boardCards.Where(x => x.Value.cid == target).FirstOrDefault().Value;
+
+                    if (tar1 != null && tar2 != null)
+                    {
+                        player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Cannot consume two cards"));
+                        return;
+                    }
+
+                    if (tar1 != null)
+                        consume.Use(card, tar1);
+
+                    if (tar2 != null)
+                        consume.Use(card, tar2);
+
+                }
+
+                else if (type == 1 || type == 2) // Should not be able to do it on heroes
+                {
+                    player.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Cannot use on hero!"));
+                    return;
+                }
+
+
+            }
+            else
+            {
+                // NO ability
+            }
+
+
+
+
+
+
+
+
+
+
+            Console.WriteLine("--------------");
+            Console.WriteLine(source);
+            Console.WriteLine(target);
+            Console.WriteLine(type);
+            Console.WriteLine(abilityId);
+
+
+        }
+
 
         /// <summary>
         ///  Sends a new card to the specified GamePlayer
@@ -784,8 +954,9 @@ namespace Souls.Server.Game
 
         public void CannotAttackTwice(Player p)
         {
-            p.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_CANNOT_ATTACK_TWICE, "This entity cannot attack twice!"));
+            p.gameContext.SendTo(new Response(GameService.GameResponseType.GAME_GENERAL_MESSAGE, "Cannot do that yet!"));
         }
+
 
     }
 

@@ -12,10 +12,11 @@
     <thead>
         <tr>
             <td>id</td>
-            <td>name</td>
-            <td>money</td>
-            <td>rank</td>
-            <td>created</td>
+            <td>Name</td>
+            <td>Money</td>
+            <td>Rank</td>
+            <td>Created</td>
+            <td>Permission Level</td>
         </tr>
 
 
@@ -30,8 +31,32 @@
             <td>@item.money</td>
             <td>@item.rank</td>
             <td>@item.created</td>
+            <td>
+                @item.playerPermission.name
+
+                <!-- Combo box-->
+                <form method="post" , action="/Admin/ChangePermission">
+                    <select name="select" id="select-permission-@item.id" class="select-permission">
+                        <option selected disabled>Please Choose</option>
+                        @foreach (var permission in ViewBag.permissions)
+                        {
+                            <option value="@permission.id">@permission.name</option>
+                        }
+                    </select>
+
+                    <input type="text" value="@item.id" style="display:none" name="userid" class="user-id-@item.id">
+                    <input type="submit" value="Go" style="display:none" id="submit-permission-@item.id">
+                </form>
+
+
+            </td>
             <td class="player-status" style="font-weight:bold;color:red;">Offline</td>
-            <td><button class="btn btn-default btn-sm kick" value="@item.id">Kick</button> <button class="btn btn-default btn-sm ban" value="@item.id">Ban</button> <button class="btn btn-default btn-sm reset" value="@item.id">Reset</button><div id="datepicker-@item.id" style="display:none;"></div></td>
+            <td>
+                <button class="btn btn-default btn-sm kick" value="@item.id">Kick</button>
+                <button class="btn btn-default btn-sm ban" value="@item.id">Ban</button>
+                <button class="btn btn-default btn-sm reset" value="@item.id">Reset</button>
+                <div id="datepicker-@item.id" style="display:none;"></div>
+            </td>
         </tr>
 
 
@@ -45,6 +70,15 @@
 
 
 <script>
+
+    /// COMBO BOX stuff
+    $(".select-permission").change(function (e) {
+        e.preventDefault();
+        var id = $(this).attr("id").split("-")[2];
+        $("#submit-permission-" + id).click();
+    });
+    /// COMBO BOX stuff end
+
 
     ///////////////////////////////////////////////////////////////////
     /// Code Implementation // Socket /////////////////////////////////
@@ -154,7 +188,7 @@
                 }
             });
 
-        $("#datepicker-" + $(this).val()).datepicker({ minDate: new Date()});
+        $("#datepicker-" + $(this).val()).datepicker({ minDate: new Date() });
 
         $(".ui-dialog-titlebar").hide(); // Hide titlebar
     })

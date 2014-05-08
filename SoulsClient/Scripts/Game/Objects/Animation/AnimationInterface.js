@@ -13,7 +13,10 @@ define("iAnimation", ["jquery"], function ($) {
             MoveBack: undefined, // Move back to original position
             MoveTo: undefined, // Move to a location
             PutIn: undefined, // Put in object
-            Defend: undefined
+            Defend: undefined,
+            Heal: undefined,
+            Sacrifice: undefined,
+            GainAttack: undefined
         };
     }
 

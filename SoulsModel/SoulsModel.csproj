@@ -81,6 +81,8 @@
     <Compile Include="PlayerLogin.cs" />
     <Compile Include="PlayerLoginMap.cs" />
     <Compile Include="PlayerMap.cs" />
+    <Compile Include="PlayerPermission.cs" />
+    <Compile Include="PlayerPermissionMap.cs" />
     <Compile Include="PlayerType.cs" />
     <Compile Include="PlayerTypeMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

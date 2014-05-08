@@ -41,7 +41,7 @@
 }
 
 .image-slider-image {
-    width: 100%;
+    width: 100% !important;
     height:100%;
     background-image: url(/Content/Images/Player/Portraits/0.png);
     background-size: 100% 150px;
@@ -84,8 +84,14 @@
 }
 
 .play-now-button {
-    background: url(http://www.romecasino.com/mailers/ladyluck/images/playNow_button.png);
+    background: url(/Content/Images/Page/start.png);
     height: 150px;
+    background-size: 100% 150px;
+    background-repeat: no-repeat;
+}
+.play-now-button:hover {
+    background: url(/Content/Images/Page/start_focus.png);
+	height: 150px;
     background-size: 100% 150px;
     background-repeat: no-repeat;
 }

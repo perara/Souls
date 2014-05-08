@@ -107,13 +107,13 @@ define('conf', ['/Player/hash?callback=define', '/Card/CardTextures?callback=def
         this.FPS = 60;
         this.hash = define.hash;
 
-       // console.log(CardType);
+        // console.log(CardType);
         $.each(cards.data, function (key, value) {
 
             CardType.Portrait[value.id] = value.portrait;
             Asset.Textures[value.id] = value.portrait;
         });
-       // console.log(CardType.Portrait);
+        // console.log(CardType.Portrait);
 
 
         /*$.each(cards, function () {
@@ -133,8 +133,16 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         // Create a stage and the renderer
         this.stage = new Pixi.Stage(0x000000, true);
 
+        var textureBg = Pixi.Texture.fromImage("/Content/Images/bg_faded.png");
+        var logo = new Pixi.Sprite(textureBg);
+        logo.anchor = { x: 0, y: 0 }
+        logo.x = 0;
+        logo.y = 0;
+        logo.width = Conf.width;
+        logo.height = Conf.height;
+        this.stage.addChild(logo);
 
-        var textureLogo = Pixi.Texture.fromImage("/Content/Images/Page/Logo.png");
+        var textureLogo = Pixi.Texture.fromImage("/Content/Images/Logo.png");
         var logo = new Pixi.Sprite(textureLogo);
         logo.anchor = { x: 0.5, y: 0 }
         logo.x = (Conf.width / 2) - 50;
@@ -251,16 +259,28 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
     }
 
     function ShowGameSelect() {
+        var menuSound = Asset.GetSound(Asset.Sound.MENU);
+        menuSound.play({ loop: 9001, volume: 0.1 });
         this.stage = new Pixi.Stage(0x000000, true);
 
-        var textureLogo = Pixi.Texture.fromImage("/Content/Images/Page/Logo.png");
+        var textureBg = Asset.GetTexture(Asset.Textures.GAME_LOAD_BG);
+        var logo = new Pixi.Sprite(textureBg);
+        logo.anchor = { x: 0, y: 0 }
+        logo.x = 0;
+        logo.y = 0;
+        logo.width = Conf.width;
+        logo.height = Conf.height;
+        this.stage.addChild(logo);
+
+        var textureLogo = Asset.GetTexture(Asset.Textures.GAME_LOAD_LOGO);
         var logo = new Pixi.Sprite(textureLogo);
         logo.anchor = { x: 0.5, y: 0 }
         logo.x = (Conf.width / 2) - 50;
         logo.y = 25;
         this.stage.addChild(logo);
 
-        var practiceTexture = Pixi.Texture.fromImage("/Content/Images/practice_game.png");
+        var practiceTexture = Asset.GetTexture(Asset.Textures.GAME_LOAD_PRACTICE_OFF);
+        var practiceFocusTexture = Asset.GetTexture(Asset.Textures.GAME_LOAD_PRACTICE_ON);
         practiceTexture.width = 200;
         practiceTexture.height = 150;
         var practiceGame = new Pixi.Sprite(practiceTexture);
@@ -272,7 +292,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         practiceGame.y = (Conf.height / 2);
         this.stage.addChild(practiceGame);
 
-        var normalTexture = Pixi.Texture.fromImage("/Content/Images/normal_game.png");
+        var normalTexture = Asset.GetTexture(Asset.Textures.GAME_LOAD_PVP_OFF);
+        var normalFocusTexture = Asset.GetTexture(Asset.Textures.GAME_LOAD_PVP_ON);
         normalTexture.width = 200;
         normalTexture.height = 150;
         var normalGame = new Pixi.Sprite(normalTexture);
@@ -285,8 +306,8 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         this.stage.addChild(normalGame);
 
         // Workaround since interactive = false dont work properly?
-        function clearInteractive()
-        {
+        function clearInteractive() {
+            menuSound.stop();
             practiceGame.interactive = false; // Should work (Doesnt)
             that.stage.removeChild(practiceGame); // Should ALSO work (Doesnt)
             practiceGame.click = practiceGame.tap = undefined; // Holy Fuck, i give up
@@ -308,13 +329,11 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         }
 
         practiceGame.mouseover = function (mouseData) {
-            practiceGame.scale.x = 0.8;
-            practiceGame.scale.y = 0.8;
+            practiceGame.texture = practiceFocusTexture;
 
         }
         practiceGame.mouseout = function (mouseData) {
-            practiceGame.scale.x = 0.5;
-            practiceGame.scale.y = 0.5;
+            practiceGame.texture = practiceTexture;
         }
 
         normalGame.click = normalGame.tap = function (mouseData) {
@@ -326,13 +345,10 @@ require(['jquery', 'pixi', 'asset', 'conf', 'gamestate', 'game', 'socket', 'stat
         }
 
         normalGame.mouseover = function (mouseData) {
-            normalGame.scale.x = 0.8;
-            normalGame.scale.y = 0.8;
-
+            normalGame.texture = normalFocusTexture;
         }
         normalGame.mouseout = function (mouseData) {
-            normalGame.scale.x = 0.5;
-            normalGame.scale.y = 0.5;
+            normalGame.texture = normalTexture;
         }
 
 

@@ -1,8 +1,8 @@
 ﻿define("playerbase", ["jquery", "pixi", "asset", "iAnimation", "animation"], function ($, Pixi, Asset, AnimationInterface, Animation) {
 
-    
+
     PlayerBase = function (engine, isPlayer) {
-        var frame = (isPlayer) ? Asset.GetTexture(Asset.Textures.PLAYER_FRAME) : Asset.GetTexture(Asset.Textures.OPPONENT_FRAME); 
+        var frame = (isPlayer) ? Asset.GetTexture(Asset.Textures.PLAYER_FRAME) : Asset.GetTexture(Asset.Textures.OPPONENT_FRAME);
         Pixi.Sprite.call(this, Asset.GetTexture(Asset.Textures.PLAYER_NONE));
         this.engine = engine;
 
@@ -12,6 +12,9 @@
         this.Animation.Defend = Animation.Player.Defend;
         this.Animation.Attack = Animation.Player.Attack;
         this.Animation.CardAttack = Animation.Player.CardAttack;
+        this.Animation.Heal = Animation.General.Heal;
+        this.Animation.GainAttack = Animation.General.GainAttack;
+        this.Animation.Sacrifice = Animation.General.Sacrifice;
 
         var json = { name: "NA", attack: "NA", health: "NA", mana: "NA", type: 0 };
 
@@ -85,6 +88,11 @@
 
                 wordWrapWidth: this.width
             });
+        this.pAttackText._originalScale =
+        {
+            x: this.pAttackText.scale.x,
+            y: this.pAttackText.scale.y
+        };
         this.pAttackText.anchor = { x: 0.5, y: 1 };
         this.pAttackText.x -= this.width / 2.66;
         this.pAttackText.y += this.height / 3.2;
@@ -103,6 +111,13 @@
         this.pHealthText.anchor = { x: 0.5, y: 1 };
         this.pHealthText.x += this.width / 2.65;
         this.pHealthText.y += this.height / 3.2;
+
+        this.pHealthText._originalScale =
+        {
+            x: this.pHealthText.scale.x,
+            y: this.pHealthText.scale.y
+        };
+
 
         // Adding sprites to base
         this.addChild(this.pPortrait);
@@ -220,8 +235,7 @@
         if (text.race) {
             // this.race = text.race.id;
         }
-        if(text.type)
-        {
+        if (text.type) {
             this.pPortrait.texture = this.GetPortrait(text.type);
         }
     }
@@ -240,15 +254,13 @@
         this.scale.y = this._originalScale.y;
     }
 
-    PlayerBase.prototype.Attack = function(jsonPlayerInfo, jsonOpponentInfo, defender)
-    {
+    PlayerBase.prototype.Attack = function (jsonPlayerInfo, jsonOpponentInfo, defender) {
         var spriteGroup = this.engine.getGroup("Player-Particles");
-        
+
         var that = this;
-        var callbacks = 
+        var callbacks =
         {
-            SetHealth : function()
-            {
+            SetHealth: function () {
                 that.SetText(
                     {
                         health: jsonPlayerInfo.health
@@ -267,10 +279,19 @@
 
     }
 
-    PlayerBase.prototype.CardAttack = function (jsonPlayerInfo, jsonOpponentInfo, attacker,defender) {
-    
+    // Heals *this* for {amount} health
+    PlayerBase.prototype.Heal = function (health, src) {
+        this.Animation.Heal(this.pHealthText);
+        this.SetText({ health: health });
+    }
 
-        
+    PlayerBase.prototype.AddAttack = function (attack, src) {
+        this.Animation.GainAttack(this.pAttackText);
+        this.SetText({ attack: attack });
+    }
+
+    PlayerBase.prototype.CardAttack = function (jsonPlayerInfo, jsonOpponentInfo, attacker, defender) {
+
         var callbacks =
         {
             SetHealth: function () {

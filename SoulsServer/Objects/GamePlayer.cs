@@ -82,7 +82,7 @@ namespace Souls.Server.Objects
             this.health -= defCard.attack;
 
             if (this.health < 1) this.playerDie();
-            if (defCard.health < 1) defCard.cardDie();
+            if (defCard.health < 1) defCard.CardDie();
 
             this.hasAttacked = true;
         }

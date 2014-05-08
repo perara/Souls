@@ -47,12 +47,12 @@ namespace Souls.Server.Objects
 
             if (this.health < 1)
             {
-                this.cardDie();
+                this.CardDie();
             }
 
             if (defender.health < 1)
             {
-                defender.cardDie();
+                defender.CardDie();
             }
 
             this.hasAttacked = true;
@@ -63,7 +63,7 @@ namespace Souls.Server.Objects
             defender.health -= this.attack;
             this.health -= defender.attack;
 
-            if (this.health < 1) this.cardDie();
+            if (this.health < 1) this.CardDie();
             if (defender.health < 1) defender.playerDie();
 
             this.hasAttacked = true;
@@ -75,14 +75,14 @@ namespace Souls.Server.Objects
             foreach (Card card in defenders)
             {
                 card.health -= this.attack;
-                if (card.health < 1) card.cardDie();
+                if (card.health < 1) card.CardDie();
             }
 
             this.hasAttacked = true;
         }
 
         // Removes a specific card only if used
-        public void cardDie()
+        public void CardDie()
         {
             this.isDead = true;
         }

@@ -23,8 +23,6 @@
             this.CardType = CardType;
 
             // Card Animation
-
-
             this.Animation = new AnimationInterface();
             this.Animation.Attack = Animation.Card.Attack;
             this.Animation.Death = Animation.Card.Death;
@@ -32,6 +30,9 @@
             this.Animation.MoveTo = undefined; //TODO
             this.Animation.Defend = Animation.Card.Defend;
             this.Animation.PutIn = Animation.Card.PutInSlot;
+            this.Animation.Heal = Animation.General.Heal;
+            this.Animation.GainAttack = Animation.General.GainAttack;
+            this.Animation.Sacrifice = Animation.General.Sacrifice;
 
             // Create a global tunnel to "this" object
             that = this;
@@ -68,6 +69,7 @@
             this.id = (!!jsonData.id) ? jsonData.id : 0;
             this.race = (!!jsonData.race) ? jsonData.race.id : 0;
             this.isDead = false;
+            this.abilityId = (!!jsonData.ability) ? jsonData.ability.id : undefined,
 
             //this.SetText({ race:  });
 
@@ -97,12 +99,13 @@
             this.cardFlipped = false;
             this.target = undefined;
             this.antiSpam = true;
+            this.rightClick = undefined;
 
 
         };
         // Global order counter
         Card.counter = 0;
-        
+
         // Constructor
         Card.prototype = Object.create(pixi.Sprite.prototype);
         Card.prototype.constructor = Card;
@@ -173,7 +176,7 @@
             this.frontCard.addChild(this.portrait);
 
             // CardFactory Health Label
-            var txtHealth = new pixi.Text(this.health,
+            this.txtHealth = new pixi.Text(this.health,
                 {
                     font: "45px Arial",
                     fill: "white",
@@ -181,11 +184,17 @@
                     strokeThickness: 4,
                     align: "left"
                 });
-            txtHealth.anchor = { x: 0.5, y: 0.0 };
+            this.txtHealth.anchor = { x: 0.5, y: 0.0 };
 
-            txtHealth.position.x = (this.frontCard.width) - (15 * this.health.length) + 3;
-            txtHealth.position.y = (this.frontCard.height) - (txtHealth.height) - 2;
-            this.texts.health = txtHealth;
+            this.txtHealth._originalScale =
+            {
+                x: this.txtHealth.scale.x,
+                y: this.txtHealth.scale.y
+            };
+
+            this.txtHealth.position.x = (this.frontCard.width) - (15 * this.health.length) + 3;
+            this.txtHealth.position.y = (this.frontCard.height) - (this.txtHealth.height) - 2;
+            this.texts.health = this.txtHealth;
 
             // CardFactory Mana Label
             var txtCost = new pixi.Text(this.cost,
@@ -200,17 +209,22 @@
             this.texts.cost = txtCost;
 
             // CardFactory Attack Label
-            var txtAttack = new pixi.Text(this.attack,
+            this.txtAttack = new pixi.Text(this.attack,
                 {
                     font: "45px Arial",
                     fill: "white",
                     stroke: '#000000',
                     strokeThickness: 4
                 });
-            txtAttack.anchor = { x: 0, y: 0 };
-            txtAttack.position.x = -(this.frontCard.width) + 10;
-            txtAttack.position.y = (this.frontCard.height) - (txtAttack.height);
-            this.texts.attack = txtAttack;
+            this.txtAttack._originalScale =
+            {
+                x: this.txtAttack.scale.x,
+                y: this.txtAttack.scale.y
+            };
+            this.txtAttack.anchor = { x: 0, y: 0 };
+            this.txtAttack.position.x = -(this.frontCard.width) + 10;
+            this.txtAttack.position.y = (this.frontCard.height) - (this.txtAttack.height);
+            this.texts.attack = this.txtAttack;
 
             // CardFactory Ability Label
             var txtAbility = new pixi.Text(this.ability,
@@ -240,11 +254,14 @@
             txtName.y = -(this.frontCard.height) + 30
             this.texts.name = txtName;
 
-            this.frontCard.addChild(txtHealth);
+            this.frontCard.addChild(this.txtHealth);
             this.frontCard.addChild(txtCost);
-            this.frontCard.addChild(txtAttack);
+            this.frontCard.addChild(this.txtAttack);
             this.frontCard.addChild(txtAbility);
             this.frontCard.addChild(txtName);
+
+
+
 
         }
 
@@ -506,6 +523,28 @@
             } // On complete end
         } // PutInSlot end
 
+
+
+        // Heals *this* for {amount} health
+        Card.prototype.Heal = function (health, src) {
+            this.Animation.Heal(this.txtHealth);
+            this.SetText({ health: health });
+        }
+
+        Card.prototype.AddAttack = function (attack, src) {
+            this.Animation.GainAttack(this.txtAttack);
+            this.SetText({ attack: attack });
+        }
+
+        Card.prototype.Sacrifice = function (data, tar) {
+            var health = data.split(":")[0];
+            var attack = data.split(":")[1];
+
+            tar.Heal(health, this);
+            tar.AddAttack(attack, this);
+            this.Animation.Sacrifice(this, tar);
+        }
+
         /// <summary>
         /// Processes the Card
         /// </summary>
@@ -523,7 +562,6 @@
             // Check if player hovers a card
             this.OnHoverEffects();
 
-
         }
 
         /// <summary>
@@ -531,22 +569,36 @@
         /// (This is called on mouseRelease). If its set trigger a rquest Attack to the server.
         /// </summary>
         Card.prototype.CheckAttack = function () {
-            // If a card attack is set (Should not be set unless a player releases the mouse over a enemy card)
-            if (!!this.target) {
 
-                if (this.target == this.engine.opponent) {
-                    this.engine.gameService.Request_Attack(this, this.target, 1);
-                }
-                else // Must be a card
-                {
-                    this.engine.gameService.Request_Attack(this, this.target, 0);
+            // If a object is set as "target" on "this" card, AND leftClick is done, We do attack
+            if (!!this.target && !this.rightClick) {
 
-                }
-
-                this.target.ScaleDown();
-                this.target = undefined;
+                var isTargetOpponent = (this.target == this.engine.opponent) ? 1 : 0;
+                this.engine.gameService.Request_Attack(this, this.target, isTargetOpponent);
 
             }
+
+                // If a object is set as "target" on "this" card, and rightClick is done, We will do ability on "target"
+            else if (!!this.target && this.rightClick) {
+
+
+                // Card on Card = 0
+                // Card on Player = 1 (Friendly Player)
+                // Card on Opponent = 2 (Opponent)
+                var isTargetPlayer = (this.target == this.engine.player) ? 1 : 0;
+                var isTargetOpponent = (this.target == this.engine.opponent) ? 2 : 0;
+                var type = 0 + isTargetPlayer + isTargetOpponent
+
+                this.engine.gameService.Request_Ability(this, this.target, type);
+            }
+
+            // If the target is set, reset it
+            if (!!this.target) {
+                // Rescale the Target and deselect it
+                this.target.ScaleDown();
+                this.target = undefined;
+            }
+
         }
 
 
@@ -560,10 +612,6 @@
         Card.prototype.Attack = function (attackerInfo, defenderInfo, defender) {
             var attacker = this;
             this.engine.player.arrow.Hide();
-
-
-
-
 
             // Set the correct health
             attacker.health = attackerInfo.health;
@@ -666,52 +714,86 @@
           */
 
         Card.prototype.mousedown = Card.prototype.touchstart = function (mouseData) {
+            var event = mouseData.originalEvent;
+            var leftClick = (event.which == 1) ? true : false;
+            var rightClick = (event.which == 3) ? true : false;
+            this.rightClick = rightClick;
 
-            var mouse = mouseData.getLocalPosition(this.parent);
-            this.position.click =
-                {
-                    x: mouse.x,
-                    y: mouse.y
-                };
+            // If its a left click
+            if (leftClick) {
 
-            // Pickup the card
-            this.Pickup();
 
-            // Only show cardslots on unslotted cards
-            if (!this.inSlot) {
-                this.x = mouse.x;
-                this.y = mouse.y;
-                this.engine.getGroup("CardSlot-Player").visible = true;
+                var mouse = mouseData.getLocalPosition(this.parent);
+                this.position.click =
+                    {
+                        x: mouse.x,
+                        y: mouse.y
+                    };
+
+                // Pickup the card
+                this.Pickup();
+
+                // Only show cardslots on unslotted cards
+                if (!this.inSlot) {
+                    this.x = mouse.x;
+                    this.y = mouse.y;
+                    this.engine.getGroup("CardSlot-Player").visible = true;
+                }
+
+
+                this.dragging = true;
+
             }
+            else if (rightClick) // If player right clicks
+            {
+
+                // Ensure that card is IN a slot and also that the card is NOT picked up
+                if (this.inSlot && !this.pickedUp) {
+                    this.Pickup();
+
+                    console.log(":D wi")
 
 
-            this.dragging = true;
+                }
+
+            }
         };
 
         // Mouse - Release
         Card.prototype.mouseup = Card.prototype.mouseupoutside = Card.prototype.touchend = Card.prototype.touchendoutside = function (mouseData) {
-            this.engine.getGroup("CardSlot-Player").visible = false;
+            var event = mouseData.originalEvent;
+            var leftClick = (event.which == 1) ? true : false;
+            var rightClick = (event.which == 3) ? true : false;
+            this.rightClick = rightClick;
 
-            // Put the card down
-            this.PutDown();
+            if (leftClick || rightClick) {
 
-            // Reset arrow.
-            this.owner.arrow.Reset();
+                this.engine.getGroup("CardSlot-Player").visible = false;
 
-            // Check and execute the card attack    
-            this.CheckAttack();
+                // Put the card down
+                this.PutDown();
 
-            // Check and Request a release of the card
-            this.engine.gameService.RequestRelease(this);
+                // Reset arrow.
+                this.owner.arrow.Reset();
 
-            // Check and Request a "UseCard"
-            this.engine.gameService.Request_UseCard(this);
+                // Check and execute the card attack    
+                this.CheckAttack();
 
-            // Removes hovercard from owner
-            this.owner._chover = undefined;
+                // Check and Request a release of the card
+                this.engine.gameService.RequestRelease(this);
 
-            // Disable Dragging
-            this.dragging = false;
+                // Check and Request a "UseCard"
+                this.engine.gameService.Request_UseCard(this);
+
+                // Removes hovercard from owner
+                this.owner._chover = undefined;
+
+                // Disable Dragging
+                this.dragging = false;
+
+            }
+
+
         };
 
         // Dragging Callback

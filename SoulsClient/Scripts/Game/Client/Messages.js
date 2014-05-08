@@ -23,7 +23,8 @@
                 NEXT_TURN: 226,
                 NOT_YOUR_TURN: 202,
                 MOVE_CARD: 203,
-                RELEASE_CARD: 204
+                RELEASE_CARD: 204,
+                USE_ABILITY: 205
             },
             Chat: {
                 ENABLE: 1000,
@@ -69,7 +70,7 @@
                 "Payload": {
                     "source": undefined,
                     "target": undefined,
-                    "type" : -1
+                    "type": -1
                 }
             },
             USECARD: {
@@ -112,6 +113,18 @@
                     "gameId": undefined,
                     "cid": undefined,
                     "hash": Conf.hash
+                }
+            },
+            // Card on Card = 0
+            // Card on Player = 1 (Friendly Player)
+            // Card on Opponent = 2 (Opponent)
+            USE_ABILITY: {
+                "Type": Messages.prototype.Type.Game.USE_ABILITY,
+                "Payload": {
+                    "source": undefined,
+                    "target": undefined,
+                    "type": -1,
+                    "abilityId" : undefined
                 }
             }
         };
@@ -189,14 +202,14 @@
                 "Type": Messages.prototype.Type.Chat.CHAT_LIST_ATTENDEES,
                 "Payload": {
                     "hash": Conf.hash,
-                    "room" : undefined
+                    "room": undefined
                 }
             }
 
-};
+        };
 
 
 
 
-return new Messages();
+    return new Messages();
 });

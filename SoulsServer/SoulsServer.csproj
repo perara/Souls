@@ -70,12 +70,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Game\GameDatabase.cs" />
     <Compile Include="Game\GameLogger.cs" />
     <Compile Include="Network\AdminService.cs" />
     <Compile Include="Network\ChatService.cs" />
     <Compile Include="Network\GameService.cs" />
     <Compile Include="Network\Service.cs" />
+    <Compile Include="Objects\Abilities\AbilityBase.cs" />
+    <Compile Include="Objects\Abilities\Heal.cs" />
+    <Compile Include="Objects\Abilities\Consume.cs" />
+    <Compile Include="Objects\Abilities\Sacrifice.cs" />
     <Compile Include="Objects\AI.cs" />
     <Compile Include="Objects\ChatPlayer.cs" />
     <Compile Include="Network\Response.cs" />

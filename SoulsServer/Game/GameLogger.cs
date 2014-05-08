@@ -49,6 +49,8 @@ namespace Souls.Server.Game
             NEXT_TURN,
             NEW_CARD,
             KICKED,
+            ABILITY_HEAL,
+            ABILITY_SACRIFICE
         }
 
 
@@ -153,6 +155,23 @@ namespace Souls.Server.Game
                 description = "a player is kicked",
                 text = "{0} was kicked from the game by [ADMIN]"
             });
+
+            logTypes.Add(LogTypes.ABILITY_HEAL, new GameLogType()
+            {
+                id = (int)LogTypes.ABILITY_HEAL,
+                title = "ABILITY_HEAL",
+                description = "A card heals X",
+                text = "{0} heals {1} for {2} hp"
+            });
+
+            logTypes.Add(LogTypes.ABILITY_SACRIFICE, new GameLogType()
+            {
+                id = (int)LogTypes.ABILITY_SACRIFICE,
+                title = "ABILITY_SACRIFICE",
+                description = "A card sacrifices itself to X",
+                text = "{0} sacrifices itself, strengthening {1} for {2}."
+            });
+
 
 
             GameLogger.logTypes = logTypes;

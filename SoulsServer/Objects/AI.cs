@@ -133,6 +133,10 @@ namespace SoulsServer.Objects
             c.slotId = slotId;
 
             this.e_handCards.Remove(cid);
+
+            if (this.e_boardCards.ContainsKey(slotId)) // WORKAROUND, this is because bot does not know if ability is used!
+                this.e_boardCards.Remove(slotId);
+
             this.e_boardCards.Add(slotId, c);
 
 
@@ -465,7 +469,7 @@ namespace SoulsServer.Objects
 
             foreach (Card c in p_boardCards.Values)
             {
-            
+
                 Random rnd = new Random();
                 int r = rnd.Next(e_boardCards.Values.Count);
 
@@ -475,11 +479,11 @@ namespace SoulsServer.Objects
                     new Response(
                         GameService.GameType.ATTACK,
                         new JObject(
-                            new JProperty("source",c.cid),
-                            new JProperty("target",oppC.cid),
+                            new JProperty("source", c.cid),
+                            new JProperty("target", oppC.cid),
                             new JProperty("type", 0 /*TODO*/))
                             )
-     
+
                    );
 
 

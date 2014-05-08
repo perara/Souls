@@ -9,6 +9,15 @@
         this.height = this.engine.conf.height;
         this.engine.addChild("Queue", this);
 
+        var textureBg = Pixi.Texture.fromImage("/Content/Images/bg_faded.png");
+        var logo = new Pixi.Sprite(textureBg);
+        logo.anchor = { x: 0, y: 0 }
+        logo.x = 0;
+        logo.y = 0;
+        logo.width = this.engine.conf.width;
+        logo.height = this.engine.conf.height;
+        this.addChild(logo);
+
 
         // CardFactory Name Label
         this.messageText = new Pixi.Text("Connecting...",

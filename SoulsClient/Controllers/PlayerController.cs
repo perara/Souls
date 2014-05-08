@@ -103,6 +103,7 @@ namespace SoulsClient.Controllers
                     .ThenFetch(x => x.race)
                     .Fetch(x => x.playerType)
                     .ThenFetch(x => x.ability)
+                    .Fetch(x => x.playerPermission)
                     .SingleOrDefault();
 
                 // Check if the player record exists

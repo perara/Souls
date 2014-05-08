@@ -66,6 +66,14 @@
         // If the card is picked up, but is in a slot (Arrow dragging)
         if ((!!card.inSlot && !!card.pickedUp) || this.engine.player.isClicked) {
 
+            // Determine which color the arrow should be. (Depending on Rightclick)
+            if (!!card.rightClick) {
+                this.arrowHead.tint = 0x0000FF;
+            }
+            else {
+                this.arrowHead.tint = 0xFF0000;
+            }
+
             this.Show();
             this.Draw(
                 this.engine.conf.mouse, //TO
@@ -82,27 +90,25 @@
     }
 
 
-    Arrow.prototype.PlayerAttackCheck = function (card) {
-
-        var opponent = this.engine.opponent;
+    Arrow.prototype.PlayerAttackCheck = function (card, player) {
 
         // Determine if the Mouse is inside the card bounds
         var isInside = this.engine.toolbox.Rectangle.containsRaw(
-        opponent.x - (opponent.width / 2), // Top
-        opponent.y - (opponent.height / 2), // Left
-        opponent.width,
-        opponent.height,
+        player.x - (player.width / 2), // Top
+        player.y - (player.height / 2), // Left
+        player.width,
+        player.height,
         this.engine.conf.mouse.x,
         this.engine.conf.mouse.y);
 
         if (isInside) {
-            card.target = opponent;
-            opponent.ScaleUp();
+            card.target = player;
+            player.ScaleUp();
             return true;
         }
         else {
             card.target = undefined;
-            opponent.ScaleDown();
+            player.ScaleDown();
             return false;
         }
     }
@@ -112,34 +118,67 @@
 
         // Iterate over opponents cards
         var opponentBoard = this.engine.opponent.cardManager.board;
+        var playerBoard = this.engine.player.cardManager.board;
         var foundCard = false;
 
         for (var index in opponentBoard) {
-            var opponentCard = opponentBoard[index];
+            var ocard = opponentBoard[index];
 
             // Determine if the Mouse is inside the card bounds
             var isInside = this.engine.toolbox.Rectangle.containsRaw(
-            opponentCard.x - (opponentCard.width / 2), // Top
-            opponentCard.y - (opponentCard.height / 2), // Left
-            opponentCard.width,
-            opponentCard.height,
+            ocard.x - (ocard.width / 2), // Top
+            ocard.y - (ocard.height / 2), // Left
+            ocard.width,
+            ocard.height,
             this.engine.conf.mouse.x,
             this.engine.conf.mouse.y);
 
             if (isInside) {
                 // Assign target on source card to the found opponent card
 
-                card.target = opponentCard;
-                opponentCard.ScaleUp();
+                card.target = ocard;
+                ocard.ScaleUp();
                 foundCard = true;
                 break;
             }
             else {
                 // Nothing was found
-                opponentCard.ScaleDown();
+                ocard.ScaleDown();
                 card.target = undefined;
             }
         }
+
+        // If ability usage
+        if (!!card.rightClick) {
+            for (var index in playerBoard) {
+                var ocard = playerBoard[index];
+                // Determine if the Mouse is inside the card bounds
+                var isInside = this.engine.toolbox.Rectangle.containsRaw(
+                ocard.x - (ocard.width / 2), // Top
+                ocard.y - (ocard.height / 2), // Left
+                ocard.width,
+                ocard.height,
+                this.engine.conf.mouse.x,
+                this.engine.conf.mouse.y);
+
+                if (isInside) {
+                    // Assign target on source card to the found opponent card
+
+                    card.target = ocard;
+                    ocard.ScaleUp();
+                    foundCard = true;
+                    break;
+                }
+                else {
+                    // Nothing was found
+                    ocard.ScaleDown();
+                    card.target = undefined;
+                }
+            }
+
+        }
+
+
 
 
 

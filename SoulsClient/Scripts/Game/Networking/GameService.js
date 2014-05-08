@@ -15,7 +15,7 @@
         this.message = Message;
 
         /// Game 
-        this.RegisterResponseAction(["11", "12", "13","14"], Response_NotLoggedIn);
+        this.RegisterResponseAction(["11", "12", "13", "14"], Response_NotLoggedIn);
         this.RegisterResponseAction(["10"], Response_LoggedIn);
         this.RegisterResponseAction(["100"], Response_QueueOK);
         this.RegisterResponseAction(["206", "220"], Response_GameCreate);
@@ -29,8 +29,8 @@
         this.RegisterResponseAction(["222", "223"], Response_NewCard);
         this.RegisterResponseAction(["208"], Response_UseCard_OOM);
         this.RegisterResponseAction(["230", "231", "233"], Response_VictoryDefeat);
-        this.RegisterResponseAction(["232"], Response_CannotAttackTwice);
-
+        this.RegisterResponseAction(["232"], Response_GeneralMessage);
+        this.RegisterResponseAction(["234"], Response_UseAbility);
     }
     // Constructor
     GameService.prototype.constructor = GameService;
@@ -41,13 +41,122 @@
     ///////////////////////GAME-RESPONSES/////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
+
+    function Response_UseAbility(json) {
+        console.log(json);
+        var type = json.Type;
+        var abilityId = json.Payload.abilityId;
+        var abilityType = json.Payload.type  // 1 == Card on Card, 2 == Card on Player , 3 = Card on Opponent
+        var wasOpponent = json.Payload.wasOpponent; // Weither its a opponent move
+        var sourceId = json.Payload.source;
+        var targetId = json.Payload.target;
+        var parameter = json.Payload.parameter;
+
+        if (abilityId == 1) // Heal
+        {
+            Asset.GetSound(Asset.Sound.ABILITY_HEAL).play({ volume: 0.2 });
+            // Card on Card
+            if (abilityType == 0) {
+                var source;
+                var target;
+
+                // Opponent's Move
+                if (wasOpponent) {
+                    source = that.engine.opponent.cardManager.board[sourceId];
+                    target = that.engine.opponent.cardManager.board[targetId];
+                }
+                else {
+                    source = that.engine.player.cardManager.board[sourceId];
+                    target = that.engine.player.cardManager.board[targetId];
+                }
+
+                // Do healing
+                target.Heal(parameter, source);
+            }
+
+                // Card on Player (Friendly)
+            else if (abilityType == 1) {
+
+                // Opponent's Move
+                if (wasOpponent) {
+                    source = that.engine.opponent.cardManager.board[sourceId];
+                    target = that.engine.opponent;
+                }
+                else {
+                    source = that.engine.player.cardManager.board[sourceId];
+                    target = that.engine.player;
+                }
+
+                // Do healing
+                target.Heal(parameter, source);
+            }
+
+                // Card on Opponent (Friendly)
+            else if (abilityType == 2) {
+                that.engine.ScreenMessage(["You cannot heal enemy player!!"], false);
+            }
+
+
+
+        }
+
+
+        else if (abilityId == 2) // Sacrifice
+        {
+            Asset.GetSound(Asset.Sound.ABILITY_SACRIFICE).play({ volume: 0.2 });
+            if (abilityType == 1) // Card on Card
+            {
+                var source;
+                var target;
+
+                // Opponent's Move
+                if (wasOpponent) {
+                    source = that.engine.opponent.cardManager.board[sourceId];
+                    target = that.engine.opponent.cardManager.board[targetId];
+                }
+                else {
+                    source = that.engine.player.cardManager.board[sourceId];
+                    target = that.engine.player.cardManager.board[targetId];
+                }
+
+                // Sacrifice
+                source.Sacrifice(parameter, target);
+
+
+            }
+
+            else if (abilityType == 2) // Card on Player
+            {
+                // Opponent's Move
+                if (wasOpponent) {
+                    source = that.engine.opponent.cardManager.board[sourceId];
+                    target = that.engine.opponent;
+                }
+                else {
+                    source = that.engine.player.cardManager.board[sourceId];
+                    target = that.engine.player;
+                }
+
+                // Sacrifice
+                source.Sacrifice(parameter, target);
+            }
+
+            else if (abilityType == 3) { } // Card on Opponent (Not possible)
+
+
+        }
+
+
+
+    }
+
+
     function Response_UseCard_OOM(json) {
         that.engine.ScreenMessage(["Not enough mana!"], false);
     }
 
-    function Response_CannotAttackTwice(json)
-    {
-        that.engine.ScreenMessage(["Cannot attack twice this round!"], false);
+    function Response_GeneralMessage(json) {
+        that.engine.ScreenMessage([json.Payload], false);
     }
 
     function Response_NewCard(json) {
@@ -76,18 +185,16 @@
 
     }
 
-    function Response_VictoryDefeat(json) // 230 = Victory , 231 = Defeat
+    function Response_VictoryDefeat(json) // 230 = Victory , 231 = Defeat, 233 = Defeat
     {
         var type = json.Type;
 
         that.engine.OnEnd();
-        if(type == 230)
-        {
+        if (type == 230) {
 
             that.engine.queue.FadeInGameEnd("Victory!", json.Payload.statistics);
         }
-        else if (type == 231)
-        {
+        else if (type == 231) {
             that.engine.queue.FadeInGameEnd("Defeat!", json.Payload.statistics);
         }
         else if (type == 233) {
@@ -140,7 +247,7 @@
                 var attacker = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
                 var defender = that.engine.player;
 
-                attacker.AttackOpponent(jsonOppInfo,jsonPInfo, defender);
+                attacker.AttackOpponent(jsonOppInfo, jsonPInfo, defender);
             }
 
         }
@@ -148,13 +255,13 @@
         else if (attackType == 2) { // Player on Card
 
 
-          // The Player is attacking
+            // The Player is attacking
             if (jsonAttacker) {
                 // Get cards
                 var attacker = that.engine.player;
                 var defender = that.engine.opponent.cardManager.board[jsonOppInfo.cid];
 
-                attacker.CardAttack(jsonPInfo, jsonOppInfo, attacker,defender);
+                attacker.CardAttack(jsonPInfo, jsonOppInfo, attacker, defender);
             }
             else // The opponent card is attacking
             {
@@ -162,7 +269,7 @@
                 var attacker = that.engine.opponent;
                 var defender = that.engine.player.cardManager.board[jsonPInfo.cid];
 
-                attacker.CardAttack(jsonOppInfo, jsonPInfo, attacker,defender);
+                attacker.CardAttack(jsonOppInfo, jsonPInfo, attacker, defender);
             }
 
 
@@ -190,13 +297,13 @@
     } // -- Function end
 
     function Response_NotLoggedIn(json) {
-        
+
         var type = json.Type;
         var payload = json.Payload;
 
         //"11", "12", "13", "14"
 
-        if(type == 14) // LOGIN_BANNED 
+        if (type == 14) // LOGIN_BANNED 
         {
             that.engine.queue.SetText("You are banned!");
         }
@@ -210,7 +317,7 @@
 
     function Response_QueueOK() // 100
     {
-        that.engine.queue.SetText("Queued... Waiting for Match")
+        that.engine.queue.SetText("Waiting for Match")
     }
 
     function Response_SlotOccupied(json) // 213 GAME_SLOTOCCUPIED
@@ -249,7 +356,7 @@
                  attack: cardData.attack,
                  name: cardData.name,
                  cost: cardData.cost,
-                 ability: cardData.ability.name,
+                 ability: (!!cardData.ability) ? cardData.ability.name : undefined,
                  race: cardData.race,
                  id: cardData.id
              });
@@ -290,7 +397,7 @@
 
     function Response_GameCreate(data) // 206 CREATE // 220 RECOVER
     {
-        Asset.GetSound(Asset.Sound.GAME_MUSIC).play({ loop: 9999, volume: 0.3});
+        Asset.GetSound(Asset.Sound.GAME_MUSIC).play({ loop: 9999, volume: 0.1 });
 
         // Create the Player and Opponent
         that.engine.player = new Player(that.engine);
@@ -396,21 +503,53 @@
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////
 
+
+
     GameService.prototype.Login = function () {
         this.socket.send(this.message.GENERAL.LOGIN);
 
         var queueType = null;
         // Check if NormalGame or Practice game was selected
-        if (this.engine.normalGame)
-        {
+        if (this.engine.normalGame) {
             queueType = this.message.GAME.NORMAL_QUEUE;
         }
-        else
-        {
+        else {
             queueType = this.message.GAME.PRACTICE_QUEUE;
         }
 
-        this.socket.send(queueType); 
+        this.socket.send(queueType);
+    }
+
+    GameService.prototype.Request_Ability = function (source, target, type) {
+        // Card on Card = 0
+        // Card on Player = 1 (Friendly Player)
+        // Card on Opponent = 2 (Opponent)
+        console.log(source);
+        console.log(target);
+        console.log(type);
+
+        var sourceId = targetId = undefined
+        if (type == "0") {
+            sourceId = source.cid;
+            targetId = target.cid;
+        }
+        else if (type == "1") {
+            sourceId = source.cid;
+            targetId = -1;
+        }
+        else if (type == "2") {
+            sourceId = source.cid;
+            targetId = -1;
+        }
+
+        var message = this.message.GAME.USE_ABILITY;
+        message.Payload.source = sourceId;
+        message.Payload.target = targetId;
+        message.Payload.type = type;
+        message.Payload.abilityId = (!!source.abilityId) ? source.abilityId : -1337;
+
+        this.socket.send(message);
+
     }
 
     GameService.prototype.Request_UseCard = function (card) {

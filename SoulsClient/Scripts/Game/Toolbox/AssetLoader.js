@@ -61,6 +61,7 @@
             return true;
         }
 
+
         Asset.prototype.GetSound = function (soundEnum) {
             var instance = createjs.Sound.play(soundEnum);  // play using id.  Could also use full source path or event.src.
             return instance;
@@ -73,6 +74,14 @@
             GAME_QUEUE: Asset.Path.Textures + "queue.jpg",
             GAME_VOLUME_ON: (Asset.Path.Textures + "audio_on.png"),
             GAME_VOLUME_OFF: Asset.Path.Textures + "audio_off.png",
+
+            // Game Loading
+            GAME_LOAD_BG: Asset.Path.Textures + "bg_faded.png",
+            GAME_LOAD_PRACTICE_OFF: Asset.Path.Textures + "practice_game.png",
+            GAME_LOAD_PRACTICE_ON: Asset.Path.Textures + "practice_game_focus.png",
+            GAME_LOAD_PVP_OFF: Asset.Path.Textures + "normal_game.png",
+            GAME_LOAD_PVP_ON: Asset.Path.Textures + "normal_game_focus.png",
+            GAME_LOAD_LOGO : Asset.Path.Textures + "Logo.png",
 
             // End turn
             END_TURN: Asset.Path.Textures + "endturn.png",
@@ -127,7 +136,10 @@
                 ATTACK_1: Asset.Path.Sound + "attack_1.mp3",
                 DEFEND_1: Asset.Path.Sound + "defend_1.mp3",
                 CHAT_MESSAGE: Asset.Path.Sound + "chat_message.mp3",
-                GAME_MUSIC: Asset.Path.Sound + "background-music.mp3"
+                GAME_MUSIC: Asset.Path.Sound + "background-music.mp3",
+                MENU: Asset.Path.Sound + "menu.mp3",
+                ABILITY_SACRIFICE: Asset.Path.Sound + "ability_sacrifice.mp3",
+                ABILITY_HEAL: Asset.Path.Sound + "ability_heal.mp3"
             }
 
         Asset.prototype.GetTexture = function (texture) {

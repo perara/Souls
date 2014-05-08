@@ -7,7 +7,7 @@
     Animation.prototype.constructor = Animation;
     Animation.prototype.Card = {};
     Animation.prototype.Player = {};
-
+    Animation.prototype.General = {};
 
 
 
@@ -241,6 +241,87 @@
     }
 
 
+    Animation.prototype.General.Heal = Animation.prototype.General.GainAttack = function (healthText) {
+
+        var originalScale =
+            {
+                scaleX: healthText._originalScale.y,
+                scaleY: healthText._originalScale.x
+            }
+
+
+        var values =
+            {
+                scaleX: healthText.scale.y + 5,
+                scaleY: healthText.scale.x + 5
+            }
+
+
+
+        CreateJS.Tween.get(values, {
+            override: true,
+            onChange: function onChange(e) {
+                healthText.scale.y = values.scaleY;
+                healthText.scale.x = values.scaleX;
+            }
+        })
+        .to(originalScale, 2500, CreateJS.Ease.linear)
+
+    }
+
+    Animation.prototype.General.Sacrifice = function (src, tar) {
+        src.owner.holdingCard = undefined;
+        src.interactive = false;
+        src.inSlot.Reset();
+
+        var values = {
+            scaleY: src.scale.y,
+            scaleX: src.scale.x,
+            x: src.x,
+            y: src.y,
+            rotation: src.rotation
+        }
+
+        // Execute tween (Move, rotate, scale)
+        var sacrificeTween = CreateJS.Tween.get(values, {
+            override: false,
+            onChange: function onChange(e) {
+                src.scale.y = values.scaleY;
+                src.scale.x = values.scaleX;
+                src.x = values.x;
+                src.y = values.y;
+                src.rotation = values.rotation;
+            }
+        })
+        .to(
+        {
+            scaleX: 0.1,
+            scaleY: 0.1,
+            rotation: 30,
+        }, 2000)
+        .to(
+        {
+            x: tar.x,
+            y: tar.y
+        }, 1500)
+        .to(
+        {
+            scaleX: 0,
+            scaleY: 0,
+        }, 1500)
+        .call(function () {
+            src.owner.cardManager.RemoveCard(src);
+        })
+
+
+
+
+
+
+    }
+
+
+
 
     ///////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////
@@ -263,11 +344,10 @@
            .to(target, 1000, CreateJS.Ease.elasticOut)
            .call(onComplete);
 
-
-
-
-
     }
+
+
+
 
     Animation.prototype.Player.CardAttack = function (attacker, defender, callbacks) {
 

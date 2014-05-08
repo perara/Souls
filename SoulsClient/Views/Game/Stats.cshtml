@@ -8,8 +8,6 @@
     List<Souls.Model.GameLog> log = ViewBag.log;
 
     List<Souls.Model.Card> cards = ViewBag.cards;
-
-
 }
 <div class="stats-title">Game Summary for #@ViewBag.gameId</div>
 
@@ -20,14 +18,14 @@
     @foreach (var player in players)
     {
         var winBorder = (ViewBag.winner == player && !ViewBag.isDraw) ? "border-color: green !important;" : "border-color: red !important;";
-        
+
         if (count == 1)
         {
             <div class="stats-versus col-lg-2">
             </div>
         }
 
-      
+
 
         <div class="stats-player-block col-lg-5">
             <div class="stats-player-name col-lg-6 col-lg-offset-3">@player.name the @((ViewBag.winner == player && !ViewBag.isDraw) ? "Victorious" : "Defeated") </div>
@@ -125,9 +123,10 @@
             {
                 @String.Format(logItem.gameLogType.text, players.Where(x => x.id == logItem.obj1id).First().name);
             }
-
-
-
+            else if (logItem.gameLogType.title == "ABILITY_HEAL" || logItem.gameLogType.title == "ABILITY_SACRIFICE")
+            {
+                @String.Format("{0} uses an ability.", cards.Where(x => x.id == logItem.obj1id).First().name);
+            }
 
 
             else

@@ -19,6 +19,7 @@ namespace Souls.Model.Maps {
 			Map(x => x.rank).Column("rank").Not.Nullable();
             Map(x => x.money).Column("money").Not.Nullable();
 			Map(x => x.created).Column("created");
+            References(x => x.playerPermission).Column("fk_permission");
         }
     }
 }

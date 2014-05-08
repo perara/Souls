@@ -45,7 +45,8 @@ namespace Souls.Server.Network
             GAME_NOT_YOUR_TURN = 202,
             GAME_NEXT_ROUND_FAIL = 203,
             GAME_ATTACK = 218,
-            GAME_CANNOT_ATTACK_TWICE = 232,
+            GAME_GENERAL_MESSAGE = 232,
+            GAME_USE_ABILITY = 234,
             // GAME_CARD_DIE = 219,
             // GAME_HERO_ATTACK = 220,
             // GAME_HERO_DIE = 221, // Game lost
@@ -87,7 +88,8 @@ namespace Souls.Server.Network
             NEXT_TURN = 226,
             NOT_YOUR_TURN = 202,
             MOVE_CARD = 203,
-            RELEASE_CARD = 204
+            RELEASE_CARD = 204,
+            USE_ABILITY = 205
         }
 
         public GameEngine engine;
@@ -100,6 +102,8 @@ namespace Souls.Server.Network
 
         public override void Process()
         {
+
+
 
             if (this.loggedIn)
             {
@@ -126,6 +130,9 @@ namespace Souls.Server.Network
                         break;
                     case GameType.RELEASE_CARD:
                         engine.Request_OpponentReleaseCard(Clients.GetInstance().gameList[this]);
+                        break;
+                    case GameType.USE_ABILITY:
+                        engine.Request_UseAbility(Clients.GetInstance().gameList[this]);
                         break;
                 }
             }

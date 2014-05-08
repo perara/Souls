@@ -33,7 +33,7 @@
             if (that.audioIsOn) // Audio turn on
             {
                 audio.texture = volume_on;
-                Asset.SetVolume(0.5);
+                Asset.SetVolume(1);
             }
             else // Off
             {

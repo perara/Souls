@@ -21,6 +21,7 @@ namespace Souls.Model
         public virtual int money { get; set; }
         public virtual int rank { get; set; }
         public virtual DateTime? created { get; set; }
+        public virtual PlayerPermission playerPermission { get; set; }
 
         public virtual string GetHash()
         {
