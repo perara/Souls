@@ -9,6 +9,8 @@ using Souls.Model;
 using System.IO;
 using Microsoft.Ajax.Utilities;
 using System.Drawing;
+using Souls.Client.Classes;
+using System.Diagnostics;
 
 namespace SoulsClient.Controllers
 {
@@ -24,9 +26,6 @@ namespace SoulsClient.Controllers
             {
                 players = session.Query<Player>().ToList();
             }
-
-
-
 
             ViewBag.players = players;
             return View();
@@ -62,6 +61,15 @@ namespace SoulsClient.Controllers
 
             }
 
+            if (id != null)
+            {
+                ViewBag.action = "Update";
+            }
+            else
+            {
+                ViewBag.action = "Create";
+            }
+
             if (c.portrait == null)
             {
                 ViewBag.portrait = null;
@@ -74,10 +82,108 @@ namespace SoulsClient.Controllers
             return View(c);
         }
 
+        public ActionResult NewsEditor(int? id)
+        {
+            News n = null;
+
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                n = session.Query<News>().Where(x => x.id == id).FirstOrDefault();
+
+                List<News> newsList = session.Query<News>().ToList();
+                ViewBag.news = newsList;
+            }
+
+            if (id != null) ViewBag.action = "Update";
+            else ViewBag.action = "Create";
+
+            if (n == null)
+            {
+                n = new News();
+            }
+
+            if (n.enabled == 1) ViewBag.statusOption = "Disable";
+            else ViewBag.statusOption = "Enable";
+
+            return View(n);
+        }
+
+        [HttpPost, ValidateInput(false)]
+        public ActionResult NewsEditor(News n)
+        {
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                using (var transaction = session.BeginTransaction())
+                {
+
+                    n.title = (String.IsNullOrEmpty(n.title)) ? "No Title" : n.title;
+                    n.text = (String.IsNullOrEmpty(n.text)) ? "No Text" : n.text;
+                    n.enabled = 1;
+                    n.author = cSession.Current.player.name;
+                    n.date = DateTime.Now;
+
+                    session.SaveOrUpdate(n);
+
+                    transaction.Commit();
+                }
+            }
+
+            return RedirectToAction("NewsEditor");
+        }
+
+        public ActionResult NewsToggle(int id)
+        {
+
+            News n = null;
+
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                using (var transaction = session.BeginTransaction())
+                {
+                    n = session.Query<News>().Where(x => x.id == id).FirstOrDefault();
+                    if (n == null)
+                    {
+                        n = new News();
+                    }
+
+                    if (n.enabled == 1)
+                    {
+                        n.enabled = 0;
+                        ViewBag.toggle = "Disabled";
+                    }
+                    else
+                    {
+                        n.enabled = 1;
+                        ViewBag.toggle = "Enabled";
+                    }
+                    session.Update(n);
+                    transaction.Commit();
+                }
+            }
+            return RedirectToAction("NewsEditor");
+        }
+
+        public ActionResult NewsDelete(int id)
+        {
+            News n = null;
+
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                using (var transaction = session.BeginTransaction())
+                {
+                    n = session.Query<News>().Where(x => x.id == id).FirstOrDefault();
+
+                    session.Delete(n);
+                    transaction.Commit();
+                }
+            }
+            return RedirectToAction("NewsEditor");
+        }
+
         [HttpPost]
         public ActionResult CardEditor(Card c, FormCollection form)
         {
-            
+
 
             using (var session = NHibernateHelper.OpenSession())
             {
@@ -109,26 +215,26 @@ namespace SoulsClient.Controllers
         public JsonResult Upload()
         {
             if (Request.Files.Count == 0) return Json(new { data = "x" });
-            
+
 
             var file = Request.Files[0];
             string retData = "NULL";
             var extension = Path.GetExtension(file.FileName);
 
-            
+
             // extract only the fielname
             var fileName = Path.GetFileName(file.FileName);
             // store the file inside ~/App_Data/uploads folder
 
             string date = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-            var path = Path.Combine(Server.MapPath("~/Content/Uploads"), date + "_" + fileName);    
+            var path = Path.Combine(Server.MapPath("~/Content/Uploads"), date + "_" + fileName);
             file.SaveAs(path);
             if (!IsValidImage(path))
             {
                 System.IO.File.Delete(path);
                 return Json(new { data = "xx" });
             }
-           
+
 
             retData = "/Content/Uploads/" + date + "_" + fileName;
 
