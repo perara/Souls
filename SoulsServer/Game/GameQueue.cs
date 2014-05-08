@@ -59,7 +59,7 @@ namespace Souls.Server.Game
         public bool MatchPlayersPractice(Action<Pair<Player>> initGame)
         {
             // If anyone queued
-            if (practiceQueue.Count >= 1)
+            while (practiceQueue.Count >= 1)
             {
                 AI p = new AI();
                 p.Connect();
@@ -88,7 +88,7 @@ namespace Souls.Server.Game
                         RemovePlayerPractice(bot);
                     }
 
-                    Thread.Sleep(500);
+                    Thread.Sleep(250);
                 }
 
                 Pair<Player> matchedPlayers = new Pair<Player>(p1, p2);
@@ -96,6 +96,7 @@ namespace Souls.Server.Game
 
                 // Callbacks to GameEngine's "initGame" and starts a game
                 initGame(matchedPlayers);
+                Logging.Write(Logging.Type.GAME, "Game is starting! (" + p1.name + " vs " + p2.name + ")");
             }
 
 

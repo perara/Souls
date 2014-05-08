@@ -22,9 +22,14 @@ namespace Souls.Server.Objects
         public bool hasAttacked { get; set; }
 
 
-      /*  public Card(Souls.Model.Card modelCard) : base(modelCard)
+        /*  public Card(Souls.Model.Card modelCard) : base(modelCard)
+          {
+          }*/
+
+        ~Card()  // destructor
         {
-        }*/
+            //Console.WriteLine("Destructing Card: " + cid);
+        }
 
         public void SetId()
         {

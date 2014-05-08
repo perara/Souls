@@ -210,7 +210,7 @@ namespace Souls.Server.Network
                 Clients.GetInstance().gameList.TryAdd(this, player);
 
                 SendTo(new Response(SERVICE_RESPONSE.LOGIN_OK, "Logged in as " + player.name));
-                Logging.Write(Logging.Type.GENERAL, "Client: " + Context.UserEndPoint + " authenticated.");
+                //Logging.Write(Logging.Type.GENERAL, "Client: " + Context.UserEndPoint + " authenticated.");
                 Logging.Write(Logging.Type.GENERAL, "Online players: " + Clients.GetInstance().gameList.Count());
 
                 this.loggedIn = true;

@@ -39,6 +39,81 @@ namespace SoulsClient.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fullBodyWash">To only delete sampled users or also repopulate</param>
+        /// <returns></returns>
+        public ActionResult SampleUsers(bool fullBodyWash)
+        {
+
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                using (var transaction = session.BeginTransaction())
+                {
+                    List<Card> cards = session.Query<Card>().ToList();
+
+                    List<Player> examplePlayersOld = session.Query<Player>().Where(x => x.name.Contains("Example")).ToList();
+         
+                        foreach(var item in examplePlayersOld)
+                        {
+                            session.Delete(item);
+                        }
+
+                    if(examplePlayersOld.Count > 0)
+                        transaction.Commit();
+
+
+                    if(!fullBodyWash)
+                        return RedirectToAction("Users");
+      
+               
+                    for (int i = 0; i < 50; i++)
+                    {
+                        Player p = new Player();
+                        p.money = new Random().Next(0, 10000);
+                        p.name = "Example " + i;
+                        p.created = DateTime.Now;
+                        p.password = Toolkit.sha256_hash("password");
+                        p.playerPermission = session.Query<PlayerPermission>().Where(x => x.id == 1).FirstOrDefault();
+                        p.playerType = session.Query<PlayerType>().Where(x => x.id == 1).FirstOrDefault();
+                        p.rank = new Random().Next(1, 23);
+
+                        session.Save(p);
+
+
+
+                        foreach (var c in cards)
+                        {
+                            PlayerCards pCard = new PlayerCards();
+                            pCard.card = c;
+                            pCard.obtainedat = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            pCard.player = p;
+                            session.Save(pCard);
+                        }
+
+                        PlayerLogin pLogin = new PlayerLogin();
+                        pLogin.hash = Toolkit.sha256_hash(new Random((int)DateTime.Now.Ticks).Next(1, 100000).ToString());
+                        pLogin.player = p;
+                        pLogin.timestamp = 201405081632416952;
+
+                        session.Save(pLogin);
+
+                    }
+
+                    transaction.Commit();
+
+
+                }
+            }
+
+
+
+
+            return RedirectToAction("Users");
+        }
+
+
         public ActionResult ChangePermission(FormCollection form)
         {
 

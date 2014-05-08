@@ -22,6 +22,11 @@ namespace Souls.Server.Objects
             memberRooms = new Dictionary<int, ChatRoom>();
         }
 
+        ~ChatPlayer()  // destructor
+        {
+            Console.WriteLine("Destructing chatPlayer: " + name);
+        }
+
         public void addRoom(ChatRoom room)
         {
             memberRooms.Add(room.id, room);

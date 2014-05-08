@@ -45,6 +45,11 @@ namespace Souls.Server.Objects
             boardCards = new Dictionary<int, Card>(10); //TODO REMEMBER 10 (Should be a static value in a "config class orsmthing")
         }
 
+        ~GamePlayer()  // destructor
+        {
+            Console.WriteLine("Destructing GamePlayer: " + name);
+        }
+
 
         public Dictionary<string, string> GetPlayerData()
         {

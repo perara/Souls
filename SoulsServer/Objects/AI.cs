@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using WebSocketSharp;
 using System.Threading;
 using Souls.Server.Game;
+using System.Collections;
+using System.Collections.Concurrent;
 
 namespace SoulsServer.Objects
 {
@@ -21,11 +23,11 @@ namespace SoulsServer.Objects
 
         public List<Card> p_handCards { get; set; }
 
-        public Dictionary<int, Card> p_boardCards { get; set; }
+        public ConcurrentDictionary<int, Card> p_boardCards { get; set; }
 
         public List<int> e_handCards { get; set; }
 
-        public Dictionary<int, Card> e_boardCards { get; set; }
+        public ConcurrentDictionary<int, Card> e_boardCards { get; set; }
 
         public int gameId { get; set; }
         public int round { get; set; }
@@ -35,18 +37,17 @@ namespace SoulsServer.Objects
 
 
 
-
         public AI()
         {
             this.p_handCards = new List<Card>();
-            this.p_boardCards = new Dictionary<int, Card>();
-            this.e_boardCards = new Dictionary<int, Card>();
+            this.p_boardCards = new ConcurrentDictionary<int, Card>();
+            this.e_boardCards = new ConcurrentDictionary<int, Card>();
             this.e_handCards = new List<int>();
 
         }
 
 
-        public void Connect()
+        public void Connect(string hash = "BOT")
         {
             ws = new WebSocket("ws://localhost:8140/game");
 
@@ -58,12 +59,13 @@ namespace SoulsServer.Objects
 
             wschat.OnMessage += (sender, e) =>
                 this.Progress(e);
+
             wschat.Connect();
 
             this.SendTo(
                new Response(
                    GameService.SERVICE.LOGIN,
-                           new JObject(new JProperty("hash", "BOT")))
+                           new JObject(new JProperty("hash", hash)))
                    );
 
             this.SendTo(
@@ -73,9 +75,14 @@ namespace SoulsServer.Objects
                         new JProperty("Type", 200),
                         new JProperty("Payload",
                             new JObject(
-                            new JProperty("hash", "BOT")))))
+                            new JProperty("hash", hash)))))
                     );
 
+        }
+
+        ~AI()  // destructor
+        {
+            Console.WriteLine("Destructing BOT: " + name);
         }
 
 
@@ -135,9 +142,15 @@ namespace SoulsServer.Objects
             this.e_handCards.Remove(cid);
 
             if (this.e_boardCards.ContainsKey(slotId)) // WORKAROUND, this is because bot does not know if ability is used!
-                this.e_boardCards.Remove(slotId);
+            {
+                Card trash;
+                this.e_boardCards.TryRemove(slotId, out trash);
 
-            this.e_boardCards.Add(slotId, c);
+            }
+
+
+
+            this.e_boardCards.TryAdd(slotId, c);
 
 
             /************************************************************************/
@@ -223,7 +236,8 @@ namespace SoulsServer.Objects
                 Card pCard = p_boardCards.Where(x => x.Value.cid == pCardCid).FirstOrDefault().Value;
                 if (pCardIsDead)
                 {
-                    p_boardCards.Remove(pCard.slotId);
+                    Card trash;
+                    this.p_boardCards.TryRemove(pCard.slotId, out trash);
                 }
                 else
                 {
@@ -234,7 +248,8 @@ namespace SoulsServer.Objects
                 Card oppCard = e_boardCards.Where(x => x.Value.cid == oppCardCid).FirstOrDefault().Value;
                 if (oppCardIsDead)
                 {
-                    e_boardCards.Remove(oppCard.slotId);
+                    Card trash;
+                    this.e_boardCards.TryRemove(oppCard.slotId, out trash);
                 }
                 else
                 {
@@ -522,7 +537,7 @@ namespace SoulsServer.Objects
         {
             c.slotId = slotId;
             this.p_handCards.Remove(c);
-            this.p_boardCards.Add(slotId, c);
+            this.p_boardCards.TryAdd(slotId, c);
 
             this.SendTo(
                 new Response(

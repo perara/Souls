@@ -14,6 +14,9 @@ using Souls.Server.Engine;
 using Souls.Server.Tools;
 using Souls.Server.Chat;
 using Souls.Server.Network;
+using Souls.Model.Helpers;
+using NHibernate.Linq;
+using SoulsServer.Objects;
 
 namespace Souls.Server.Engine
 {
@@ -21,7 +24,59 @@ namespace Souls.Server.Engine
     {
         static void Main(string[] args)
         {
+            if (args.Contains("debug"))
+            {
+                int threadSleep = 500;
+
+                if (args.Contains("delay"))
+                    int.TryParse(args[1], out threadSleep);
+
+                Debug();
+            }
+
             Souls.Server.Network.Server s = new Souls.Server.Network.Server();
         }
+
+        /// <summary>
+        /// Runs integrated tests on bot and stability
+        /// </summary>
+        static void Debug()
+        {
+            Thread ct = new Thread(delegate()
+            {
+                Thread.Sleep(2000);
+                List<Souls.Model.Player> players = null;
+                using (var session = NHibernateHelper.OpenSession())
+                {
+
+                    players = session.Query<Souls.Model.Player>().ToList();
+
+                }
+
+                foreach (var p in players)
+                {
+
+                    if (p.name == "BOT") continue;
+                    string hash = p.GetHash();
+
+
+
+                    if (hash == null) continue;
+
+                    Thread bThread = new Thread(delegate()
+                    {
+                        AI botPlayer = new AI();
+                        botPlayer.Connect(hash);
+                    });
+                    bThread.Start();
+
+                    Thread.Sleep(4000);
+
+                }
+            });
+            ct.Start();
+        }
+
+
     }
 }

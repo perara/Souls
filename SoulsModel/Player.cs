@@ -32,6 +32,8 @@ namespace Souls.Model
                     .Where(x => x.player.id == this.id)
                     .SingleOrDefault();
 
+                if (pLogin == null) return null;
+
                 return pLogin.hash;
             }
         }

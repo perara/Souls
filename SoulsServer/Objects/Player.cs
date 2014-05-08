@@ -52,6 +52,11 @@ namespace Souls.Server.Objects
             isBot = false;
         }
 
+        ~Player()  // destructor
+        {
+            Console.WriteLine("Destructing Player: " + id);
+        }
+
         public Player GetOpponent()
         {
             if (this.gPlayer.gameRoom.players.First.Equals(this))
@@ -64,7 +69,6 @@ namespace Souls.Server.Objects
             }
             return null;
         }
-
 
         public void ConstructGamePlayer(bool playerOne)
         {

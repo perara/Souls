@@ -52,6 +52,12 @@ namespace Souls.Server.Game
             watch.Start();
         }
 
+        ~GameRoom()  // destructor
+        {
+            Console.WriteLine("Destructing GameRoom: " + gameId);
+        }
+
+
         public void AddGamePlayers(Pair<Player> players)
         {
             this.players = players;
