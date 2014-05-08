@@ -292,6 +292,22 @@
 
     PlayerBase.prototype.CardAttack = function (jsonPlayerInfo, jsonOpponentInfo, attacker, defender) {
 
+        // Set the correct health
+        attacker.health = jsonPlayerInfo.health;
+        defender.health = jsonOpponentInfo.health;
+
+        // Check and set death
+        if (attacker.health <= 0) {
+            attacker.isDead = true // Sets the card dead
+            attacker.inSlot.Reset(); // Reset the card slot
+        }
+
+        if (defender.health <= 0) {
+            defender.isDead = true; // Sets the card dead
+            defender.inSlot.Reset(); // Resets the card slot
+
+        }
+
         var callbacks =
         {
             SetHealth: function () {
