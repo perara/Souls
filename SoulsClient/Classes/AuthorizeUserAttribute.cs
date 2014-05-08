@@ -9,7 +9,7 @@ using Souls.Model.Helpers;
 using NHibernate.Linq;
 using Souls.Model;
 
-namespace SoulsClient.Classes
+namespace Souls.Client.Classes
 {
     public class AuthorizeUserAttribute : AuthorizeAttribute
     {

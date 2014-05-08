@@ -17,6 +17,7 @@ namespace Souls.Model.Maps {
 			Map(x => x.text).Column("text").Not.Nullable();
 			Map(x => x.author).Column("author").Not.Nullable();
 			Map(x => x.date).Column("date").Not.Nullable();
+            Map(x => x.enabled).Column("enabled").Not.Nullable();
         }
     }
 }

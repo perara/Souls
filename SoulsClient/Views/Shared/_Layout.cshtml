@@ -37,17 +37,22 @@
 
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
 
+                    <li>@Html.ActionLink("Play Now!", "Index", "Game", new { area = "" }, null)</li>
 
-                    <!-- Game Dropdown-->
+                    <li>@Html.ActionLink("Shop", "Index", "Shop", new { area = "" }, null)</li>
+
+                    
+                    <!-- Admin Dropdown-->
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
-                            Game&nbsp;
+                            Admin&nbsp;
                             <i class="fa fa-angle-down pull-right"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            
-                            <li>@Html.ActionLink("Shop", "Index", "Shop", new { area = "" }, null)</li>
-                            <li>@Html.ActionLink("Play Now!", "Index", "Game", new { area = "" }, null)</li>
+                            <li>@Html.ActionLink("Players", "Players", "Admin", new { area = "" }, null)</li>
+                            <li>@Html.ActionLink("Games", "Games", "Admin", new { area = "" }, null)</li>
+                            <li>@Html.ActionLink("Card Editor", "CardEditor", "Admin", new { area = "" }, null)</li>
+                            <li>@Html.ActionLink("News Editor", "NewsEditor", "Admin", new { area = "" }, null)</li>
                         </ul>
                     </li>
 
@@ -63,18 +68,7 @@
                         }
                     </li>
 
-                    <!-- Admin Dropdown-->
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
-                            Admin&nbsp;
-                            <i class="fa fa-angle-down pull-right"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>@Html.ActionLink("Players", "Players", "Admin", new { area = "" }, null)</li>
-                            <li>@Html.ActionLink("Games", "Games", "Admin", new { area = "" }, null)</li>
-                            <li>@Html.ActionLink("Card Editor", "CardEditor", "Admin", new { area = "" }, null)</li>
-                        </ul>
-                    </li>
+                    
 
 
                 </ul>
