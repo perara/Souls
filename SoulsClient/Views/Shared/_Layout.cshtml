@@ -41,21 +41,26 @@
 
                     <li>@Html.ActionLink("Shop", "Index", "Shop", new { area = "" }, null)</li>
 
-                    
-                    <!-- Admin Dropdown-->
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
-                            Admin&nbsp;
-                            <i class="fa fa-angle-down pull-right"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>@Html.ActionLink("Players", "Players", "Admin", new { area = "" }, null)</li>
-                            <li>@Html.ActionLink("Games", "Games", "Admin", new { area = "" }, null)</li>
-                            <li>@Html.ActionLink("Card Editor", "CardEditor", "Admin", new { area = "" }, null)</li>
-                            <li>@Html.ActionLink("News Editor", "NewsEditor", "Admin", new { area = "" }, null)</li>
-                        </ul>
-                    </li>
+                    @if (Souls.Client.Classes.cSession.Current.player != null)
+                    {
+                        if (Souls.Client.Classes.cSession.Current.player.playerPermission.name == "Admin")
+                        {
 
+                    <!-- Admin Dropdown-->
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
+                                    Admin&nbsp;
+                                    <i class="fa fa-angle-down pull-right"></i>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>@Html.ActionLink("Players", "Players", "Admin", new { area = "" }, null)</li>
+                                    <li>@Html.ActionLink("Games", "Games", "Admin", new { area = "" }, null)</li>
+                                    <li>@Html.ActionLink("Card Editor", "CardEditor", "Admin", new { area = "" }, null)</li>
+                                    <li>@Html.ActionLink("News Editor", "NewsEditor", "Admin", new { area = "" }, null)</li>
+                                </ul>
+                            </li>
+                        }
+                    }
                     <!-- Log In/Out-->
                     <li>
                         @if (!Souls.Client.Classes.cSession.Current.isLogin())
@@ -68,7 +73,7 @@
                         }
                     </li>
 
-                    
+
 
 
                 </ul>
@@ -107,7 +112,7 @@
     </div>
 
 
-   
+
     <script>
         $('.page-wrapper').perfectScrollbar(
             {
