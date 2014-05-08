@@ -44,7 +44,7 @@ namespace SoulsClient.Controllers
         /// </summary>
         /// <param name="fullBodyWash">To only delete sampled users or also repopulate</param>
         /// <returns></returns>
-        public ActionResult SampleUsers(bool fullBodyWash)
+        public ActionResult SampleUsers(int fullBodyWash = 1)
         {
 
             using (var session = NHibernateHelper.OpenSession())
@@ -64,7 +64,7 @@ namespace SoulsClient.Controllers
                         transaction.Commit();
 
 
-                    if (!fullBodyWash)
+                    if (fullBodyWash == 0)
                         return RedirectToAction("Users");
 
 
