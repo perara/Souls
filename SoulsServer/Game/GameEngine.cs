@@ -452,6 +452,8 @@ namespace Souls.Server.Game
                 // Fetch cards from the CID's
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
                 Card targetCard = opponent.boardCards.FirstOrDefault(x => x.Value.cid == target).Value;
+                if (sourceCard == null || targetCard == null) return; // Client sends faulty data, ignore.
+
 
                 // Ignore if one of the card did not exist
                 if (sourceCard == null || targetCard == null) return;
@@ -531,7 +533,8 @@ namespace Souls.Server.Game
             {
                 // Do attack
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
-
+                if (sourceCard == null) return; // Client sends faulty data, ignore.
+                
                 // Ensure that the entity has not attacked this round
                 if (sourceCard.hasAttacked)
                 {
@@ -596,6 +599,7 @@ namespace Souls.Server.Game
             else if (type == 2) // Player on Card
             {
                 Card targetCard = opponent.boardCards.FirstOrDefault(x => x.Value.cid == target).Value;
+                if (targetCard == null) return; // Client sends faulty data, ignore.
 
                 // Ensure that the entity has not attacked this round
                 if (requestPlayer.hasAttacked)

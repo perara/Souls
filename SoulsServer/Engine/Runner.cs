@@ -24,9 +24,9 @@ namespace Souls.Server.Engine
     {
         static void Main(string[] args)
         {
-            if (args.Contains("debug"))
+            if (!args.Contains("debug"))
             {
-                int threadSleep = 500;
+                int threadSleep = 0;
 
                 if (args.Contains("delay"))
                     int.TryParse(args[1], out threadSleep);
@@ -44,7 +44,7 @@ namespace Souls.Server.Engine
         {
             Thread ct = new Thread(delegate()
             {
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
                 List<Souls.Model.Player> players = null;
                 using (var session = NHibernateHelper.OpenSession())
                 {
@@ -70,7 +70,7 @@ namespace Souls.Server.Engine
                     });
                     bThread.Start();
 
-                    Thread.Sleep(4000);
+                    //Thread.Sleep(4000);
 
                 }
             });

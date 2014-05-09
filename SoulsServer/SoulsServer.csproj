@@ -82,6 +82,7 @@
     <Compile Include="Objects\Abilities\Consume.cs" />
     <Compile Include="Objects\Abilities\Sacrifice.cs" />
     <Compile Include="Objects\AI.cs" />
+    <Compile Include="Objects\Bot.cs" />
     <Compile Include="Objects\ChatPlayer.cs" />
     <Compile Include="Network\Response.cs" />
     <Compile Include="Chat\ChatEngine.cs" />

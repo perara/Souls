@@ -216,11 +216,17 @@ namespace Souls.Server.Network
                 this.loggedIn = true;
 
             }
-            else // Did not successfully login, Closing (May be banned or it failed to fetch player)
+            else if (!success && !isBanned) // This happens whenever a player is not logged in!
             {
-                if (isBanned) Logging.Write(Logging.Type.ERROR, "Client: " + Context.UserEndPoint + " is [BANNED].");
-                SendTo(new Response(SERVICE_RESPONSE.LOGIN_BANNED, "You are banned!"));
+                SendTo(new Response(SERVICE_RESPONSE.LOGIN_NOT_LOGGED_IN, "Please Login!"));
                 this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "No Hash");
+            }
+            else if (isBanned) // This happens whenever a player is banned
+            {
+                Logging.Write(Logging.Type.ERROR, "Client: " + Context.UserEndPoint + " is [BANNED].");
+                SendTo(new Response(SERVICE_RESPONSE.LOGIN_BANNED, "Please Login!"));
+                this.Context.WebSocket.Close(WebSocketSharp.CloseStatusCode.Away, "Banned");
+
             }
 
         }

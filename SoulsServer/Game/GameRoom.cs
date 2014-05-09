@@ -252,20 +252,28 @@ namespace Souls.Server.Game
             player.gPlayer.gameRoom.isEnded = true;
             player.gPlayer = null;
             opponent.gPlayer = null;
+            Player trash;
 
-            foreach (var room in player.chPlayer.memberRooms)
+            if (player.chPlayer != null) // If chat failed to initate ignore! (Will be GCd automaticly.)
             {
-                ChatEngine.chatRooms.Remove(room.Key);
+                foreach (var room in player.chPlayer.memberRooms)
+                {
+                    ChatEngine.chatRooms.Remove(room.Key);
+                }
+
+                player.chPlayer.memberRooms.Clear();
+                Clients.GetInstance().chatList.TryRemove(player.chatContext, out trash);
             }
-            player.chPlayer.memberRooms.Clear();
-            opponent.chPlayer.memberRooms.Clear();
+
+            if (opponent.chPlayer != null) // If chat failed to initate ignore! (Will be GCd automaticly.)
+            {
+                opponent.chPlayer.memberRooms.Clear();
+                Clients.GetInstance().chatList.TryRemove(opponent.chatContext, out trash);
+            }
+
             player.chPlayer = null;
             opponent.chPlayer = null;
 
-
-            Player trash;
-            Clients.GetInstance().chatList.TryRemove(player.chatContext, out trash);
-            Clients.GetInstance().chatList.TryRemove(opponent.chatContext, out trash);
             Clients.GetInstance().gameList.TryRemove(player.gameContext, out trash);
             Clients.GetInstance().gameList.TryRemove(opponent.gameContext, out trash);
 

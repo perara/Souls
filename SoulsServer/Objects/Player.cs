@@ -174,8 +174,10 @@ namespace Souls.Server.Objects
         {
             using (var session = NHibernateHelper.OpenSession())
             {
+               
+
                 var banRecords = session.Query<PlayerBans>()
-                    .Where(x => x.player == this)
+                    .Where(x => x.player.id == this.id)
                     .ToList();
 
                 foreach(var ban in banRecords)

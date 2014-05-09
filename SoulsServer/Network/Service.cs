@@ -48,6 +48,7 @@ namespace Souls.Server.Network
         {
             userEndpoint = Context.UserEndPoint.ToString();
             Logging.Write(this.logType, "Client: " + Context.UserEndPoint + " connected.");
+            Console.WriteLine("Client: " + Context.UserEndPoint + " connected. (" + Clients.GetInstance().gameList.Count() + ")");
         }
 
         protected override void OnError(ErrorEventArgs e)
@@ -58,6 +59,7 @@ namespace Souls.Server.Network
         protected override void OnClose(CloseEventArgs e)
         {
             Logging.Write(this.logType, "Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
+            Console.WriteLine("Client: " + this.userEndpoint + " disconnected. Reason: " + e.Reason);
             CloseConnection();
 
             this.loggedIn = false;

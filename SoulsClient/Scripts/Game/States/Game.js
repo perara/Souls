@@ -55,11 +55,11 @@
             //this.chatSocket = new Socket("ws://hybel.keel.no:8140/chat");
 
             // Network for råtn host
-            //this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
-            //this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
+            this.gameSocket = new Socket("ws://tux.persoft.no:8140/game");
+            this.chatSocket = new Socket("ws://tux.persoft.no:8140/chat");
 
-            this.gameSocket = new Socket("ws://persoft.no:8140/game");
-            this.chatSocket = new Socket("ws://persoft.no:8140/chat");
+            //this.gameSocket = new Socket("ws://persoft.no:8140/game");
+            //this.chatSocket = new Socket("ws://persoft.no:8140/chat");
 
             
 

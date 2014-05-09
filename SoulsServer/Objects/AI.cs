@@ -19,31 +19,17 @@ namespace SoulsServer.Objects
         private WebSocket ws { get; set; }
         private WebSocket wschat { get; set; }
 
-        public string name { get; set; }
-
-        public List<Card> p_handCards { get; set; }
-
-        public ConcurrentDictionary<int, Card> p_boardCards { get; set; }
-
-        public List<int> e_handCards { get; set; }
-
-        public ConcurrentDictionary<int, Card> e_boardCards { get; set; }
-
         public int gameId { get; set; }
         public int round { get; set; }
         public int ident { get; set; }
         public bool yourTurn { get; set; }
 
-
+        public Bot p { get; set; }
+        public Bot opp { get; set; }
 
 
         public AI()
         {
-            this.p_handCards = new List<Card>();
-            this.p_boardCards = new ConcurrentDictionary<int, Card>();
-            this.e_boardCards = new ConcurrentDictionary<int, Card>();
-            this.e_handCards = new List<int>();
-
         }
 
 
@@ -82,12 +68,24 @@ namespace SoulsServer.Objects
 
         ~AI()  // destructor
         {
-            Console.WriteLine("Destructing BOT: " + name);
+            Console.WriteLine("Destructing BOT: " + p.name);
         }
 
 
         public void Progress(MessageEventArgs e)
         {
+            /* if (p != null && opp != null)
+             {
+                 Console.WriteLine("Player Board: " + string.Join(",", p.boardCards.Select(x => new { x.Key })));
+                 Console.WriteLine("Player Hand: " + string.Join(",", p.handCards.Select(x => new { x.Key })));
+                 Console.WriteLine("--------------------------------------------------------------------------");
+                 Console.WriteLine("Opponent Board: " + string.Join(",", opp.boardCards.Select(x => new { x.Key })));
+                 Console.WriteLine("Opponent Hand: " + string.Join(",", opp.handCards.Select(x => new { x.Key })));
+
+                 Console.WriteLine("--------------------------------------------------------------------------");
+                 Console.WriteLine("--------------------------------------------------------------------------");
+                 Console.WriteLine("--------------------------------------------------------------------------");
+             }*/
             // Process the JSON
             JObject pl = JObject.Parse(e.Data);
             var payload = pl["Payload"];
@@ -124,9 +122,94 @@ namespace SoulsServer.Objects
             {
                 ws.Close(CloseStatusCode.Away);
             }
+            else if (type == (int)GameService.GameResponseType.GAME_USE_ABILITY) // Ability
+            {
 
+                // TODO not covered completly!
+                int abilityType = int.Parse(payload["type"].ToString());
+                int ability = int.Parse(payload["abilityId"].ToString());
+                int src = int.Parse(payload["source"].ToString());
+                int tar = int.Parse(payload["target"].ToString());
+
+                Card c;
+                if (opp.boardCards.TryGetValue(src, out c))
+                {
+
+                    if (ability == 2)// Sacrifice
+                    {
+
+
+                        Card trash;
+                        opp.boardCards.TryRemove(c.cid, out trash);
+
+                        if (abilityType == 2)
+                        {
+                            opp.attack += c.attack;
+                            opp.health += c.health;
+                        }
+                        if (abilityType == 1)
+                        {
+                            Card target;
+                            if (opp.boardCards.TryGetValue(tar, out target))
+                            {
+                                target.attack += c.attack;
+                                target.health += c.health;
+
+
+                            }
+
+                        }
+                    }
+
+                    if (ability == 1) // Heal
+                    {
+
+                        if (abilityType == 1) // Card-->Card
+                        {
+                            Card target;
+                            if (opp.boardCards.TryGetValue(tar, out target))
+                            {
+
+                                target.health += c.health;
+
+
+                            }
+                        }
+                        else if (abilityType == 2) // CARD--> HERO
+                        {
+
+                            opp.health += c.health;
+                        }
+
+
+
+                    }
+                }
+
+
+            }
+
+
+            // Process The game
+            this.ProcessGame();
+
+            /* if (p != null && opp != null)
+             {
+                 Console.WriteLine("Player Board: " + string.Join(",", p.boardCards.Select(x => new { x.Key })));
+                 Console.WriteLine("Player Hand: " + string.Join(",", p.handCards.Select(x => new { x.Key })));
+                 Console.WriteLine("--------------------------------------------------------------------------");
+                 Console.WriteLine("Opponent Board: " + string.Join(",", opp.boardCards.Select(x => new { x.Key })));
+                 Console.WriteLine("Opponent Hand: " + string.Join(",", opp.handCards.Select(x => new { x.Key })));
+             }*/
 
         }
+
+        public void Request_Ability()
+        {
+
+        }
+
+
 
         private void Request_OppUseCard(JToken payload)
         {
@@ -139,19 +222,9 @@ namespace SoulsServer.Objects
             c.cid = cid;
             c.slotId = slotId;
 
-            this.e_handCards.Remove(cid);
-
-            if (this.e_boardCards.ContainsKey(slotId)) // WORKAROUND, this is because bot does not know if ability is used!
-            {
-                Card trash;
-                this.e_boardCards.TryRemove(slotId, out trash);
-
-            }
-
-
-
-            this.e_boardCards.TryAdd(slotId, c);
-
+            Card trash;
+            this.opp.handCards.TryRemove(cid, out trash);
+            this.opp.boardCards.TryAdd(cid, c);
 
             /************************************************************************/
             /* RESPONSE TYPE: 211
@@ -196,7 +269,7 @@ namespace SoulsServer.Objects
         {
             var cardValues = payload["card"].First();
             int cid = int.Parse(cardValues["cid"].ToString());
-            this.e_handCards.Add(cid);
+            this.opp.handCards.TryAdd(cid, null);
 
 
             /************************************************************************/
@@ -232,30 +305,32 @@ namespace SoulsServer.Objects
                 int oppCardHealth = int.Parse(opponentData["health"].ToString());
                 bool oppCardIsDead = bool.Parse(opponentData["isDead"].ToString());
 
-                // Do Stuff for player
-                Card pCard = p_boardCards.Where(x => x.Value.cid == pCardCid).FirstOrDefault().Value;
-                if (pCardIsDead)
-                {
-                    Card trash;
-                    this.p_boardCards.TryRemove(pCard.slotId, out trash);
-                }
-                else
+                // Get player's source card
+                Card pCard;
+                p.boardCards.TryGetValue(pCardCid, out pCard);
+                if (pCard != null)
                 {
                     pCard.health = pCardHealth;
+
+                    if (pCardIsDead)
+                    {
+                        Card trash;
+                        this.p.boardCards.TryRemove(pCard.cid, out trash);
+                    }
                 }
 
                 // Do stuff for opponent
-                Card oppCard = e_boardCards.Where(x => x.Value.cid == oppCardCid).FirstOrDefault().Value;
-                if (oppCardIsDead)
-                {
-                    Card trash;
-                    this.e_boardCards.TryRemove(oppCard.slotId, out trash);
-                }
-                else
+                Card oppCard;
+                opp.boardCards.TryGetValue(oppCardCid, out oppCard);
+                if (oppCard != null)
                 {
                     oppCard.health = oppCardHealth;
+                    if (oppCardIsDead)
+                    {
+                        Card trash;
+                        this.opp.boardCards.TryRemove(oppCard.cid, out trash);
+                    }
                 }
-
 
             }
 
@@ -289,16 +364,14 @@ namespace SoulsServer.Objects
         {
             var cardValues = payload["card"].First();
             int cardId = int.Parse(cardValues["id"].ToString());
+
             Card c = (Card)GameEngine.cards.Where(x => x.id == cardId).FirstOrDefault().Clone();
             c.isDead = bool.Parse(cardValues["isDead"].ToString());
             c.cid = int.Parse(cardValues["cid"].ToString());
             c.slotId = int.Parse(cardValues["slotId"].ToString());
             c.hasAttacked = bool.Parse(cardValues["hasAttacked"].ToString());
 
-
-            this.p_handCards.Add(c);
-
-
+            this.p.handCards.TryAdd(c.cid, c);
             // Response
             /************************************************************************/
             /*         {
@@ -335,8 +408,15 @@ namespace SoulsServer.Objects
         private void Request_NextTurn(JToken payload)
         {
 
+
+
             this.yourTurn = bool.Parse(payload["yourTurn"].ToString());
-            this.mana = int.Parse(payload["playerInfo"]["mana"].ToString());
+
+            p.health = int.Parse(payload["playerInfo"]["health"].ToString());
+            p.mana = int.Parse(payload["playerInfo"]["mana"].ToString());
+
+            opp.health = int.Parse(payload["opponentInfo"]["health"].ToString());
+            opp.mana = int.Parse(payload["opponentInfo"]["mana"].ToString());
 
             // TODO Set all parameters
             /************************************************************************/
@@ -366,12 +446,141 @@ namespace SoulsServer.Objects
         /// </summary>
         public void Request_CreateGame(JToken item)
         {
+            /************************************************************************/
+            /* {
+  "gameId": 2,
+  "round": 0,
+  "ident": 1,
+  "player": {
+    "info": {
+      "health": "30",
+      "attack": "3",
+      "mana": "3",
+      "name": "paul",
+      "type": "4"
+    },
+    "board": {},
+    "hand": {
+      "9": {
+        "isDead": false,
+        "cid": 9,
+        "slotId": 0,
+        "hasAttacked": false,
+        "id": 1,
+        "ability": {
+          "id": 1,
+          "name": "Heal",
+          "parameter": "0"
+        },
+        "race": {
+          "id": 4,
+          "name": "Ferocious",
+          "cardUrl": "/Content/Images/Card/Texture/ferocious.png"
+        },
+        "name": "Rhino",
+        "attack": 5,
+        "health": 7,
+        "armor": 3,
+        "cost": 6,
+        "vendor_price": 0,
+        "level": 0,
+        "portrait": null
+      },
+      "10": {
+        "isDead": false,
+        "cid": 10,
+        "slotId": 0,
+        "hasAttacked": false,
+        "id": 5,
+        "ability": {
+          "id": 1,
+          "name": "Heal",
+          "parameter": "0"
+        },
+        "race": {
+          "id": 4,
+          "name": "Ferocious",
+          "cardUrl": "/Content/Images/Card/Texture/ferocious.png"
+        },
+        "name": "Huy",
+        "attack": 3,
+        "health": 6,
+        "armor": 2,
+        "cost": 5,
+        "vendor_price": 0,
+        "level": 0,
+        "portrait": null
+      },
+      "11": {
+        "isDead": false,
+        "cid": 11,
+        "slotId": 0,
+        "hasAttacked": false,
+        "id": 2,
+        "ability": {
+          "id": 2,
+          "name": "Sacrifice",
+          "parameter": "0"
+        },
+        "race": {
+          "id": 3,
+          "name": "Lightbringer",
+          "cardUrl": "/Content/Images/Card/Texture/lightbringer.png"
+        },
+        "name": "Zebra",
+        "attack": 1,
+        "health": 1,
+        "armor": 1,
+        "cost": 2,
+        "vendor_price": 0,
+        "level": 0,
+        "portrait": null
+      }
+    }
+  },
+  "opponent": {
+    "info": {
+      "health": "30",
+      "attack": "1",
+      "mana": "1",
+      "name": "[BOT] Lisa",
+      "type": "1"
+    },
+    "board": {},
+    "hand": [
+      {
+        "cid": 12
+      },
+      {
+        "cid": 13
+      },
+      {
+        "cid": 14
+      }
+    ]
+  },
+  "create": true,
+  "yourTurn": true
+}                                                                     */
+            /************************************************************************/
+
+            p = new Bot();
+            p.attack = int.Parse(item["player"]["info"]["attack"].ToString());
+            p.name = item["player"]["info"]["name"].ToString();
+            p.mana = int.Parse(item["player"]["info"]["mana"].ToString());
+            p.health = int.Parse(item["player"]["info"]["health"].ToString());
+
+            opp = new Bot();
+            opp.attack = int.Parse(item["opponent"]["info"]["attack"].ToString());
+            opp.name = item["opponent"]["info"]["name"].ToString();
+            opp.mana = int.Parse(item["opponent"]["info"]["mana"].ToString());
+            opp.health = int.Parse(item["opponent"]["info"]["health"].ToString());
+
+            // General stuff
+            yourTurn = bool.Parse(item["yourTurn"].ToString()); ;
+            ident = int.Parse(item["ident"].ToString());
             gameId = int.Parse(item["gameId"].ToString());
             round = int.Parse(item["round"].ToString());
-            ident = int.Parse(item["ident"].ToString());
-            yourTurn = bool.Parse(item["yourTurn"].ToString());
-            mana = int.Parse(item["player"]["info"]["mana"].ToString());
-            health = int.Parse(item["player"]["info"]["health"].ToString());
 
 
             // Populate Player hand
@@ -379,10 +588,10 @@ namespace SoulsServer.Objects
             {
                 foreach (var hCard__ in hCard_)
                 {
-                    bool isDead = bool.Parse(hCard__["isDead"].ToString());
                     int cid = int.Parse(hCard__["cid"].ToString());
                     int slotId = int.Parse(hCard__["slotId"].ToString());
                     bool hasAttacked = bool.Parse(hCard__["hasAttacked"].ToString());
+                    bool isDead = bool.Parse(hCard__["isDead"].ToString());
                     int id = int.Parse(hCard__["id"].ToString());
 
                     Card c = (Card)GameEngine.cards.Where(x => x.id == id).FirstOrDefault().Clone();
@@ -391,7 +600,7 @@ namespace SoulsServer.Objects
                     c.slotId = slotId;
                     c.hasAttacked = hasAttacked;
 
-                    this.p_handCards.Add(c);
+                    this.p.handCards.TryAdd(c.cid, c);
                 }
             }
 
@@ -403,29 +612,11 @@ namespace SoulsServer.Objects
                     foreach (var hCard___ in hCard_)
                     {
                         int cid = int.Parse(hCard___.First().ToString());
-                        this.e_handCards.Add(cid);
+                        this.opp.handCards.TryAdd(cid, null);
                     }
 
                 }
             }
-
-
-
-            // Create game processing loop
-            Thread pollThread = new Thread(delegate()
-            {
-                while (true)
-                {
-                    Thread.Sleep(5000);
-                    this.ProcessGame();
-
-                }
-
-
-
-            });
-            pollThread.Start();
-
         }
 
 
@@ -434,22 +625,25 @@ namespace SoulsServer.Objects
             if (yourTurn)
             {
 
+
                 //////////////////////////////////////////////////////////////////////////
                 // Attempt to Use cards (Use All mana)
                 //////////////////////////////////////////////////////////////////////////
                 var rnd = new Random((int)DateTime.Now.Ticks); // Random for random list
-                foreach (Card c in p_handCards.OrderBy(x => rnd.Next()))
+                foreach (KeyValuePair<int, Card> kvp in p.handCards.OrderBy(x => rnd.Next()))
                 {
+                    var c = kvp.Value;
+
                     // Can afford to use the card
-                    if (this.mana - c.cost >= 0)
+                    if (p.mana - c.cost >= 0)
                     {
-                        this.mana -= c.cost; //Subtract mana
+                        p.mana -= c.cost; //Subtract mana
 
                         // Loop through all of the slots until a empty slot (Null) is found
                         for (int slot = 0; slot < 7; slot++)
                         {
 
-                            if (!p_boardCards.ContainsKey(slot))
+                            if (p.boardCards.Where(x => x.Value.slotId == slot).FirstOrDefault().Value == null)
                             {
                                 this.UseCard(c, slot);
                                 break;
@@ -480,26 +674,71 @@ namespace SoulsServer.Objects
 
         private void Attack()
         {
-            if (e_boardCards.Values.Count <= 0) return;
 
-            foreach (Card c in p_boardCards.Values)
+            foreach (Card c in p.boardCards.Values)
             {
+                bool attackPlayerDeterm = (new Random((int)DateTime.Now.Ticks).Next(0, 200) > 175 || opp.boardCards.Count == 0);
 
-                Random rnd = new Random();
-                int r = rnd.Next(e_boardCards.Values.Count);
 
-                Card oppC = e_boardCards.Values.ElementAt(r);
+                // Attack a card
+                if (!attackPlayerDeterm)
+                {
+                    int r = new Random((int)DateTime.Now.Ticks).Next(opp.boardCards.Values.Count);
 
-                this.SendTo(
-                    new Response(
-                        GameService.GameType.ATTACK,
-                        new JObject(
-                            new JProperty("source", c.cid),
-                            new JProperty("target", oppC.cid),
-                            new JProperty("type", 0 /*TODO*/))
-                            )
+                    Card oppC;
+                    try
+                    {
+                        oppC = opp.boardCards.Values.ElementAt(r);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("NO CARDS!? ");
+                        continue;
+                    }
 
-                   );
+                    Card trash;
+                    c.Attack(oppC);
+                    if (c.isDead)
+                        p.boardCards.TryRemove(c.cid, out trash);
+                    if (oppC.isDead)
+                        opp.boardCards.TryRemove(oppC.cid, out trash);
+
+
+                    this.SendTo(
+                      new Response(
+                          GameService.GameType.ATTACK,
+                          new JObject(
+                              new JProperty("source", c.cid),
+                              new JProperty("target", oppC.cid),
+                              new JProperty("type", 0 /*TODO*/))
+                              )
+                    );
+                }
+                else // Attack Player
+                {
+                    if (opp.health - c.attack >= 1)
+                    {
+                        Card trash;
+                        c.Attack(opp);
+                        if (c.isDead)
+                            p.boardCards.TryRemove(c.cid, out trash);
+
+
+
+                        this.SendTo(
+                         new Response(
+                             GameService.GameType.ATTACK,
+                             new JObject(
+                                 new JProperty("source", c.cid),
+                                 new JProperty("target", -1),
+                                 new JProperty("type", 1 /*TODO*/))
+                                 )
+                       );
+                    }
+                }
+
+
+                Thread.Sleep(200);
 
 
 
@@ -535,9 +774,10 @@ namespace SoulsServer.Objects
         /// <param name="slotId"></param>
         private void UseCard(Card c, int slotId)
         {
+            Card trash;
             c.slotId = slotId;
-            this.p_handCards.Remove(c);
-            this.p_boardCards.TryAdd(slotId, c);
+            this.p.handCards.TryRemove(c.cid, out trash);
+            this.p.boardCards.TryAdd(c.cid, c);
 
             this.SendTo(
                 new Response(
@@ -549,9 +789,5 @@ namespace SoulsServer.Objects
                     );
         }
 
-
-        public int health { get; set; }
-
-        public int mana { get; set; }
     }
 }

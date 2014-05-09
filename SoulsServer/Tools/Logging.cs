@@ -62,7 +62,9 @@ namespace Souls.Server.Tools
             var lineNumber = frame.GetFileLineNumber();
 
             write += message;
+#if (DEBUG)
             Console.WriteLine(fileName + ":" + lineNumber + "\t" + write);
+#endif
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.BackgroundColor = ConsoleColor.Black;
         }

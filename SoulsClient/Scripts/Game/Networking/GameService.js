@@ -302,11 +302,26 @@
         var payload = json.Payload;
 
         //"11", "12", "13", "14"
-
-        if (type == 14) // LOGIN_BANNED 
+        /*
+         *     LOGIN_NO_HASH = 11,
+       LOGIN_WRONG_HASH = 12,
+       LOGIN_NOT_LOGGED_IN = 13,
+       LOGIN_BANNED = 14,
+         */
+        if (type == 11 || type == 13) {
+            that.engine.queue.SetText("You are not logged in!");
+        }
+        else if (type == 12) {
+            that.engine.queue.SetText("Authentication Failure!");
+        }
+        else if (type == 14) // LOGIN_BANNED 
         {
             that.engine.queue.SetText("You are banned!");
         }
+
+
+
+
 
     }
 
