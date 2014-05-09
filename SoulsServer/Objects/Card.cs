@@ -36,13 +36,6 @@ namespace Souls.Server.Objects
             cid = ++Card.idCounter;
         }
 
-        public static Card toCard(string json)
-        {
-            //dynamic jsonCard = JsonConvert.DeserializeObject(json);
-            Card card = JSONHelper.Deserialize<Card>(json);
-            return card;
-        }
-
 
         // A card attacks another card (and lowering the hp by the amount of the defenders damage)
         public void Attack(Card defender)

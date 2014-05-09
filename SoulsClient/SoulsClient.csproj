@@ -133,10 +133,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\Uploads\" />
-    <Folder Include="Models\" />
-    <Folder Include="Views\Card\" />
-    <Folder Include="Views\News\" />
+    <Folder Include="Content\Images\Card\" />
+    <Folder Include="Scripts\Vendor\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -175,7 +173,6 @@
     <Compile Include="Classes\PlayerClass.cs" />
     <Compile Include="Classes\AuthorizeUserAttribute.cs" />
     <Compile Include="Controllers\AdminController.cs" />
-    <Compile Include="Controllers\APIController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CardController.cs" />
     <Compile Include="Controllers\GameController.cs" />
@@ -209,12 +206,41 @@
     <Content Include="Content\CSS\Shop.css" />
     <Content Include="Content\CSS\Vendor\perfect-scrollbar.min.css" />
     <Content Include="Content\Images\arena.jpg" />
-    <Content Include="Content\Images\Card\cardslot.jpg" />
-    <Content Include="Content\Images\Card\card_bg.jpg" />
-    <Content Include="Content\Images\Card\card_health.png" />
-    <Content Include="Content\Images\Card\dr_robot.png" />
-    <Content Include="Content\Images\rat.png" />
-    <Content Include="Content\Sound\fjopp.mp3" />
+    <Content Include="Content\Images\audio_off.png" />
+    <Content Include="Content\Images\audio_on.png" />
+    <Content Include="Content\Images\bg_faded.png" />
+    <Content Include="Content\Images\endturn.png" />
+    <Content Include="Content\Images\endturn_disabled.png" />
+    <Content Include="Content\Images\logo.png" />
+    <Content Include="Content\Images\NewsPosts\post1.png" />
+    <Content Include="Content\Images\NewsPosts\post2.png" />
+    <Content Include="Content\Images\NewsPosts\post3.png" />
+    <Content Include="Content\Images\normal_game.png" />
+    <Content Include="Content\Images\normal_game_focus.png" />
+    <Content Include="Content\Images\Page\bg.jpg" />
+    <Content Include="Content\Images\Page\hansel.png" />
+    <Content Include="Content\Images\Page\logo_black_glow.png" />
+    <Content Include="Content\Images\Page\start.png" />
+    <Content Include="Content\Images\Page\start_focus.png" />
+    <Content Include="Content\Images\particle.png" />
+    <Content Include="Content\Images\Player\beam.png" />
+    <Content Include="Content\Images\Player\opponent_frame.png" />
+    <Content Include="Content\Images\Player\player_frame.png" />
+    <Content Include="Content\Images\Player\player_mana.png" />
+    <Content Include="Content\Images\Player\player_none.png" />
+    <Content Include="Content\Images\Player\Portraits\0.png" />
+    <Content Include="Content\Images\Player\Portraits\1.png" />
+    <Content Include="Content\Images\Player\Portraits\16.png" />
+    <Content Include="Content\Images\Player\Portraits\2.png" />
+    <Content Include="Content\Images\Player\Portraits\3.png" />
+    <Content Include="Content\Images\Player\Portraits\4.png" />
+    <Content Include="Content\Images\Player\Portraits\5.png" />
+    <Content Include="Content\Images\Player\Portraits\6.png" />
+    <Content Include="Content\Images\practice_game.png" />
+    <Content Include="Content\Images\practice_game_focus.png" />
+    <Content Include="Content\Images\queue.jpg" />
+    <Content Include="Content\Images\target.png" />
+    <Content Include="Content\Images\target_old.png" />
     <Content Include="Content\style.css" />
     <Content Include="Content\themes\base\images\animated-overlay.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -281,7 +307,6 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
-    <Content Include="Scripts\app.js" />
     <Content Include="Content\CSS\Game.css" />
     <Content Include="Content\ArchivoBlack-Regular.otf" />
     <Content Include="Scripts\bootstrap.js" />
@@ -626,7 +651,6 @@
     <Content Include="Scripts\ckeditor\skins\moono\images\lock.png" />
     <Content Include="Scripts\ckeditor\skins\moono\images\refresh.png" />
     <Content Include="Scripts\ckeditor\styles.js" />
-    <Content Include="Scripts\easeljs-0.7.1.min.js" />
     <Content Include="Scripts\Game\Main.js" />
     <Content Include="Scripts\Game\Networking\NetworkBase.js" />
     <Content Include="Scripts\Game\Objects\Environment\AudioButton.js" />
@@ -690,29 +714,31 @@
     <Content Include="Scripts\ckeditor\composer.json" />
     <Content Include="Scripts\ckeditor\CHANGES.md" />
     <Content Include="Scripts\ckeditor\bower.json" />
+    <Content Include="Content\Images\Page\bg1.psd" />
+    <Content Include="Content\Sound\ability_heal.ogg" />
+    <Content Include="Content\Sound\ability_sacrifice.ogg" />
+    <Content Include="Content\Sound\attack_1.ogg" />
+    <Content Include="Content\Sound\background-music.ogg" />
+    <Content Include="Content\Sound\card_mount.ogg" />
+    <Content Include="Content\Sound\chat_message.ogg" />
+    <Content Include="Content\Sound\defend_1.ogg" />
+    <Content Include="Content\Sound\fjopp.ogg" />
+    <Content Include="Content\Sound\menu.ogg" />
+    <Content Include="Content\Sound\scroll.ogg" />
     <None Include="Scripts\jquery-1.11.0.intellisense.js" />
     <Content Include="Scripts\jquery-1.11.0.js" />
     <Content Include="Scripts\jquery-1.11.0.min.js" />
     <Content Include="Scripts\jquery-ui-1.10.4.js" />
     <Content Include="Scripts\jquery-ui-1.10.4.min.js" />
-    <Content Include="Scripts\jquery.dialogextend.min.js" />
-    <Content Include="Scripts\jquery.ui.touch-punch.js" />
     <Content Include="Scripts\jssor.slider.mini.js" />
     <Content Include="Scripts\modernizr-2.7.2.js" />
     <Content Include="Scripts\Page\perfect-scrollbar.min.js" />
-    <Content Include="Scripts\pixi.dev.js" />
-    <Content Include="Scripts\pixi.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
-    <Content Include="Scripts\soundjs-0.5.2.min.js" />
-    <Content Include="Scripts\stats.min.js" />
-    <Content Include="Scripts\stopwatch.js" />
-    <Content Include="Scripts\tweenjs-0.5.1.min.js" />
-    <Content Include="Scripts\WebSocketClient.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -738,7 +764,6 @@
     <Content Include="Scripts\jquery-1.11.0.min.map" />
     <Content Include="Views\Shop\Index.cshtml" />
     <Content Include="Views\Shared\Partials\Player.cshtml" />
-    <Content Include="Views\Home\Old.cshtml" />
     <Content Include="Views\Shared\Partials\Github.cshtml" />
     <Content Include="Views\Game\Stats.cshtml" />
     <Content Include="Views\Shared\Partials\Services.cshtml" />
@@ -748,12 +773,10 @@
     <Content Include="Views\Admin\Games.cshtml" />
     <Content Include="Views\Admin\Players.cshtml" />
     <Content Include="Views\Player\Register.cshtml" />
-    <Content Include="Views\Admin\View1.cshtml" />
     <Content Include="Views\Admin\NewsEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -7,16 +7,16 @@ require.config({
         // Third party
         "jquery": "/Scripts/jquery-1.11.0.min",
         "jqueryUI": "/Scripts/jquery-ui-1.10.4.min",
-        "jquery.dialogExtend": "/Scripts/jquery.dialogextend.min",
+        "jquery.dialogExtend": "/Scripts/Game/Vendor/jquery.dialogextend.min",
 
 
-        "pixi": "/Scripts/pixi.dev", // PIXI.js
-        "tweenjs": "/Scripts/tweenjs-0.5.1.min",
-        "easeljs": "/Scripts/easeljs-0.7.1.min",
-        "soundjs": "/Scripts/soundjs-0.5.2.min",
+        "pixi": "/Scripts/Game/Vendor/pixi.dev", // PIXI.js
+        "tweenjs": "/Scripts/Game/Vendor/tweenjs-0.5.1.min",
+        "easeljs": "/Scripts/Game/Vendor/easeljs-0.7.1.min",
+        "soundjs": "/Scripts/Game/Vendor/soundjs-0.5.2.min",
 
-        "stats": "/Scripts/stats.min",
-        "stopwatch": "/Scripts/stopwatch",
+        "stats": "/Scripts/Game/Vendor/stats.min",
+        "stopwatch": "/Scripts/Game/Vendor/stopwatch",
 
         // Toolbox - General Tools
         "toolbox": "Toolbox/Toolbox",
