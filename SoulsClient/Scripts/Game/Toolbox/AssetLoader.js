@@ -130,16 +130,16 @@
 
         Asset.prototype.Sound =
             {
-                CARD_PICKUP: Asset.Path.Sound + "fjopp.mp3",
-                CARD_MOUNT: Asset.Path.Sound + "card_mount.mp3",
-                END_TURN: Asset.Path.Sound + "scroll.mp3",
-                ATTACK_1: Asset.Path.Sound + "attack_1.mp3",
-                DEFEND_1: Asset.Path.Sound + "defend_1.mp3",
-                CHAT_MESSAGE: Asset.Path.Sound + "chat_message.mp3",
-                GAME_MUSIC: Asset.Path.Sound + "background-music.mp3",
-                MENU: Asset.Path.Sound + "menu.mp3",
-                ABILITY_SACRIFICE: Asset.Path.Sound + "ability_sacrifice.mp3",
-                ABILITY_HEAL: Asset.Path.Sound + "ability_heal.mp3"
+                CARD_PICKUP: Asset.Path.Sound + "fjopp.ogg",
+                CARD_MOUNT: Asset.Path.Sound + "card_mount.ogg",
+                END_TURN: Asset.Path.Sound + "scroll.ogg",
+                ATTACK_1: Asset.Path.Sound + "attack_1.ogg",
+                DEFEND_1: Asset.Path.Sound + "defend_1.ogg",
+                CHAT_MESSAGE: Asset.Path.Sound + "chat_message.ogg",
+                GAME_MUSIC: Asset.Path.Sound + "background-music.ogg",
+                MENU: Asset.Path.Sound + "menu.ogg",
+                ABILITY_SACRIFICE: Asset.Path.Sound + "ability_sacrifice.ogg",
+                ABILITY_HEAL: Asset.Path.Sound + "ability_heal.ogg"
             }
 
         Asset.prototype.GetTexture = function (texture) {

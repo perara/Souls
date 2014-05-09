@@ -11,6 +11,8 @@ using System.Threading;
 using Souls.Server.Game;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Net;
+using System.Diagnostics;
 
 namespace SoulsServer.Objects
 {
@@ -32,27 +34,13 @@ namespace SoulsServer.Objects
         {
         }
 
-
-        public void Connect(string hash = "BOT")
+        public void Login(string hash)
         {
-            ws = new WebSocket("ws://localhost:8140/game");
-
-            ws.OnMessage += (sender, e) =>
-                this.Progress(e);
-            ws.Connect();
-
-            wschat = new WebSocket("ws://localhost:8140/chat");
-
-            wschat.OnMessage += (sender, e) =>
-                this.Progress(e);
-
-            wschat.Connect();
-
             this.SendTo(
-               new Response(
-                   GameService.SERVICE.LOGIN,
-                           new JObject(new JProperty("hash", hash)))
-                   );
+            new Response(
+                GameService.SERVICE.LOGIN,
+                        new JObject(new JProperty("hash", hash)))
+                );
 
             this.SendTo(
                 new Response(
@@ -66,14 +54,58 @@ namespace SoulsServer.Objects
 
         }
 
+
+        public void Connect(string hash = "BOT")
+        {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
+            ws = new WebSocket("ws://localhost:8140/game");
+
+
+            ws.OnMessage += (sender, e) =>
+                this.Progress(e);
+
+            ws.OnError += (sender, e) =>
+                Console.WriteLine("Stopwatch: " + watch.ElapsedMilliseconds);
+
+            ws.OnClose += (sender, e) =>
+                Console.WriteLine("Stopwatch: " + watch.ElapsedMilliseconds);
+
+            ws.Connect();
+            this.Login(hash);
+
+
+
+
+            wschat = new WebSocket("ws://localhost:8140/chat");
+
+            wschat.OnMessage += (sender, e) =>
+                this.ChatProgress(e);
+
+
+
+            wschat.Connect();
+
+        }
+
         ~AI()  // destructor
         {
             Console.WriteLine("Destructing BOT: " + p.name);
         }
 
+        public void ChatProgress(MessageEventArgs e)
+        {
+            if (wschat.ReadyState == WebSocketState.Open)
+                wschat.Send(new Response(Client.SERVICE.HEARTBEAT, new JObject(
+                    new JProperty("heartbeat", DateTime.Now.Ticks),
+                    new JProperty("last", DateTime.Now.Millisecond))).ToJSON());
+        }
 
         public void Progress(MessageEventArgs e)
         {
+
+
             /* if (p != null && opp != null)
              {
                  Console.WriteLine("Player Board: " + string.Join(",", p.boardCards.Select(x => new { x.Key })));

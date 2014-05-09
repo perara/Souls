@@ -234,7 +234,7 @@ namespace Souls.Server.Game
                 using (var transaction = session.BeginTransaction())
                 {
 
-                    foreach (var i in records)
+                    foreach (var i in new List<GameLog>(records))
                     {
                         i.game.id = gameRoom.gameId;
                         session.Save(i);

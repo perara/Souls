@@ -53,7 +53,7 @@ namespace Souls.Server.Engine
 
                 }
 
-                foreach (var p in players)
+                foreach (var p in players.GetRange(0,2))
                 {
 
                     if (p.name == "BOT") continue;

@@ -130,6 +130,12 @@ namespace Souls.Server.Network
                     HeartBeat();
                     break;
             }
+
+            this.SendTo(new Response(Client.SERVICE_RESPONSE.HEARTBEAT_REPLY, 
+                new JObject(
+                    new JProperty("heartbeat", DateTime.Now.Ticks),
+                    new JProperty("last", DateTime.Now.Millisecond)
+                ))) ;
         }
 
         public override void Login()

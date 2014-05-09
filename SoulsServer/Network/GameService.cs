@@ -107,6 +107,9 @@ namespace Souls.Server.Network
 
             if (this.loggedIn)
             {
+                if (!(Clients.GetInstance().gameList.ContainsKey(this))) return; // Error on client side
+
+
                 switch ((GameType)type)
                 {
                     // GAME LOGIC REQUESTS
