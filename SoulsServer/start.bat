@@ -1,1 +1,1 @@
-start /d "%~dp0SoulsServer\bin\Release" SoulsServer.exe
+start /d "%~dp0bin\Release" SoulsServer.exe
