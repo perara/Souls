@@ -1,1 +1,1 @@
-taskkill /IM SoulsServer.exe
+taskkill /F /IM SoulsServer.exe
