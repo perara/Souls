@@ -123,7 +123,7 @@
             }
             if (text.cost || text.cost == 0) {
                 this.cost = text.cost;
-                this.texts.cost.setText(this.cid/*text.cost*/);
+                this.texts.cost.setText(text.cost);
             }
             if (text.ability) {
                 this.ability = text.ability;
