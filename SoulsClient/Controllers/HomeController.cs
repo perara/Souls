@@ -31,7 +31,7 @@ namespace SoulsClient.Controllers
         {
             // Check connectivity to services
             bool gameService = Toolkit.PingHost("localhost", 8140);
-            bool mySql = Toolkit.PingHost("localhost", 6001);
+            bool mySql = Toolkit.PingHost("localhost", 3306);
             Dictionary<string, bool> services = new Dictionary<string, bool>();
             services.Add("Game Server: ", gameService);
             services.Add("Database: ", mySql);

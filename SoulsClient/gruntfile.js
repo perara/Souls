@@ -26,7 +26,13 @@ module.exports = function(grunt) {
 		},
 		clean: {
 			build: {
-				src: ["Scripts/<%= pkg.name %>.js", "Scripts/Game/**"],
+				src: [
+				"Scripts/<%= pkg.name %>.js", 
+				"Scripts/Game/Client",
+				"Scripts/Game/Networking",
+				"Scripts/Game/States",
+				"Scripts/Game/Toolbox",
+				"Scripts/Game/Main.js"],
 			}
 		},
 		jshint: {
