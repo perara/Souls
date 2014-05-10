@@ -24,6 +24,11 @@ module.exports = function(grunt) {
 				dest: 'Scripts/<%= pkg.name %>.min.js'
 			}
 		},
+		clean: {
+			build: {
+				src: ["Scripts/<%= pkg.name %>.js", "Scripts/Game/**"],
+			}
+		},
 		jshint: {
 			// define the files to lint
 			files: ['gruntfile.js', 'Scripts/Game/**/*.js'],
@@ -46,6 +51,6 @@ module.exports = function(grunt) {
 	//grunt.loadNpmTasks('grunt-contrib-jshint');
 
 	// Default task(s).
-	grunt.registerTask('default', ['concat', 'uglify']);
+	grunt.registerTask('default', ['concat', 'uglify','clean']);
 	
 };
