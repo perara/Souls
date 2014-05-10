@@ -114,7 +114,7 @@ namespace Souls.Server.Game
                 {
                     bool matchMaked = GameQueue.GetInstance().MatchPlayersNormal(Callback_CreateGame);
                     bool matchMaked2 = GameQueue.GetInstance().MatchPlayersPractice(Callback_CreateGame);
-                    Console.WriteLine("\t\t\t\t\t\t\t\tQueue: " + GameQueue.GetInstance().normalQueue.Count());
+                    Console.WriteLine("\t\t\t\t\t\t\t Online: " + Clients.GetInstance().gameList.Count + "| Queue: " + GameQueue.GetInstance().normalQueue.Count());
 
                     Thread.Sleep(5000);
                 }
@@ -534,7 +534,7 @@ namespace Souls.Server.Game
                 // Do attack
                 Card sourceCard = requestPlayer.boardCards.FirstOrDefault(x => x.Value.cid == source).Value;
                 if (sourceCard == null) return; // Client sends faulty data, ignore.
-                
+
                 // Ensure that the entity has not attacked this round
                 if (sourceCard.hasAttacked)
                 {

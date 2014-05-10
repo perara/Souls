@@ -116,7 +116,7 @@ namespace Souls.Server.Network
             wssv.AddWebSocketService<ChatService>("/chat", () => new ChatService(chatEngine));
             wssv.AddWebSocketService<AdminService>("/admin", () => new AdminService(gameEngine, chatEngine));
             wssv.Log.Level = LogLevel.Fatal;
-
+            wssv.KeepClean = false;
             wssv.Start();
 
             Console.ReadKey(true);

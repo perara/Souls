@@ -68,7 +68,7 @@ namespace SoulsClient.Controllers
                         return RedirectToAction("Players");
 
 
-                    for (int i = 0; i < 50; i++)
+                    for (int i = 0; i < 200; i++)
                     {
                         Player p = new Player();
                         p.money = new Random().Next(0, 10000);
@@ -110,7 +110,7 @@ namespace SoulsClient.Controllers
 
 
 
-            return RedirectToAction("Users");
+            return RedirectToAction("Players");
         }
 
 

@@ -102,9 +102,6 @@ namespace Souls.Server.Network
 
         public override void Process()
         {
-
-
-
             if (this.loggedIn)
             {
                 if (!(Clients.GetInstance().gameList.ContainsKey(this))) return; // Error on client side

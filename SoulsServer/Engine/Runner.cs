@@ -24,7 +24,7 @@ namespace Souls.Server.Engine
     {
         static void Main(string[] args)
         {
-            if (!args.Contains("debug"))
+            if (args.Contains("debug"))
             {
                 int threadSleep = 0;
 
@@ -53,7 +53,7 @@ namespace Souls.Server.Engine
 
                 }
 
-                foreach (var p in players.GetRange(0,2))
+                foreach (var p in players)
                 {
 
                     if (p.name == "BOT") continue;
@@ -70,7 +70,7 @@ namespace Souls.Server.Engine
                     });
                     bThread.Start();
 
-                    //Thread.Sleep(4000);
+                    Thread.Sleep(1000);
 
                 }
             });
