@@ -31,6 +31,7 @@ module.exports = function(grunt) {
 				"Scripts/Game/Client",
 				"Scripts/Game/Networking",
 				"Scripts/Game/States",
+				"Scripts/Game/Objects",
 				"Scripts/Game/Toolbox",
 				"Scripts/Game/Main.js"],
 			}
