@@ -286,6 +286,7 @@ namespace SoulsClient.Controllers
                         p.name = username;
                         p.password = Toolkit.sha256_hash(password);
                         p.rank = 1;
+                        p.playerPermission = session.Query<PlayerPermission>().Where(x => x.id == 1).FirstOrDefault();
                         p.created = DateTime.Now;
                         p.playerType = session.Query<PlayerType>().Where(x => x.id == int.Parse(type)).FirstOrDefault();
                         session.Save(p);
