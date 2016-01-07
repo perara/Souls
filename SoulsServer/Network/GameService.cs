@@ -102,6 +102,9 @@ namespace Souls.Server.Network
 
         public override void Process()
         {
+
+            var data = this.payload;
+
             if (this.loggedIn)
             {
                 if (!(Clients.GetInstance().gameList.ContainsKey(this))) return; // Error on client side
@@ -159,6 +162,8 @@ namespace Souls.Server.Network
         /// <param name="context">The user's connection context</param>
         public override void Login()
         {
+
+
             string hash = this.payload["hash"].ToString();
 
             //////////////////////////////////////////////////////////////////////////

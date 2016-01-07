@@ -58,8 +58,8 @@
             this.gameSocket = new Socket("ws://persoft.no:8140/game");
             this.chatSocket = new Socket("ws://persoft.no:8140/chat");
 
-            //this.gameSocket = new Socket("ws://persoft.no:8140/game");
-            //this.chatSocket = new Socket("ws://persoft.no:8140/chat");
+            //this.gameSocket = new Socket("ws://localhost:8140/game");
+            //this.chatSocket = new Socket("ws://localhost:8140/chat");
 
             
 

@@ -34,8 +34,12 @@ namespace Souls.Model.Helpers
 
             return Fluently.Configure()
                 .Database(MySQLConfiguration.Standard
-                .ConnectionString(@"Server=localhost;Port=3306;Database=souls;Uid=root;Pwd=root;"))
-                .Mappings(m => m.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
+                .ConnectionString(@"Server=db.hgsd.persoft.lan;Port=3306;Database=souls;Uid=souls;Pwd=souls;"))
+                .Mappings(
+                    m => m.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly())
+
+                )
+                .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
                 .BuildSessionFactory();
 
 

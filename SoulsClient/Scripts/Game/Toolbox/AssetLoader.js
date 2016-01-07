@@ -14,9 +14,13 @@
 
         Asset.prototype.PreLoad = function (onProgressCallback, onCompleteCallBack) {
 
-            var contentArray = new Array()
+            var contentArray = new Array();
             for (var key in Asset.prototype.Textures) {
-                contentArray.push(Asset.prototype.Textures[key]);
+                if (Asset.prototype.Textures.hasOwnProperty(key)) {
+                    if (Asset.prototype.Textures[key] !== null) {
+                        contentArray.push(Asset.prototype.Textures[key]);
+                    }          
+                }
             }
 
             var loader = new Pixi.AssetLoader(contentArray)
